@@ -9,6 +9,8 @@
 #include "Components/WidgetComponent.h"
 #include "CodeEditor.h"
 #include "Components/MultiLineEditableText.h"
+#include "Camera/CameraComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -31,6 +33,28 @@ void AEcmaCharacter::BeginPlay()
 	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	Gun->SetOwner(this);
+
+	//get camera
+	UActorComponent* Actor = GetComponentByClass(UCameraComponent::StaticClass());
+	if (!Actor)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find camera component"))
+	}
+	else
+	{
+		Camera = Cast<UCameraComponent>(Actor);
+		if (!Camera)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Cast to camera failed."))
+		}
+	}
+
+	//get controller
+	Controller = GetController();
+	if (!Controller)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find player controller."))
+	}
 }
 
 bool AEcmaCharacter::IsDead() const
@@ -47,7 +71,7 @@ float AEcmaCharacter::GetHealthPercent() const
 void AEcmaCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	LockOnCameraRotate(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -280,6 +304,37 @@ void AEcmaCharacter::ChangeTarget()
 	// if logic get to here, player has target and another is in range
 	TargetNext();
 	return;
+}
+
+void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
+{
+	if (CurrentTarget)
+	{
+		// get current target location
+		FVector TargetLocation = CurrentTarget->GetActorLocation();
+
+		// get the camera
+		FVector CameraLocation = Camera->GetComponentLocation();
+
+		// get current rotations
+		FRotator ControlRotation = Controller->GetControlRotation();
+
+		// get desired rotation
+		FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(CameraLocation, TargetLocation);
+		
+		// get interpolation to desired rotation
+		FRotator Interpolation = FMath::RInterpTo(ControlRotation, Rotation, DeltaTime, 8.0);
+
+		// create rotator using x and y from control and z from interpolation
+		FRotator NewRotation = FRotator(
+			ControlRotation.Pitch,
+			Interpolation.Yaw,
+			ControlRotation.Roll
+		);
+
+		Controller->SetControlRotation(NewRotation);
+	}
+	
 }
 
 void AEcmaCharacter::Interact()
