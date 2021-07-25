@@ -9,6 +9,7 @@
 class UMultiLineEditableText;
 class AHttpService;
 class AInteractable;
+class URichTextBlock;
 
 /**
  * 
@@ -24,13 +25,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UMultiLineEditableText* TextInput;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	URichTextBlock* SyntaxHighlight;
+
 	UFUNCTION()
 	void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
 
-	//FEventReply OnPreviewKeyDown(FGeometry MyGeometry, FKeyEvent InKeyEvent);
+	// catch keyboard presses before text input handles them
 	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
-	void DrawTargetPointer();
+	virtual FReply NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) override;
 
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 

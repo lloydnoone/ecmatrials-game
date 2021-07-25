@@ -4,6 +4,7 @@
 #include "CodeEditor.h"
 #include "Components/MultiLineEditableText.h"
 #include "Components/EditableText.h"
+#include "Components/RichTextBlock.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "HttpService.h"
@@ -17,6 +18,12 @@ bool UCodeEditor::Initialize()
 	if (!TextInput)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TextInput is nullptr"));
+		return false;
+	}
+
+	if (!SyntaxHighlight)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SyntaxHighlight is nullptr"));
 		return false;
 	}
 
@@ -73,8 +80,47 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 		return FReply::Handled();
 	};
 
+	////use the key if its a letter
+	//FString Letter = InKeyEvent.GetKey().ToString();
+	//if (Letter.Len() == 1)
+	//{
+	//	// if shift then upper, if not, lower
+	//	if (InKeyEvent.IsLeftShiftDown() || InKeyEvent.IsRightShiftDown())
+	//	{
+	//		Letter.ToUpperInline();
+	//	}
+	//	else
+	//	{
+	//		Letter.ToLowerInline();
+	//	}
+	//}
+	//else
+	//{
+	//	//if not a letter, just update to latest input
+	//	SyntaxHighlight->SetText(TextInput->GetText());
+	//	return  FReply::Unhandled();
+	//}
+
+	//// add current letter to end of old string
+	//FString String = TextInput->GetText().ToString() + Letter;
+	//FText Text = FText::FromString(String);
+
+	////set text and latest character for syntax highlighting
+	//SyntaxHighlight->SetText(Text);
+
 	return  FReply::Unhandled();
 }
+
+FReply UCodeEditor::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
+{
+	UE_LOG(LogTemp, Warning, TEXT("from text input: %s"), InCharEvent.GetCharacter());
+
+	return  FReply::Unhandled();
+}
+
+//FString String = TextInput->GetText().ToString() + InCharEvent.GetCharacter();
+//FText Text = FText::FromString(String);
+//SyntaxHighlight->SetText(Text);
 
 void UCodeEditor::SetOwningInteractable(AInteractable* Interactable)
 {
@@ -103,6 +149,13 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 	FVector2D ScreenStart = TextInput->GetCachedGeometry().GetLocalPositionAtCoordinates(FVector2D(1.f, 0.f));
 	UWidgetBlueprintLibrary::DrawLine(Context, ScreenStart, InteractableLocation, FLinearColor::White, true, 2.0f);
+
+	FString RawInputText = TextInput->GetText().ToString();
+	FString FormattedString = RawInputText.Replace(TEXT("const"), TEXT("<const>const</>"));
+	FText Text = FText::FromString(FormattedString);
+
+	//update syntax highlighter to latest
+	SyntaxHighlight->SetText(Text);
 
 	return LayerId;
 }
