@@ -34,6 +34,16 @@
 //};
 
 USTRUCT()
+struct FError_PostCode {
+	GENERATED_BODY()
+	UPROPERTY() FString message;
+	UPROPERTY() FString name;
+	UPROPERTY() FString stack;
+
+	FError_PostCode() {}
+};
+
+USTRUCT()
 struct FRequest_PostCode {
 	GENERATED_BODY()
 	UPROPERTY() FString snippet;
@@ -45,9 +55,12 @@ USTRUCT()
 struct FResponse_PostCode {
 	GENERATED_BODY()
 	UPROPERTY() FString message;
+	UPROPERTY() FError_PostCode error;
 
 	FResponse_PostCode() {}
 };
+
+class UCodeEditor;
 
 
 UCLASS(Blueprintable)
@@ -56,6 +69,7 @@ class ECMATRIALS_API AHttpService : public AActor
 	GENERATED_BODY()
 	
 private:
+	UCodeEditor* CodeEditor; // a reference to the editor that made a request
 	FHttpModule* Http; // Holds a reference to UE4's Http implementation. It's used to create request objects.
 	FString ApiBaseUrl = "https://www.ecmatrials.com/api/";
 
@@ -86,6 +100,6 @@ public:
 	/*void Login(FRequest_Login LoginCredentials);
 	void LoginResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);*/
 
-	void PostCode(FRequest_PostCode Code);
+	void PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor);
 	void PostCodeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

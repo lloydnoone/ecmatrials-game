@@ -7,9 +7,11 @@
 #include "CodeEditor.generated.h"
 
 class UMultiLineEditableText;
+class UTextBlock;
 class AHttpService;
 class AInteractable;
 class URichTextBlock;
+struct FResponse_PostCode;
 
 /**
  * 
@@ -28,26 +30,38 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	URichTextBlock* SyntaxHighlight;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* ResponseOutput;
+
+	// get access to this anim to trigger in C++
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* SlideIn;
+
 	UFUNCTION()
 	void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
 
 	// catch keyboard presses before text input handles them
 	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
-	virtual FReply NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) override;
+	// virtual FReply NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent) override;
 
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
 	void SetOwningInteractable(AInteractable* Interactable);
 
+	void ReceiveResponse(FResponse_PostCode Response);
+
 private:
+
+	FString ErrorString = "";
+
 	AHttpService* HttpService;
 
 	AInteractable* OwningInteractable;
 
 	void GetHttpService();
 
-	//code below was an attempt to fire off onsubmittext, mighht be usefull
+	//code below was an attempt to fire off onsubmittext, might be usefull
 
 	//UPROPERTY(meta = (BindWidget))
 	//class UMultiLineEditableText* MultiLineEditableText_OUT;

@@ -5,11 +5,14 @@
 #include "Components/MultiLineEditableText.h"
 #include "Components/EditableText.h"
 #include "Components/RichTextBlock.h"
+#include "Components/TextBlock.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "HttpService.h"
 #include "Interactable.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+
+#define LOCTEXT_NAMESPACE "EcmaTrials"
 
 bool UCodeEditor::Initialize()
 {
@@ -18,6 +21,12 @@ bool UCodeEditor::Initialize()
 	if (!TextInput)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TextInput is nullptr"));
+		return false;
+	}
+
+	if (!ResponseOutput)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ResponseOutput is nullptr"));
 		return false;
 	}
 
@@ -66,7 +75,7 @@ void UCodeEditor::DelegateCommitInputText(const FText& InText, ETextCommit::Type
 
 	FRequest_PostCode PostCode;
 	PostCode.snippet = InText.ToString();
-	HttpService->PostCode(PostCode);
+	HttpService->PostCode(PostCode, this);
 }
 
 //catch input before its sent to textinput
@@ -111,12 +120,12 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 	return  FReply::Unhandled();
 }
 
-FReply UCodeEditor::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
-{
-	UE_LOG(LogTemp, Warning, TEXT("from text input: %s"), InCharEvent.GetCharacter());
-
-	return  FReply::Unhandled();
-}
+//FReply UCodeEditor::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("from text input: %s"), InCharEvent.GetCharacter());
+//
+//	return  FReply::Unhandled();
+//}
 
 //FString String = TextInput->GetText().ToString() + InCharEvent.GetCharacter();
 //FText Text = FText::FromString(String);
@@ -135,6 +144,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 		return LayerId;
 	}
 
+	// draw line from widget to actor
 	FVector2D InteractableLocation;
 
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
@@ -144,20 +154,51 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 		false
 	);
 
+	// get widget geometry
 	FVector2D ScreenEnd = TextInput->GetCachedGeometry().AbsoluteToLocal(InteractableLocation);
 
 	FPaintContext Context(AllottedGeometry, MyCullingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
+	// get top right corner of widget
 	FVector2D ScreenStart = TextInput->GetCachedGeometry().GetLocalPositionAtCoordinates(FVector2D(1.f, 0.f));
 	UWidgetBlueprintLibrary::DrawLine(Context, ScreenStart, InteractableLocation, FLinearColor::White, true, 2.0f);
 
+	// highlight syntax
 	FString RawInputText = TextInput->GetText().ToString();
 	FString FormattedString = RawInputText.Replace(TEXT("const"), TEXT("<const>const</>"));
 	FText Text = FText::FromString(FormattedString);
 
 	//update syntax highlighter to latest
 	SyntaxHighlight->SetText(Text);
-
+	
 	return LayerId;
+}
+
+void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.message);
+	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.name);
+	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.stack);
+	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.message);
+
+	// display response output to player
+	if (Response.error.name.IsEmpty())
+	{
+		FString FomattedString = "Test Passed";
+		FText FormattedText = FText::FromString(FomattedString);
+
+		ResponseOutput->SetText(FormattedText);
+		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
+		this->PlayAnimation(SlideIn);
+	}
+	else
+	{
+		FString FomattedString = FString(Response.message + "\n" + Response.error.name + "\n" + Response.error.message);
+		FText FormattedText = FText::FromString(FomattedString);
+
+		ResponseOutput->SetText(FormattedText);
+		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
+		this->PlayAnimation(SlideIn);
+	}
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

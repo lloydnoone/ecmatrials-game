@@ -4,6 +4,7 @@
 //APIs tend to be quite large andif you put all of your logic inside of your HttpService it will be too large to handle in the future.
 
 #include "HttpService.h"
+#include "CodeEditor.h"
 
 AHttpService::AHttpService() { PrimaryActorTick.bCanEverTick = false; }
 
@@ -132,7 +133,11 @@ void AHttpService::GetStructFromJsonString(FHttpResponsePtr Response, StructType
 //	UE_LOG(LogTemp, Warning, TEXT("Name is: %s"), *LoginResponse.name);
 //}
 
-void AHttpService::PostCode(FRequest_PostCode Code) {
+void AHttpService::PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor) {
+
+	//set the editor that made the request
+	CodeEditor = CurrentEditor;
+
 	// get the json string form struct si its ready to be used in the request
 	FString ContentJsonString;
 	GetJsonStringFromStruct<FRequest_PostCode>(Code, ContentJsonString);
@@ -145,6 +150,7 @@ void AHttpService::PostCode(FRequest_PostCode Code) {
 	Send(Request);
 }
 
+// these params are passed in b onProcessRequestComplete
 void AHttpService::PostCodeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful) {
 	// stop running if response was bad.
 	if (!ResponseIsValid(Response, bWasSuccessful))
@@ -157,6 +163,6 @@ void AHttpService::PostCodeResponse(FHttpRequestPtr Request, FHttpResponsePtr Re
 	FResponse_PostCode PostCodeResponse;
 	GetStructFromJsonString<FResponse_PostCode>(Response, PostCodeResponse);
 
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *PostCodeResponse.message);
+	CodeEditor->ReceiveResponse(PostCodeResponse);
 }
 
