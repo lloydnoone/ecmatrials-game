@@ -8,6 +8,7 @@
 
 class AGun;
 class AInteractable;
+class UCameraComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -60,6 +61,8 @@ private:
 	void TargetNearest();
 	void TargetNext();
 
+	void LockOnCameraRotate(float DeltaTime);
+
 	void Interact();
 
 	//rate of thumbstick rotation
@@ -86,4 +89,8 @@ private:
 	int32 TargetIndex = 0;
 
 	AInteractable* CurrentTarget;
+
+	UCameraComponent* Camera;
+
+	AController* Controller;
 };
