@@ -175,29 +175,26 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.message);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.name);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.stack);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.message);
-
 	// display response output to player
 	if (Response.error.name.IsEmpty())
 	{
-		FString FomattedString = "Test Passed";
+		FString FomattedString = "Test Passed!";
 		FText FormattedText = FText::FromString(FomattedString);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
-		this->PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);
 	}
 	else
 	{
-		FString FomattedString = FString(Response.message + "\n" + Response.error.name + "\n" + Response.error.message);
+		FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
+
+		FString FomattedString = FString("Line Number: " + LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
 		FText FormattedText = FText::FromString(FomattedString);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		this->PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);
 	}
 }
 
