@@ -109,6 +109,7 @@ void AInteractable::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	Player->AddInteractableInRange(this);
 	// highlight with outline
 	Mesh->SetRenderCustomDepth(true);
+	Mesh->SetCustomDepthStencilValue(2);
 }
 
 void AInteractable::EndOverlap(UPrimitiveComponent* OverlappedComponent,
