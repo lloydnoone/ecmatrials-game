@@ -11,6 +11,7 @@ class UWidgetComponent;
 class USceneCompenent;
 class UStaticMesh;
 class UCodeEditor;
+class AInteractableSubject;
 
 UCLASS()
 class ECMATRIALS_API AInteractable : public AActor
@@ -51,6 +52,8 @@ public:
 
 private:
 
+	AInteractableSubject* GetSubjectActor();
+
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	USphereComponent* CollisionSphere;
 
@@ -62,7 +65,12 @@ private:
 	UPROPERTY()
 	UCodeEditor* CodeEditor;
 
+	UPROPERTY(EditAnywhere, Category = "Subject")
+	FName SubjectTag;
+
 	USceneComponent* Root;
 
 	UStaticMeshComponent* Mesh;
+
+	AInteractableSubject* Subject;
 };
