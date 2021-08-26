@@ -176,13 +176,21 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
 	// display response output to player
-	if (Response.error.name.IsEmpty())
+	if (Response.message == "Test passed")
 	{
-		FString FomattedString = "Test Passed!";
-		FText FormattedText = FText::FromString(FomattedString);
+		FText FormattedText = FText::FromString(Response.message);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
+		PlayAnimation(SlideIn);
+	}
+	else if (Response.message == "Test failed")
+	{
+		FString FomattedString = FString(Response.error.name + "\n" + Response.error.message);
+		FText FormattedText = FText::FromString(Response.error.message);
+
+		ResponseOutput->SetText(FormattedText);
+		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
 		PlayAnimation(SlideIn);
 	}
 	else
