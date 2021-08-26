@@ -187,15 +187,17 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 	}
 	else
 	{
-		FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
+		//FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
 
-		FString FomattedString = FString("Line Number: " + LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
+		FString FomattedString = FString("Line Number: " + Response.error.LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
 		FText FormattedText = FText::FromString(FomattedString);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
 		PlayAnimation(SlideIn);
 	}
+
+	OwningInteractable->SendResultToSubjectActor(Response.error.name.IsEmpty());
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

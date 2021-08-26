@@ -50,9 +50,13 @@ public:
 
 	void SetEditorInViewport();
 
+	AInteractableSubject* GetSubjectActor();
+
+	void SendResultToSubjectActor(bool Result);
+
 private:
 
-	AInteractableSubject* GetSubjectActor();
+	AInteractableSubject* InitSubjectActor();
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	USphereComponent* CollisionSphere;

@@ -35,7 +35,7 @@ void AInteractable::BeginPlay()
 	CollisionSphere = FindComponentByClass<USphereComponent>();
 	Mesh = FindComponentByClass<UStaticMeshComponent>();
 	CodeEditor = NewObject<UCodeEditor>(this, CodeEditorClass);
-	Subject = GetSubjectActor();
+	Subject = InitSubjectActor();
 	
 	if (!Mesh)
 	{
@@ -148,7 +148,7 @@ void AInteractable::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	Mesh->SetRenderCustomDepth(false);
 }
 
-AInteractableSubject* AInteractable::GetSubjectActor()
+AInteractableSubject* AInteractable::InitSubjectActor()
 {
 	for (TActorIterator<AInteractableSubject> It(GetWorld()); It; ++It)
 	{
@@ -164,3 +164,12 @@ AInteractableSubject* AInteractable::GetSubjectActor()
 	return nullptr;
 }
 
+AInteractableSubject* AInteractable::GetSubjectActor()
+{
+	return Subject;
+}
+
+void AInteractable::SendResultToSubjectActor(bool Result)
+{
+	Subject->TestResults(Result);
+}

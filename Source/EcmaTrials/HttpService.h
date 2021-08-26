@@ -39,6 +39,7 @@ struct FError_PostCode {
 	UPROPERTY() FString message;
 	UPROPERTY() FString name;
 	UPROPERTY() FString stack;
+	UPROPERTY() FString LineNumber;
 
 	FError_PostCode() {}
 };
