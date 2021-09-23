@@ -19,6 +19,12 @@ class ECMATRIALS_API AEcmaPlayerController : public APlayerController
 public:
 	virtual void GameHasEnded(class AActor* EndGameFocus = nullptr, bool bIsWinner = false) override;
 
+	UFUNCTION(BlueprintCallable)
+	void RemoveHUD();
+
+	UFUNCTION(BlueprintCallable)
+	void ReactivateHUD();
+
 protected:
 	virtual void BeginPlay() override;
 
