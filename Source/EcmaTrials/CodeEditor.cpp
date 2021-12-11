@@ -176,7 +176,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
 	// display response output to player
-	if (Response.message == "Test passed")
+	if (Response.message == "Test passed after updating")
 	{
 		FText FormattedText = FText::FromString(Response.message);
 

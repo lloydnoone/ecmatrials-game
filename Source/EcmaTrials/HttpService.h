@@ -72,7 +72,7 @@ class ECMATRIALS_API AHttpService : public AActor
 private:
 	UCodeEditor* CodeEditor; // a reference to the editor that made a request
 	FHttpModule* Http; // Holds a reference to UE4's Http implementation. It's used to create request objects.
-	FString ApiBaseUrl = "https://www.ecmatrials.com/api/";
+	FString ApiBaseUrl = "https://www.ecmatrials.com/";
 
 	FString AuthorizationHeader = TEXT("Authorization"); //  This is the key for the Authentication header. Your back-end might expect a different form of this such as X-Auth-Token, X-Requested-With or something similar.
 	FString AuthorizationHash = TEXT("asdfasdf");
