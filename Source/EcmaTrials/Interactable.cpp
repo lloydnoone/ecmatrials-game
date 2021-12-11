@@ -9,6 +9,8 @@
 #include "Components/PrimitiveComponent.h"
 #include "CodeEditor.h"
 #include "Components/MultiLineEditableText.h"
+#include "InteractableSubject.h"
+#include "EngineUtils.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -33,6 +35,7 @@ void AInteractable::BeginPlay()
 	CollisionSphere = FindComponentByClass<USphereComponent>();
 	Mesh = FindComponentByClass<UStaticMeshComponent>();
 	CodeEditor = NewObject<UCodeEditor>(this, CodeEditorClass);
+	Subject = InitSubjectActor();
 	
 	if (!Mesh)
 	{
@@ -43,6 +46,12 @@ void AInteractable::BeginPlay()
 	if (!CodeEditor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CodeEditor is nullptr"));
+		return;
+	}
+
+	if (!Subject)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Subject is nullptr"));
 		return;
 	}
 
@@ -109,6 +118,7 @@ void AInteractable::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	Player->AddInteractableInRange(this);
 	// highlight with outline
 	Mesh->SetRenderCustomDepth(true);
+	Mesh->SetCustomDepthStencilValue(3);
 }
 
 void AInteractable::EndOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -135,6 +145,31 @@ void AInteractable::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	SetCodeEditorVisibility(false);
 	Player->RemoveInteractableInRange(this);
 	// unhighlight with outline
-	Mesh->SetRenderCustomDepth(false);
+	Mesh->SetCustomDepthStencilValue(2);
 }
 
+AInteractableSubject* AInteractable::InitSubjectActor()
+{
+	for (TActorIterator<AInteractableSubject> It(GetWorld()); It; ++It)
+	{
+		AInteractableSubject* Actor = *It;
+		if (Actor->ActorHasTag(SubjectTag))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("actor with %s tag found."), *SubjectTag.GetPlainNameString());
+			return Actor;
+		}
+	}
+	//if no actor found
+	UE_LOG(LogTemp, Warning, TEXT("No actor with %s tag found."), *SubjectTag.GetPlainNameString());
+	return nullptr;
+}
+
+AInteractableSubject* AInteractable::GetSubjectActor()
+{
+	return Subject;
+}
+
+void AInteractable::SendResultToSubjectActor(bool Result)
+{
+	Subject->TestResults(Result);
+}

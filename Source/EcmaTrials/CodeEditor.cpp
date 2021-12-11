@@ -175,30 +175,37 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.message);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.name);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.stack);
-	UE_LOG(LogTemp, Warning, TEXT("Message is: %s"), *Response.error.message);
-
 	// display response output to player
-	if (Response.error.name.IsEmpty())
+	if (Response.message == "Test passed after updating")
 	{
-		FString FomattedString = "Test Passed";
-		FText FormattedText = FText::FromString(FomattedString);
+		FText FormattedText = FText::FromString(Response.message);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
-		this->PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);
+	}
+	else if (Response.message == "Test failed")
+	{
+		FString FomattedString = FString(Response.error.name + "\n" + Response.error.message);
+		FText FormattedText = FText::FromString(Response.error.message);
+
+		ResponseOutput->SetText(FormattedText);
+		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
+		PlayAnimation(SlideIn);
 	}
 	else
 	{
-		FString FomattedString = FString(Response.message + "\n" + Response.error.name + "\n" + Response.error.message);
+		//FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
+
+		FString FomattedString = FString("Line Number: " + Response.error.LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
 		FText FormattedText = FText::FromString(FomattedString);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		this->PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);
 	}
+
+	OwningInteractable->SendResultToSubjectActor(Response.error.name.IsEmpty());
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

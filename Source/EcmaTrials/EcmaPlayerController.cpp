@@ -49,3 +49,13 @@ void AEcmaPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 	// restart the level after player dies
 	GetWorldTimerManager().SetTimer(RestartTimer, this, &APlayerController::RestartLevel, RestartDelay);
 }
+
+void AEcmaPlayerController::RemoveHUD()
+{
+	HUD->RemoveFromViewport();
+}
+
+void AEcmaPlayerController::ReactivateHUD()
+{
+	HUD->AddToViewport();
+}
