@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 
-	Character->Shoot();
+	Character->Attack();
 
 	return EBTNodeResult::Succeeded;
 }

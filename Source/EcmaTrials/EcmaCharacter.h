@@ -9,6 +9,7 @@
 class AGun;
 class AInteractable;
 class UCameraComponent;
+class UAnimMontage;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -40,7 +41,10 @@ public:
 	// called by actors that damage this actor --- Might want to think about moving this to a child component to make more modular
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	void Shoot();
+	//void Shoot();
+	void Attack();
+	void AttackTrace();
+	void Attacked();
 
 	void AddInteractableInRange(AInteractable* Interactable);
 	void RemoveInteractableInRange(AInteractable* Interactable);
@@ -75,13 +79,33 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	float Health;
 
-	// restrict class selection in blueprint defaults to a subclass of gun
+	bool IsAttacking = false;
+	bool IsDowned = false;
+	bool IsCross = false;
+
+	FTimerHandle AttackTimer;
+	FTimerHandle DeathTimer;
+
+	float AttackAnimLength = 0.0f;
+	float ElapsedAttackTime = 0.0f;
+
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AGun> GunClass;
+	UAnimMontage* DeathAnim;
+
+	//animation array
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> AnimArray;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* ImpactSound;
+
+	// restrict class selection in blueprint defaults to a subclass of gun
+	//UPROPERTY(EditDefaultsOnly)
+	//TSubclassOf<AGun> GunClass;
 
 	// pointer to the actual gun
-	UPROPERTY()
-	AGun* Gun;
+	//UPROPERTY()
+	//AGun* Gun;
 
 	TArray<AInteractable*> InteractablesInRange;
 
@@ -92,5 +116,9 @@ private:
 
 	UCameraComponent* Camera;
 
+	UCharacterMovementComponent* CharMovementComp;
+
 	AController* Controller;
+
+	USkeletalMeshComponent* Mesh;
 };

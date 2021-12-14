@@ -10,7 +10,11 @@
 #include "CodeEditor.h"
 #include "Components/MultiLineEditableText.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Animation/AnimMontage.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -28,32 +32,58 @@ void AEcmaCharacter::BeginPlay()
 	Health = MaxHealth;
 
 	// Gunclass set in blueprint
-	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
-	//hide rifle mesh that exists in character mesh to then spawn with the actual
-	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-	Gun->SetOwner(this);
+	//Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+
+	//hide rifle mesh that exists in character mesh to then spawn with the actual - was used on wraith mesh
+	//GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	//Gun->SetOwner(this);
 
 	//get camera
-	UActorComponent* Actor = GetComponentByClass(UCameraComponent::StaticClass());
-	if (!Actor)
+	UActorComponent* ActorComp = GetComponentByClass(UCameraComponent::StaticClass());
+	if (!ActorComp)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find camera component"))
 	}
 	else
 	{
-		Camera = Cast<UCameraComponent>(Actor);
+		Camera = Cast<UCameraComponent>(ActorComp);
 		if (!Camera)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Cast to camera failed."))
 		}
 	}
 
+	//get movement component
+	CharMovementComp = GetCharacterMovement();
+	if (CharMovementComp == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find CharMovementComp."))
+	}
+
 	//get controller
 	Controller = GetController();
-	if (!Controller)
+	if (Controller == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find player controller."))
+	}
+
+	//get mesh
+	Mesh = GetMesh();
+	if (Controller == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find character skeletal mesh."))
+	}
+
+	if (ImpactSound == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find impact sound."))
+	}
+
+	if (DeathAnim == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find death animation."))
 	}
 }
 
@@ -88,7 +118,8 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AEcmaCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &AEcmaCharacter::LookRightRate);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Shoot);
+	//PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Attack);
 	PlayerInputComponent->BindAction(TEXT("ChangeTarget"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::ChangeTarget);
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Interact);
 	// while in codeeditor onpreviewkeydown in codeeditor.cpp submits code
@@ -150,9 +181,97 @@ void AEcmaCharacter::LookRightRate(float AxisValue)
 }
 
 
-void AEcmaCharacter::Shoot()
+//void AEcmaCharacter::Shoot()
+//{
+//	Gun->PullTrigger();
+//}
+
+void AEcmaCharacter::Attacked()
 {
-	Gun->PullTrigger();
+	if (!GetWorldTimerManager().IsTimerActive(DeathTimer))
+	{
+		IsDowned = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
+		float AnimLength = PlayAnimMontage(DeathAnim);
+		GetWorldTimerManager().SetTimer(DeathTimer, AnimLength, false);
+	}
+}
+
+void AEcmaCharacter::AttackTrace()
+{
+	ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
+	// clear timer to stop tracing if anim has finished playing
+	if (ElapsedAttackTime >= AttackAnimLength)
+	{
+		IsAttacking = false;
+		GetWorldTimerManager().ClearTimer(AttackTimer);
+		return;
+	}
+
+	// socket to trace on
+	FName SocketName = IsCross ? "hand_r" : "foot_r";
+	
+	// set up params for trace func
+	FVector SocketLocation = Mesh->GetSocketLocation(SocketName);
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery3); // ObjectTypeQuery3 is Pawn according to dropdown list in blueprints
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	FHitResult HitResult;
+
+	bool HitFound = UKismetSystemLibrary::CapsuleTraceSingleForObjects(
+		GetWorld(),
+		SocketLocation,
+		SocketLocation,
+		22.0,
+		22.0,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::None,
+		HitResult,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		0.1f
+	);
+
+	if (HitFound)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Attacked!"), HitResult.Actor);
+		AEcmaCharacter* HitActor = Cast<AEcmaCharacter>(HitResult.Actor);
+		if (HitActor)
+		{
+			HitActor->Attacked();
+		}
+	}
+}
+
+void AEcmaCharacter::Attack()
+{
+	if (!CharMovementComp->IsFalling() && !IsAttacking)
+	{
+		//reset
+		ElapsedAttackTime = 0.0f;
+		IsAttacking = true;
+
+		// get random attack
+		int32 RandNum = FMath::RandRange(0, 1);
+		if (AnimArray.IsValidIndex(RandNum))
+		{
+			UAnimMontage* AttackMontage = AnimArray[RandNum];
+			// which limb is the attack using?
+			IsCross = AttackMontage->GetFName().ToString().Contains("cross");
+			// play anim
+			AttackAnimLength = PlayAnimMontage(AttackMontage);
+			// run attack trace every 0.1f until anim has finished
+			GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("could find random attack anim"));
+		}
+	}
 }
 
 void AEcmaCharacter::AddInteractableInRange(AInteractable* Interactable)
