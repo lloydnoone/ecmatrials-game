@@ -46,8 +46,8 @@ public:
 	void AttackTrace();
 	void Attacked();
 
-	void AddInteractableInRange(AInteractable* Interactable);
-	void RemoveInteractableInRange(AInteractable* Interactable);
+	void AddActorInRange(AActor* Actor);
+	void RemoveActorInRange(AActor* Actor);
 
 private:
 	void MoveForward(float AxisValue);
@@ -107,12 +107,12 @@ private:
 	//UPROPERTY()
 	//AGun* Gun;
 
-	TArray<AInteractable*> InteractablesInRange;
+	TArray<AActor*> ActorsInRange;
 
 	//index to use on interactables in range
 	int32 TargetIndex = 0;
 
-	AInteractable* CurrentTarget;
+	AActor* CurrentTarget;
 
 	UCameraComponent* Camera;
 

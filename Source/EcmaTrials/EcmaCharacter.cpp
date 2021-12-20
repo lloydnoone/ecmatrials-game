@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.No target. finding closest.
 
 
 #include "EcmaCharacter.h"
@@ -15,6 +15,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "CodeEditorComponent.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -22,6 +23,8 @@ AEcmaCharacter::AEcmaCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	UCapsuleComponent* Capsule = FindComponentByClass<UCapsuleComponent>();
+	SetRootComponent(Capsule);
 }
 
 // Called when the game starts or when spawned
@@ -274,29 +277,33 @@ void AEcmaCharacter::Attack()
 	}
 }
 
-void AEcmaCharacter::AddInteractableInRange(AInteractable* Interactable)
+void AEcmaCharacter::AddActorInRange(AActor* Actor)
 {
-	InteractablesInRange.Add(Interactable);
-	for (AInteractable* Element : InteractablesInRange)
+	if (Actor->FindComponentByClass< UCodeEditorComponent >())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %s"), *Element->GetName());
+		ActorsInRange.Add(Actor);
+		for (AActor* Element : ActorsInRange)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %s"), *Element->GetName());
+		}
 	}
+	
 }
 
-void AEcmaCharacter::RemoveInteractableInRange(AInteractable* Interactable)
+void AEcmaCharacter::RemoveActorInRange(AActor* Actor)
 {
-	if (!Interactable)
+	if (!Actor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RemoveInteractablesInRange Interactable is null"));
+		UE_LOG(LogTemp, Warning, TEXT("RemoveActorsInRange Actor is null"));
 		return;
 	}
-	InteractablesInRange.Remove(Interactable);
-	for (AInteractable* Element : InteractablesInRange)
+	ActorsInRange.Remove(Actor);
+	for (AActor* Element : ActorsInRange)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %s"), *Element->GetName());
 	}
 	// if interactable is current target, set CurrentTarget to nullpointer
-	if (Interactable == CurrentTarget)
+	if (Actor == CurrentTarget)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Current target out of range. clearing. "));
 		CurrentTarget = nullptr;
@@ -321,21 +328,21 @@ void AEcmaCharacter::ResetTarget()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Only one target same as current so refreshing target"));
 	
-	CurrentTarget->SetCodeEditorVisibility(true);
+	CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(true);
 	return;
 }
 
 void AEcmaCharacter::TargetNearest()
 {
 	UE_LOG(LogTemp, Warning, TEXT("No target. finding closest. "));
-	AInteractable* Nearest = nullptr;
+	AActor* Nearest = nullptr;
 
 	float Distance = 0;
 	float ShortestDistance = 0;
 
 	// get an inital distance to compare to
-	ShortestDistance = GetDistanceTo(InteractablesInRange[0]);
-	for (AInteractable* Element : InteractablesInRange)
+	ShortestDistance = GetDistanceTo(ActorsInRange[0]);
+	for (AActor* Element : ActorsInRange)
 	{
 		Distance = GetDistanceTo(Element);
 		if (Distance <= ShortestDistance && Element != CurrentTarget)
@@ -356,8 +363,16 @@ void AEcmaCharacter::TargetNearest()
 	if (CurrentTarget)
 	{
 		//set code editor visible
-		CurrentTarget->SetCodeEditorVisibility(true);
-		UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
+		UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
+		if (!EditorComp)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Couldnt find editor component."));
+		}
+		else
+		{
+			EditorComp->SetCodeEditorVisibility(true);
+			UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
+		}
 	}
 	else 
 	{
@@ -372,10 +387,10 @@ void AEcmaCharacter::TargetNext()
 	// has a current target and there is more than one in range
 	int32 CurrentIndex = 0;
 	int32 NextIndex = 0;
-	AInteractable* NextTarget;
+	AActor* NextTarget;
 
 	// if there is a current target, clear current and get next in array
-	CurrentIndex = InteractablesInRange.IndexOfByKey(CurrentTarget);
+	CurrentIndex = ActorsInRange.IndexOfByKey(CurrentTarget);
 
 	if (CurrentIndex == INDEX_NONE)
 	{
@@ -386,28 +401,28 @@ void AEcmaCharacter::TargetNext()
 	NextIndex = CurrentIndex + 1;
 
 	// if next target is past the end of array go back to zero
-	if (NextIndex + 1 > InteractablesInRange.Num()) NextIndex = 0;
+	if (NextIndex + 1 > ActorsInRange.Num()) NextIndex = 0;
 
-	NextTarget = InteractablesInRange[NextIndex];
+	NextTarget = ActorsInRange[NextIndex];
 
-	CurrentTarget->SetCodeEditorVisibility(false);
-	NextTarget->SetCodeEditorVisibility(true);
+	CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(false);
+	NextTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(true);
 	CurrentTarget = NextTarget;
 	return;
 }
 
 void AEcmaCharacter::ChangeTarget()
 {
-	UE_LOG(LogTemp, Warning, TEXT("interactables in range: %i"), InteractablesInRange.Num());
+	UE_LOG(LogTemp, Warning, TEXT("interactables in range: %i"), ActorsInRange.Num());
 	//return early if nothing is in range
-	if (InteractablesInRange.Num() <= 0)
+	if (ActorsInRange.Num() <= 0)
 	{	
 		HandleNoTarget();
 		return;
 	}
 
 	// if there is only one in range and its the current target, reset visibility and keyboard focus
-	if (InteractablesInRange.Num() == 1 && InteractablesInRange[0] == CurrentTarget)
+	if (ActorsInRange.Num() == 1 && ActorsInRange[0] == CurrentTarget)
 	{
 		ResetTarget();
 		return;
@@ -460,6 +475,6 @@ void AEcmaCharacter::Interact()
 {
 	if (CurrentTarget != nullptr)
 	{
-		CurrentTarget->GetKeyboardFocus();
+		CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->GetKeyboardFocus();
 	}
 }

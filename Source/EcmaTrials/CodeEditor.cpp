@@ -11,6 +11,7 @@
 #include "HttpService.h"
 #include "Interactable.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "CodeEditorComponent.h"
 
 #define LOCTEXT_NAMESPACE "EcmaTrials"
 
@@ -89,33 +90,33 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 		return FReply::Handled();
 	};
 
-	////use the key if its a letter
-	//FString Letter = InKeyEvent.GetKey().ToString();
-	//if (Letter.Len() == 1)
-	//{
-	//	// if shift then upper, if not, lower
-	//	if (InKeyEvent.IsLeftShiftDown() || InKeyEvent.IsRightShiftDown())
-	//	{
-	//		Letter.ToUpperInline();
-	//	}
-	//	else
-	//	{
-	//		Letter.ToLowerInline();
-	//	}
-	//}
-	//else
-	//{
-	//	//if not a letter, just update to latest input
-	//	SyntaxHighlight->SetText(TextInput->GetText());
-	//	return  FReply::Unhandled();
-	//}
+	//use the key if its a letter
+	FString Letter = InKeyEvent.GetKey().ToString();
+	if (Letter.Len() == 1)
+	{
+		// if shift then upper, if not, lower
+		if (InKeyEvent.IsLeftShiftDown() || InKeyEvent.IsRightShiftDown())
+		{
+			Letter.ToUpperInline();
+		}
+		else
+		{
+			Letter.ToLowerInline();
+		}
+	}
+	else
+	{
+		//if not a letter, just update to latest input
+		SyntaxHighlight->SetText(TextInput->GetText());
+		return  FReply::Unhandled();
+	}
 
-	//// add current letter to end of old string
-	//FString String = TextInput->GetText().ToString() + Letter;
-	//FText Text = FText::FromString(String);
+	// add current letter to end of old string
+	FString String = TextInput->GetText().ToString() + Letter;
+	FText Text = FText::FromString(String);
 
-	////set text and latest character for syntax highlighting
-	//SyntaxHighlight->SetText(Text);
+	//set text and latest character for syntax highlighting
+	SyntaxHighlight->SetText(Text);
 
 	return  FReply::Unhandled();
 }
@@ -126,19 +127,19 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 //
 //	return  FReply::Unhandled();
 //}
-
+//
 //FString String = TextInput->GetText().ToString() + InCharEvent.GetCharacter();
 //FText Text = FText::FromString(String);
 //SyntaxHighlight->SetText(Text);
 
-void UCodeEditor::SetOwningInteractable(AInteractable* Interactable)
+void UCodeEditor::SetOwningActor(AActor* Actor)
 {
-	OwningInteractable = Interactable;
+	OwningActor = Actor;
 }
 
 int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-	if (!OwningInteractable)
+	if (!OwningActor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Code Editor has no owning interactable"));
 		return LayerId;
@@ -149,7 +150,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
 		GetWorld()->GetFirstPlayerController(),
-		OwningInteractable->GetActorLocation(),
+		OwningActor->GetActorLocation(),
 		InteractableLocation,
 		false
 	);
@@ -205,7 +206,14 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 		PlayAnimation(SlideIn);
 	}
 
-	OwningInteractable->SendResultToSubjectActor(Response.error.name.IsEmpty());
+	//get actors editor component and use it to handle results
+	UCodeEditorComponent* EditorComp = OwningActor->FindComponentByClass< UCodeEditorComponent >(); // ::StaticClass());
+	if (EditorComp == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("cant find actors editor component"));
+		return;
+	}
+	EditorComp->SendResultToSubjectActor(Response.error.name.IsEmpty());
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

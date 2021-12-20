@@ -47,7 +47,7 @@ public:
 
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
-	void SetOwningInteractable(AInteractable* Interactable);
+	void SetOwningActor(AActor* Actor);
 
 	void ReceiveResponse(FResponse_PostCode Response);
 
@@ -57,7 +57,7 @@ private:
 
 	AHttpService* HttpService;
 
-	AInteractable* OwningInteractable;
+	AActor* OwningActor;
 
 	void GetHttpService();
 

@@ -64,7 +64,7 @@ void AInteractable::BeginPlay()
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &AInteractable::BeginOverlap);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &AInteractable::EndOverlap);
 
-	CodeEditor->SetOwningInteractable(this);
+	CodeEditor->SetOwningActor(this);
 }
 
 // Called every frame
@@ -115,7 +115,7 @@ void AInteractable::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
 	if (!Player) return;
 	
-	Player->AddInteractableInRange(this);
+	Player->AddActorInRange(this);
 	// highlight with outline
 	Mesh->SetRenderCustomDepth(true);
 	Mesh->SetCustomDepthStencilValue(3);
@@ -143,7 +143,7 @@ void AInteractable::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 		return;
 	}
 	SetCodeEditorVisibility(false);
-	Player->RemoveInteractableInRange(this);
+	Player->RemoveActorInRange(this);
 	// unhighlight with outline
 	Mesh->SetCustomDepthStencilValue(2);
 }
