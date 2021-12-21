@@ -57,6 +57,8 @@ public:
 
 	void SendResultToSubjectActor(bool Result);
 
+	FString GetRequiredText();
+
 private:
 
 	AInteractableSubject* InitSubjectActor();
@@ -68,7 +70,11 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCodeEditor> CodeEditorClass;
 
-	//the actual code editor
+	//set required code template for widget if any
+	UPROPERTY(EditDefaultsOnly)
+	FString RequiredText;
+
+	//the actual code editor, make a UPROPERTY to avoid unwanted garbage collection
 	UPROPERTY()
 	UCodeEditor* CodeEditor;
 

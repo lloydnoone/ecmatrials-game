@@ -12,6 +12,7 @@
 #include "Interactable.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "CodeEditorComponent.h"
+#include "EcmaEnemyCharacter.h"
 
 #define LOCTEXT_NAMESPACE "EcmaTrials"
 
@@ -135,6 +136,37 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 void UCodeEditor::SetOwningActor(AActor* Actor)
 {
 	OwningActor = Actor;
+}
+
+AActor* UCodeEditor::GetOwningActor()
+{
+	return OwningActor;
+}
+
+UCodeEditorComponent* UCodeEditor::GetActorsEditorComponent()
+{
+	AEcmaEnemyCharacter* Owner = Cast<AEcmaEnemyCharacter>(OwningActor);
+	if (!Owner)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to actor to Enemy"));
+		return NULL;
+	}
+	UActorComponent* Comp = Owner->FindComponentByClass(UCodeEditorComponent::StaticClass());
+	if (!Comp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt find editor component"));
+		return NULL;
+	}
+	UCodeEditorComponent* EditorComp = Cast<UCodeEditorComponent>(Comp);
+	if (!EditorComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to editor comp"));
+		return NULL;
+	}
+	else
+	{
+		return EditorComp;
+	}
 }
 
 int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const

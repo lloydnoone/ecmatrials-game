@@ -34,13 +34,10 @@ void UCodeEditorComponent::BeginPlay()
 		return;
 	}
 
-	// get all owner meshes as actorcomps
-	TArray<UActorComponent*> ActorComps = GetOwner()->GetComponentsByClass(UMeshComponent::StaticClass());
-	// cast them to mesh components
-	for (UActorComponent* ActorComp : ActorComps)
-	{
-		Meshes.Add(Cast<UMeshComponent>(ActorComp));
-	}
+	// get owners meshes
+	TArray<UMeshComponent*> OutComponents;
+	GetOwner()->GetComponents(OutComponents);
+	Meshes = OutComponents;
 
 	CollisionSphere = GetOwner()->FindComponentByClass<USphereComponent>();
 	CodeEditor = NewObject<UCodeEditor>(GetOwner(), CodeEditorClass); // CreateWidget<UCodeEditor>(GetWorld()->GetGameInstance(), CodeEditorClass);
@@ -85,19 +82,13 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 	}
 	if (Show)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Adding widget to viewport"));
 		if (CodeEditor->IsInViewport()) return;
-		UE_LOG(LogTemp, Warning, TEXT("Running AddToViewport"));
-		UE_LOG(LogTemp, Warning, TEXT("CodeEditors name is: %s"), *CodeEditor->GetName());
 		CodeEditor->AddToViewport();
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Running IsInViewport"));
 		if (CodeEditor->IsInViewport())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Running RemoveFromViewport"));
-			UE_LOG(LogTemp, Warning, TEXT("CodeEditors name is: %s"), *CodeEditor->GetName());
 			CodeEditor->RemoveFromViewport();
 		}
 	}
@@ -133,8 +124,8 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
 	Player->AddActorInRange(GetOwner());
-	// highlight with outline
 
+	// highlight with outline
 	for (UMeshComponent* MeshComp : Meshes)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Mesh loop"));
@@ -149,6 +140,7 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	int32 OtherBodyIndex)
 {
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
+
 	if (!Player)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("End Overlap Player reference is null"));
@@ -159,6 +151,10 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 		UE_LOG(LogTemp, Warning, TEXT("End Overlap this reference is null"));
 		return;
 	}
+
+	// dont do anything if it wasnt the player that ended overlap
+	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
+
 	SetCodeEditorVisibility(false);
 	Player->RemoveActorInRange(GetOwner());
 	// unhighlight with outline
@@ -179,7 +175,7 @@ AInteractableSubject* UCodeEditorComponent::InitSubjectActor()
 			return Actor;
 		}
 	}
-	//if no actor found affect owner
+	//if no actor found, will affect owner as ecmaenemy
 	UE_LOG(LogTemp, Warning, TEXT("No actor with subject tag found. Affecting %s instead."), *GetOwner()->GetName());
 	return nullptr;
 }
@@ -205,5 +201,14 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		return;
 	}
 	Subject->TestResults(Result);
+}
+
+FString UCodeEditorComponent::GetRequiredText()
+{
+	if (RequiredText.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("RequiredText is empty"));
+	}
+	return RequiredText;
 }
 

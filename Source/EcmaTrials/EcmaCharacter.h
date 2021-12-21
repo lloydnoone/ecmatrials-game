@@ -6,8 +6,6 @@
 #include "GameFramework/Character.h"
 #include "EcmaCharacter.generated.h"
 
-class AGun;
-class AInteractable;
 class UCameraComponent;
 class UAnimMontage;
 

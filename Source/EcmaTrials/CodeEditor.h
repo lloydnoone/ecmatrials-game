@@ -9,7 +9,7 @@
 class UMultiLineEditableText;
 class UTextBlock;
 class AHttpService;
-class AInteractable;
+class UCodeEditorComponent;
 class URichTextBlock;
 struct FResponse_PostCode;
 
@@ -38,7 +38,7 @@ public:
 	UWidgetAnimation* SlideIn;
 
 	UFUNCTION()
-	void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
+	virtual void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
 
 	// catch keyboard presses before text input handles them
 	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
@@ -48,6 +48,10 @@ public:
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
 	void SetOwningActor(AActor* Actor);
+
+	AActor* GetOwningActor();
+
+	UCodeEditorComponent* GetActorsEditorComponent();
 
 	void ReceiveResponse(FResponse_PostCode Response);
 
