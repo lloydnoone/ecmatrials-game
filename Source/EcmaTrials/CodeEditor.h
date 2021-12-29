@@ -13,9 +13,6 @@ class UCodeEditorComponent;
 class URichTextBlock;
 struct FResponse_PostCode;
 
-/**
- * 
- */
 UCLASS()
 class ECMATRIALS_API UCodeEditor : public UUserWidget
 {
@@ -54,6 +51,8 @@ public:
 	UCodeEditorComponent* GetActorsEditorComponent();
 
 	void ReceiveResponse(FResponse_PostCode Response);
+
+	void DisplayOutput(FString String, bool IsError);
 
 private:
 

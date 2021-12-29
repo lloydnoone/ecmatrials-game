@@ -211,31 +211,34 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 	// display response output to player
 	if (Response.message == "Test passed after updating")
 	{
-		FText FormattedText = FText::FromString(Response.message);
+		/*FText FormattedText = FText::FromString(Response.message);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
-		PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);*/
+		DisplayOutput(Response.message, false);
 	}
 	else if (Response.message == "Test failed")
 	{
 		FString FomattedString = FString(Response.error.name + "\n" + Response.error.message);
-		FText FormattedText = FText::FromString(Response.error.message);
+		/*FText FormattedText = FText::FromString(Response.error.message);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);*/
+		DisplayOutput(FomattedString, true);
 	}
 	else
 	{
 		//FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
 
 		FString FomattedString = FString("Line Number: " + Response.error.LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
-		FText FormattedText = FText::FromString(FomattedString);
+		/*FText FormattedText = FText::FromString(FomattedString);
 
 		ResponseOutput->SetText(FormattedText);
 		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		PlayAnimation(SlideIn);
+		PlayAnimation(SlideIn);*/
+		DisplayOutput(FomattedString, true);
 	}
 
 	//get actors editor component and use it to handle results
@@ -246,6 +249,14 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 		return;
 	}
 	EditorComp->SendResultToSubjectActor(Response.error.name.IsEmpty());
+}
+
+void UCodeEditor::DisplayOutput(FString String, bool IsError)
+{
+	FSlateColor Color = FSlateColor(IsError ? FLinearColor::Red : FLinearColor::Green);
+	ResponseOutput->SetText(FText::FromString(String));
+	ResponseOutput->SetColorAndOpacity(Color);
+	PlayAnimation(SlideIn);
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

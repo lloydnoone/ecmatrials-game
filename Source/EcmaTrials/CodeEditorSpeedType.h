@@ -6,9 +6,7 @@
 #include "CodeEditor.h"
 #include "CodeEditorSpeedType.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class ECMATRIALS_API UCodeEditorSpeedType : public UCodeEditor
 {

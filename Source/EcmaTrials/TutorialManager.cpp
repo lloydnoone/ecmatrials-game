@@ -7,7 +7,7 @@
 #include "TutorialText.h"
 #include "Components/TextBlock.h"
 #include "Internationalization/StringTableRegistry.h"
-
+#include "Kismet/KismetStringTableLibrary.h"
 // Sets default values
 ATutorialManager::ATutorialManager()
 {
@@ -22,6 +22,9 @@ void ATutorialManager::BeginPlay()
 	Super::BeginPlay();
 
 	// add tutorial string table but only if it hasnt already
+	//FStringTableConstPtr table = FStringTableRegistry::Get().FindStringTable("BooleanSpeedType");
+	//FJsonSerializableArray TableKeys = UKismetStringTableLibrary::GetKeysFromStringTable("StringTable'/Game/StringTables/BooleanSpeedType.BooleanSpeedType'");
+	//UE_LOG(LogTemp, Warning, TEXT("first key of BooleanSpeedType: %s"), *TableKeys[0]);
 	if (!FStringTableRegistry::Get().FindStringTable("TutorialStringTable"))
 	{
 		LOCTABLE_NEW("TutorialStringTable", "TutorialStringTable");

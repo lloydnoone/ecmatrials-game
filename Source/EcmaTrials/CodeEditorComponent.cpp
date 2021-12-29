@@ -205,6 +205,17 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 
 FString UCodeEditorComponent::GetRequiredText()
 {
+	if (RequiredCodeTable)
+	{
+		TArray< FName > RowNames = RequiredCodeTable->GetRowNames();
+		int32 index = FMath::RandRange(0, RowNames.Num() - 1);
+		FName name = RowNames[index];
+		return RequiredCodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
+		/*for (const FName& Row : Rows)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Row: %s"), *Row.ToString());
+		}*/
+	}
 	if (RequiredText.IsEmpty())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("RequiredText is empty"));

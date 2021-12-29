@@ -39,11 +39,19 @@ bool UCodeEditorSpeedType::Initialize()
 
 	//get required text
 	RequiredText->SetText(FText::FromString(GetActorsEditorComponent()->GetRequiredText()));
+	RequiredText->SetText(FText::FromString(GetActorsEditorComponent()->GetRequiredText()));
 	return true;
 }
 
 void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType)
 {
-	GetOwningActor()->TakeDamage(100.f, FDamageEvent(), GetWorld()->GetFirstPlayerController(), GetWorld()->GetFirstPlayerController()->GetPawn());
-	UE_LOG(LogTemp, Warning, TEXT("InText is: %s"), *InText.ToString());
+	if (TextInput->GetText().ToString() == RequiredText->GetText().ToString())
+	{
+		GetOwningActor()->TakeDamage(100.f, FDamageEvent(), GetWorld()->GetFirstPlayerController(), GetWorld()->GetFirstPlayerController()->GetPawn());
+		DisplayOutput("Correct! killed an npc", false);
+	}
+	else
+	{
+		DisplayOutput("Incorrect!", true);
+	}
 }

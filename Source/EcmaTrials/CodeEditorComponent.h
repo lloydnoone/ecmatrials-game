@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/DataTable.h"
 #include "CodeEditorComponent.generated.h"
 
 class USphereComponent;
@@ -12,6 +13,15 @@ class USceneCompenent;
 class UStaticMesh;
 class UCodeEditor;
 class AInteractableSubject;
+
+USTRUCT(BlueprintType)
+struct FRequiredCodeTableRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		FString RequiredCode;
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ECMATRIALS_API UCodeEditorComponent : public UActorComponent
@@ -69,6 +79,9 @@ private:
 	//restrict class selection in blueprint
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UCodeEditor> CodeEditorClass;
+
+	UPROPERTY(EditAnywhere)
+	class UDataTable* RequiredCodeTable;
 
 	//set required code template for widget if any
 	UPROPERTY(EditDefaultsOnly)
