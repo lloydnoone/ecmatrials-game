@@ -19,6 +19,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
+	void SetCodeForSpeedType(FString String);
+
 	USphereComponent* EditorCollisionPtr;
 
 	UCodeEditorComponent* CodeEditorPtr;

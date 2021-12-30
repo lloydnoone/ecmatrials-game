@@ -37,9 +37,8 @@ bool UCodeEditorSpeedType::Initialize()
 	//add function to onTextCommitted
 	TextInput->OnTextCommitted.AddDynamic(this, &UCodeEditorSpeedType::DelegateCommitInputText);
 
-	//get required text
-	RequiredText->SetText(FText::FromString(GetActorsEditorComponent()->GetRequiredText()));
-	RequiredText->SetText(FText::FromString(GetActorsEditorComponent()->GetRequiredText()));
+	//set required text
+	RequiredText->SetText(FText::FromString(CodeString));
 	return true;
 }
 
@@ -54,4 +53,17 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 	{
 		DisplayOutput("Incorrect!", true);
 	}
+}
+
+void UCodeEditorSpeedType::SetRequiredText(FString String)
+{
+	//if widget has been created, set text immediately
+	if (RequiredText)
+	{
+		RequiredText->SetText(FText::FromString(String));
+		return;
+	}
+	
+	// if not, save the code string which will be used in Init
+	CodeString = String;
 }

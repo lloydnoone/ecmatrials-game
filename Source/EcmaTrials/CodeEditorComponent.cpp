@@ -5,9 +5,9 @@
 #include "Components/PrimitiveComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-//#include "UObject/ConstructorHelpers.h"
 #include "GameFramework/Actor.h"
 #include "CodeEditor.h"
+#include "CodeEditorSpeedType.h"
 #include "EcmaCharacter.h"
 #include "InteractableSubject.h"
 #include "EngineUtils.h"
@@ -207,19 +207,31 @@ FString UCodeEditorComponent::GetRequiredText()
 {
 	if (RequiredCodeTable)
 	{
+		// get rows from data table
 		TArray< FName > RowNames = RequiredCodeTable->GetRowNames();
+
+		// get a random row
 		int32 index = FMath::RandRange(0, RowNames.Num() - 1);
 		FName name = RowNames[index];
+
+		//return code from that row
 		return RequiredCodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
-		/*for (const FName& Row : Rows)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Row: %s"), *Row.ToString());
-		}*/
 	}
-	if (RequiredText.IsEmpty())
+	
+	UE_LOG(LogTemp, Warning, TEXT("RequiredCodeTable is nullptr"));
+	return "";
+}
+
+void UCodeEditorComponent::SetRequiredText(FString String)
+{
+	UCodeEditorSpeedType* SpeedTypeEditor = Cast<UCodeEditorSpeedType>(CodeEditor);
+	if (!SpeedTypeEditor)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RequiredText is empty"));
+		UE_LOG(LogTemp, Warning, TEXT("SpeedTypeEditor is nullptr after cast"));
 	}
-	return RequiredText;
+	else
+	{
+		SpeedTypeEditor->SetRequiredText(String);
+	}
 }
 

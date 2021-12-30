@@ -9,19 +9,19 @@
 void AEcmaEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	UE_LOG(LogTemp, Warning, TEXT("In Enemy pawn begin play"))
 	//get EditorCollison
 	UActorComponent* SphereComp = GetComponentByClass(USphereComponent::StaticClass());
 	if (!SphereComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find camera component"))
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find actor component on enemy"))
 	}
 	else
 	{
 		EditorCollisionPtr = Cast<USphereComponent>(SphereComp);
 		if (!EditorCollisionPtr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Cast to EditorCollision failed."))
+			UE_LOG(LogTemp, Warning, TEXT("Cast to Sphere component failed."))
 		}
 	}
 
@@ -39,4 +39,9 @@ void AEcmaEnemyCharacter::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Cast to CodeEditor failed."))
 		}
 	}
+}
+
+void AEcmaEnemyCharacter::SetCodeForSpeedType(FString String)
+{
+	CodeEditorPtr->SetRequiredText(String);
 }

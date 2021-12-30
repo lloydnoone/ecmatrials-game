@@ -10,6 +10,12 @@
 void AEcmaAIController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void AEcmaAIController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
 	if (AIBehavior != nullptr)
 	{
 		RunBehaviorTree(AIBehavior);

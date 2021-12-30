@@ -13,6 +13,7 @@ class USceneCompenent;
 class UStaticMesh;
 class UCodeEditor;
 class AInteractableSubject;
+class UDataTable;
 
 USTRUCT(BlueprintType)
 struct FRequiredCodeTableRow : public FTableRowBase
@@ -46,9 +47,6 @@ public:
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex);
 
-	//UFUNCTION(BlueprintCallable)
-	//void LoadWidgetClass();
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -69,6 +67,8 @@ public:
 
 	FString GetRequiredText();
 
+	void SetRequiredText(FString String);
+
 private:
 
 	AInteractableSubject* InitSubjectActor();
@@ -82,10 +82,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UDataTable* RequiredCodeTable;
-
-	//set required code template for widget if any
-	UPROPERTY(EditDefaultsOnly)
-	FString RequiredText;
 
 	//the actual code editor, make a UPROPERTY to avoid unwanted garbage collection
 	UPROPERTY()

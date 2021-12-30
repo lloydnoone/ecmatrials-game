@@ -20,4 +20,9 @@ public:
 
 	// set as UFUNCTION in parent class
 	virtual void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType) override;
+
+	void SetRequiredText(FString String);
+
+private:
+	FString CodeString = "Default Code String";
 };
