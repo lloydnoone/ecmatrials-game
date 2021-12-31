@@ -16,6 +16,16 @@ void ALevelOneScriptActor::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("BooleanCodeTable in LevelOneScript is nullptr"));
 		return;
 	}
+	if (!StringCodeTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StringCodeTable in LevelOneScript is nullptr"));
+		return;
+	}
+	if (!NumberCodeTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NumberCodeTable in LevelOneScript is nullptr"));
+		return;
+	}
 	if (!EnemyBP)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyBP in LevelOneScript is nullptr"));
@@ -77,4 +87,9 @@ FTransform ALevelOneScriptActor::GetSpawnPointTransformWithTag(FName Tag)
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find actor with %s Tag"), *Tag.ToString());
 	}
 	return FoundActors[0]->GetTransform();
+}
+
+ALevelTrigger* ALevelScriptActor::GetLevelTrigger()
+{
+
 }

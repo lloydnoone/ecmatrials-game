@@ -8,6 +8,7 @@
 #include "LevelOneScriptActor.generated.h"
 
 class UDataTable;
+class ALevelTrigger;
 
 UCLASS()
 class ECMATRIALS_API ALevelOneScriptActor : public ALevelScriptActor
@@ -37,6 +38,11 @@ private:
 	FTransform StringTransform;
 	FTransform NumberTransform;
 
+	ALevelTrigger* LevelTrigger;
+
 	void SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform);
+
 	FTransform GetSpawnPointTransformWithTag(FName Tag);
+
+	ALevelTrigger* GetLevelTrigger();
 };
