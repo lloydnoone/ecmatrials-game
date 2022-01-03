@@ -16,6 +16,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "CodeEditorComponent.h"
+#include "EcmaIntroLevelScriptActor.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -141,11 +142,25 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	{
 		//notify game mode that a pawn was killed
 		AEcmaTrialsGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AEcmaTrialsGameModeBase>();
+		AEcmaIntroLevelScriptActor* LevelScript = Cast<AEcmaIntroLevelScriptActor>(GetWorld()->GetLevelScriptActor());
 		if (GameMode != nullptr)
 		{
 			GameMode->PawnKilled(this);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("GameMode In EcmaCharacter is null"));
+		}
+		if (LevelScript != nullptr)
+		{
+			LevelScript->PawnKilled(this);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LevelScript In EcmaCharacter is null"));
+		}
 
+		// disable pawn
 		DetachFromControllerPendingDestroy();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
@@ -405,7 +420,12 @@ void AEcmaCharacter::TargetNext()
 
 	NextTarget = ActorsInRange[NextIndex];
 
-	CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(false);
+	// if current target is still alive and has an editor
+	if (CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
+	{
+		CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(false);
+	}
+	
 	NextTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(true);
 	CurrentTarget = NextTarget;
 	return;

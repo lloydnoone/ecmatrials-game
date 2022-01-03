@@ -3,3 +3,7 @@
 
 #include "LevelTrigger.h"
 
+void ALevelTrigger::BeginPlay()
+{
+	Super::BeginPlay();
+}

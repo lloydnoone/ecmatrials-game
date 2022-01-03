@@ -22,6 +22,10 @@ void AEcmaAIController::OnPossess(APawn* InPawn)
 		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 		GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), GetPawn()->GetActorLocation());
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AIBehaviour was null ptr"));
+	}
 }
 
 void AEcmaAIController::Tick(float DeltaSeconds)

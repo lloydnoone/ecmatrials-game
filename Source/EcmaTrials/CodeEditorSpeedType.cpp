@@ -44,9 +44,13 @@ bool UCodeEditorSpeedType::Initialize()
 
 void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType)
 {
+	// if users input matches required code
 	if (TextInput->GetText().ToString() == RequiredText->GetText().ToString())
 	{
-		GetOwningActor()->TakeDamage(100.f, FDamageEvent(), GetWorld()->GetFirstPlayerController(), GetWorld()->GetFirstPlayerController()->GetPawn());
+		// kill that enemy
+		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+		APawn* PlayerPawn = PlayerController->GetPawn();
+		GetOwningActor()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
 		DisplayOutput("Correct! killed an npc", false);
 	}
 	else

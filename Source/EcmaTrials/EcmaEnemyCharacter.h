@@ -19,6 +19,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 	void SetCodeForSpeedType(FString String);
 
 	USphereComponent* EditorCollisionPtr;

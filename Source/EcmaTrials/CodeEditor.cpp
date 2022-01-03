@@ -197,7 +197,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 	// highlight syntax
 	FString RawInputText = TextInput->GetText().ToString();
-	FString FormattedString = RawInputText.Replace(TEXT("const"), TEXT("<const>const</>"));
+	FString FormattedString = RawInputText.Replace(TEXT("const"), TEXT("<const>const</>")).Replace(TEXT("let"), TEXT("<const>let</>"));
 	FText Text = FText::FromString(FormattedString);
 
 	//update syntax highlighter to latest
@@ -211,33 +211,17 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 	// display response output to player
 	if (Response.message == "Test passed after updating")
 	{
-		/*FText FormattedText = FText::FromString(Response.message);
-
-		ResponseOutput->SetText(FormattedText);
-		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Green));
-		PlayAnimation(SlideIn);*/
 		DisplayOutput(Response.message, false);
 	}
 	else if (Response.message == "Test failed")
 	{
 		FString FomattedString = FString(Response.error.name + "\n" + Response.error.message);
-		/*FText FormattedText = FText::FromString(Response.error.message);
-
-		ResponseOutput->SetText(FormattedText);
-		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		PlayAnimation(SlideIn);*/
 		DisplayOutput(FomattedString, true);
 	}
 	else
 	{
 		//FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
-
 		FString FomattedString = FString("Line Number: " + Response.error.LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
-		/*FText FormattedText = FText::FromString(FomattedString);
-
-		ResponseOutput->SetText(FormattedText);
-		ResponseOutput->SetColorAndOpacity(FSlateColor(FLinearColor::Red));
-		PlayAnimation(SlideIn);*/
 		DisplayOutput(FomattedString, true);
 	}
 

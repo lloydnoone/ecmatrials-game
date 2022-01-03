@@ -13,5 +13,8 @@ UCLASS()
 class ECMATRIALS_API ALevelTrigger : public ATriggerBox
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void BeginPlay() override;
 	
 };

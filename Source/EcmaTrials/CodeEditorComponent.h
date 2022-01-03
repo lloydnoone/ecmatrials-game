@@ -83,6 +83,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UDataTable* RequiredCodeTable;
 
+	TMap<FString, int32> HighlightMap;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bAlwaysRenderCustomDepth = true;
+
 	//the actual code editor, make a UPROPERTY to avoid unwanted garbage collection
 	UPROPERTY()
 	UCodeEditor* CodeEditor;

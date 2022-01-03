@@ -25,15 +25,18 @@ void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerComp
 	AAIController* AIController = OwnerComp.GetAIOwner();
 	if (AIController == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AIController in PlayerLocationIfSeen is nullptr"));
 		return;
 	}
 
-	if (AIController->LineOfSightTo(PlayerPawn))
-	{
+	/*if (AIController->LineOfSightTo(PlayerPawn))
+	{*/
+		UE_LOG(LogTemp, Warning, TEXT("%s Can See Player, Should set"), *OwnerComp.GetAIOwner()->GetPawn()->GetName());
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), PlayerPawn);
-	}
+	/*}
 	else
-	{
-		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
-	}
+	{*/
+		/*UE_LOG(LogTemp, Warning, TEXT("%s Cant See Player, will unset"), *OwnerComp.GetAIOwner()->GetPawn()->GetName());
+		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());*/
+	//}
 }

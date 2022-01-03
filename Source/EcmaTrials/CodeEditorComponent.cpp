@@ -28,6 +28,11 @@ void UCodeEditorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	HighlightMap.Add(TEXT("DARK"), 0);
+	HighlightMap.Add(TEXT("RED"), 1);
+	HighlightMap.Add(TEXT("ORANGE"), 2);
+	HighlightMap.Add(TEXT("GREEN"), 3);
+
 	if (!CodeEditorClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Code Editor Class is nullptr"));
@@ -35,7 +40,7 @@ void UCodeEditorComponent::BeginPlay()
 	}
 
 	// get owners meshes
-	TArray<UMeshComponent*> OutComponents;
+	TInlineComponentArray<UMeshComponent*> OutComponents;
 	GetOwner()->GetComponents(OutComponents);
 	Meshes = OutComponents;
 
@@ -130,7 +135,7 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Mesh loop"));
 		MeshComp->SetRenderCustomDepth(true);
-		MeshComp->SetCustomDepthStencilValue(3);
+		MeshComp->SetCustomDepthStencilValue(HighlightMap["GREEN"]);
 	}
 }
 
@@ -160,7 +165,8 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	// unhighlight with outline
 	for (UMeshComponent* MeshComp : Meshes)
 	{
-		MeshComp->SetCustomDepthStencilValue(2);
+		MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
+		MeshComp->SetCustomDepthStencilValue(HighlightMap["ORANGE"]);
 	}
 }
 
