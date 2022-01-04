@@ -28,11 +28,6 @@ void UCodeEditorComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	HighlightMap.Add(TEXT("DARK"), 0);
-	HighlightMap.Add(TEXT("RED"), 1);
-	HighlightMap.Add(TEXT("ORANGE"), 2);
-	HighlightMap.Add(TEXT("GREEN"), 3);
-
 	if (!CodeEditorClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Code Editor Class is nullptr"));
@@ -135,7 +130,7 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Mesh loop"));
 		MeshComp->SetRenderCustomDepth(true);
-		MeshComp->SetCustomDepthStencilValue(HighlightMap["GREEN"]);
+		MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
 	}
 }
 
@@ -166,7 +161,7 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	for (UMeshComponent* MeshComp : Meshes)
 	{
 		MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
-		MeshComp->SetCustomDepthStencilValue(HighlightMap["ORANGE"]);
+		MeshComp->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
 	}
 }
 

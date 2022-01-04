@@ -16,6 +16,29 @@ class AInteractableSubject;
 class UDataTable;
 
 USTRUCT(BlueprintType)
+struct FPostProccessColor
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Dark;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Orange;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 OrangeHighDef;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 Green;
+
+	FPostProccessColor()
+	{
+		Dark = 0;
+		Orange = 1;
+		OrangeHighDef = 2;
+		Green = 3;
+	}
+};
+
+USTRUCT(BlueprintType)
 struct FRequiredCodeTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -83,7 +106,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UDataTable* RequiredCodeTable;
 
-	TMap<FString, int32> HighlightMap;
+	FPostProccessColor PostProccessColor;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bAlwaysRenderCustomDepth = true;
