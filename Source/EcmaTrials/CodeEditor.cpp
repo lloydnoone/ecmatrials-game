@@ -77,7 +77,7 @@ void UCodeEditor::DelegateCommitInputText(const FText& InText, ETextCommit::Type
 
 	FRequest_PostCode PostCode;
 	PostCode.snippet = InText.ToString();
-	HttpService->PostCode(PostCode, this);
+	HttpService->PostCode(PostCode, this, RequestUrl);
 }
 
 //catch input before its sent to textinput
@@ -209,7 +209,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
 	// display response output to player
-	if (Response.message == "Test passed after updating")
+	if (Response.message == "Test passed")
 	{
 		DisplayOutput(Response.message, false);
 	}
@@ -241,6 +241,11 @@ void UCodeEditor::DisplayOutput(FString String, bool IsError)
 	ResponseOutput->SetText(FText::FromString(String));
 	ResponseOutput->SetColorAndOpacity(Color);
 	PlayAnimation(SlideIn);
+}
+
+void UCodeEditor::SetRequestUrl(FString Url)
+{
+	RequestUrl = Url;
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull

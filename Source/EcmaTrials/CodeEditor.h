@@ -46,6 +46,8 @@ public:
 
 	void SetOwningActor(AActor* Actor);
 
+	void SetRequestUrl(FString Url);
+
 	AActor* GetOwningActor();
 
 	UCodeEditorComponent* GetActorsEditorComponent();
@@ -55,6 +57,8 @@ public:
 	void DisplayOutput(FString String, bool IsError);
 
 private:
+
+	FString RequestUrl = "";
 
 	FString ErrorString = "";
 

@@ -133,8 +133,13 @@ void AHttpService::GetStructFromJsonString(FHttpResponsePtr Response, StructType
 //	UE_LOG(LogTemp, Warning, TEXT("Name is: %s"), *LoginResponse.name);
 //}
 
-void AHttpService::PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor) {
+void AHttpService::PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor, FString RequestUrl) {
 
+	if (RequestUrl == "")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("no sub route defined in code editors request url for this actor"));
+	}
+	
 	//set the editor that made the request
 	CodeEditor = CurrentEditor;
 
@@ -143,7 +148,7 @@ void AHttpService::PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor) 
 	GetJsonStringFromStruct<FRequest_PostCode>(Code, ContentJsonString);
 
 	// create request
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = PostRequest("tests/test", ContentJsonString);
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = PostRequest(RequestUrl, ContentJsonString);
 	Request->OnProcessRequestComplete().BindUObject(this, &AHttpService::PostCodeResponse);
 
 	// and then send

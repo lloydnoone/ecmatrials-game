@@ -64,6 +64,7 @@ void UCodeEditorComponent::BeginPlay()
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &UCodeEditorComponent::EndOverlap);
 
 	CodeEditor->SetOwningActor(GetOwner());
+	CodeEditor->SetRequestUrl(RequestUrl);
 }
 
 

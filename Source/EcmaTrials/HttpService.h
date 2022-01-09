@@ -101,6 +101,6 @@ public:
 	/*void Login(FRequest_Login LoginCredentials);
 	void LoginResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);*/
 
-	void PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor);
+	void PostCode(FRequest_PostCode Code, UCodeEditor* CurrentEditor, FString RequestUrl);
 	void PostCodeResponse(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

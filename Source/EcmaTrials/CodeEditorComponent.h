@@ -106,6 +106,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UDataTable* RequiredCodeTable;
 
+	UPROPERTY(EditAnywhere)
+	FString RequestUrl = "";
+
 	FPostProccessColor PostProccessColor;
 
 	UPROPERTY(EditDefaultsOnly)
