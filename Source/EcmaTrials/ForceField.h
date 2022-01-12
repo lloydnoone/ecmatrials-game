@@ -16,5 +16,5 @@ class ECMATRIALS_API AForceField : public AInteractableSubject
 	
 
 public:
-	virtual void TestResults(bool Result) override;
+	virtual void TestResults(bool bResult, bool bFlipLogic) override;
 };

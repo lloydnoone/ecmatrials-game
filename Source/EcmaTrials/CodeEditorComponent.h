@@ -109,6 +109,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	FString RequestUrl = "";
 
+	UPROPERTY(EditAnywhere)
+	bool bFlipLogic = false;
+
 	FPostProccessColor PostProccessColor;
 
 	UPROPERTY(EditDefaultsOnly)

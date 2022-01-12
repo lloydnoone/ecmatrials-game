@@ -113,7 +113,7 @@ void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* O
 	if (!bFirstWaveBegun)
 	{
 		// lower second force field
-		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true);
+		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
 		
 		//start spawning enemies
 		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
@@ -132,13 +132,13 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 	KillCount++;
 	if (KillCount == 3)
 	{
-		GetActorFromArray(ForceFields, "Third Force Field")->TestResults(true);
+		GetActorFromArray(ForceFields, "Third Force Field")->TestResults(true, false);
 		
 		SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);
 	}
 	if (KillCount == 6)
 	{
-		GetActorFromArray(ForceFields, "Fourth Force Field")->TestResults(true);
+		GetActorFromArray(ForceFields, "Fourth Force Field")->TestResults(true, false);
 		
 		SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
 	}

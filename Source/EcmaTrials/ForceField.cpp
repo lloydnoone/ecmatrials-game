@@ -3,10 +3,10 @@
 
 #include "ForceField.h"
 
-void AForceField::TestResults(bool Result)
+void AForceField::TestResults(bool bResult, bool bFlipLogic)
 {
-	Super::TestResults(Result);
-	if (Result)
+	Super::TestResults(bResult, bFlipLogic);
+	if (bResult && !bFlipLogic)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ForceField Should open. "));
 		SetActorHiddenInGame(true);
@@ -15,6 +15,9 @@ void AForceField::TestResults(bool Result)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ForceField stays shut. "));
+		UE_LOG(LogTemp, Warning, TEXT("ForceField should shut. "));
+		SetActorHiddenInGame(false);
+		SetActorEnableCollision(true);
+		SetActorTickEnabled(true);
 	}
 }

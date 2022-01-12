@@ -24,5 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// overidden by actors subject to test results
-	virtual void TestResults(bool Result);
+	virtual void TestResults(bool bResult, bool bFlipLogic);
 };

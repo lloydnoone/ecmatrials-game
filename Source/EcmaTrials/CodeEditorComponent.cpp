@@ -83,6 +83,9 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 	}
 	if (Show)
 	{
+		//slow time when editor is in view port
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05);
+
 		if (CodeEditor->IsInViewport()) return;
 		CodeEditor->AddToViewport();
 	}
@@ -90,6 +93,9 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 	{
 		if (CodeEditor->IsInViewport())
 		{
+			// set time dilation to normal speed
+			UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0);
+
 			CodeEditor->RemoveFromViewport();
 		}
 	}
@@ -202,7 +208,7 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		}
 		return;
 	}
-	Subject->TestResults(Result);
+	Subject->TestResults(Result, bFlipLogic);
 }
 
 FString UCodeEditorComponent::GetRequiredText()
