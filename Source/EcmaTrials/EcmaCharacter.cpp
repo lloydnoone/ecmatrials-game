@@ -96,6 +96,11 @@ bool AEcmaCharacter::IsDead() const
 	return Health <= 0;
 }
 
+bool AEcmaCharacter::IsAttacking() const
+{
+	return bIsAttacking;
+}
+
 float AEcmaCharacter::GetHealthPercent() const
 {
 	return Health / MaxHealth;
@@ -126,6 +131,7 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Attack);
 	PlayerInputComponent->BindAction(TEXT("ChangeTarget"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::ChangeTarget);
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Interact);
+	PlayerInputComponent->BindAction(TEXT("DropTarget"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::DropTarget);
 	// while in codeeditor onpreviewkeydown in codeeditor.cpp submits code
 }
 
@@ -163,6 +169,10 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		// disable pawn
 		DetachFromControllerPendingDestroy();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// code for ragdoll, too buggy to use during slow mo
+		//Mesh->SetSimulatePhysics(true);
+		//CharMovementComp->DisableMovement();
 	}
 
 	return DamageToApply;
@@ -206,28 +216,36 @@ void AEcmaCharacter::LookRightRate(float AxisValue)
 
 void AEcmaCharacter::Attacked()
 {
-	if (!GetWorldTimerManager().IsTimerActive(DeathTimer))
+	if (!bIsDowned)
 	{
-		IsDowned = true;
+		bIsDowned = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
-		float AnimLength = PlayAnimMontage(DeathAnim);
-		GetWorldTimerManager().SetTimer(DeathTimer, AnimLength, false);
 	}
+	UE_LOG(LogTemp, Warning, TEXT("end of player attacked"));
 }
 
 void AEcmaCharacter::AttackTrace()
 {
+	// if Character is dead, stop tracing and animating
+	if (IsDead())
+	{
+		bIsAttacking = false;
+		GetWorldTimerManager().ClearTimer(AttackTimer);
+		StopAnimMontage(CurrentAttackMontage);
+		return;
+	}
+
 	ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
 	// clear timer to stop tracing if anim has finished playing
 	if (ElapsedAttackTime >= AttackAnimLength)
 	{
-		IsAttacking = false;
+		bIsAttacking = false;
 		GetWorldTimerManager().ClearTimer(AttackTimer);
 		return;
 	}
 
 	// socket to trace on
-	FName SocketName = IsCross ? "hand_r" : "foot_r";
+	FName SocketName = bIsCross ? "hand_r" : "foot_r";
 	
 	// set up params for trace func
 	FVector SocketLocation = Mesh->GetSocketLocation(SocketName);
@@ -256,38 +274,40 @@ void AEcmaCharacter::AttackTrace()
 
 	if (HitFound)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Attacked!"), HitResult.Actor);
-		AEcmaCharacter* HitActor = Cast<AEcmaCharacter>(HitResult.Actor);
+		AEcmaEnemyCharacter* HitActor = Cast<AEcmaEnemyCharacter>(HitResult.Actor);
 		if (HitActor)
 		{
-			HitActor->Attacked();
+			HitActor->TakeDamage(100.f, FDamageEvent(), GetController(), this);
 		}
 	}
 }
 
 void AEcmaCharacter::Attack()
 {
-	if (!CharMovementComp->IsFalling() && !IsAttacking)
+	if (!CharMovementComp->IsFalling() && !bIsAttacking)
 	{
-		//reset
+		//reset - these are used in attackTrace
 		ElapsedAttackTime = 0.0f;
-		IsAttacking = true;
+		bIsAttacking = true;
 
 		// get random attack
 		int32 RandNum = FMath::RandRange(0, 1);
 		if (AnimArray.IsValidIndex(RandNum))
 		{
-			UAnimMontage* AttackMontage = AnimArray[RandNum];
+			CurrentAttackMontage = AnimArray[RandNum];
+
+			// IsCross and AttackAnimLength are used in AttackTrace
 			// which limb is the attack using?
-			IsCross = AttackMontage->GetFName().ToString().Contains("cross");
+			bIsCross = CurrentAttackMontage->GetFName().ToString().Contains("cross");
 			// play anim
-			AttackAnimLength = PlayAnimMontage(AttackMontage);
+			AttackAnimLength = PlayAnimMontage(CurrentAttackMontage);
+
 			// run attack trace every 0.1f until anim has finished
 			GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("could find random attack anim"));
+			UE_LOG(LogTemp, Warning, TEXT("couldnt find random attack anim"));
 		}
 	}
 }
@@ -343,7 +363,9 @@ void AEcmaCharacter::ResetTarget()
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Only one target same as current so refreshing target"));
 	
-	CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(true);
+	UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
+	EditorComp->SetCodeEditorVisibility(true);
+	EditorComp->GetKeyboardFocus();
 	return;
 }
 
@@ -386,6 +408,7 @@ void AEcmaCharacter::TargetNearest()
 		else
 		{
 			EditorComp->SetCodeEditorVisibility(true);
+			EditorComp->GetKeyboardFocus();
 			UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
 		}
 	}
@@ -421,12 +444,16 @@ void AEcmaCharacter::TargetNext()
 	NextTarget = ActorsInRange[NextIndex];
 
 	// if current target is still alive and has an editor
-	if (CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
+	if (UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
 	{
-		CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(false);
+		CurrentTargetEditorComp->SetCodeEditorVisibility(false);
 	}
 	
-	NextTarget->FindComponentByClass< UCodeEditorComponent >()->SetCodeEditorVisibility(true);
+	//set code editor widget in screen with keyboard focus for next target
+	UCodeEditorComponent* NextTargetEditorComp = NextTarget->FindComponentByClass< UCodeEditorComponent >();
+	NextTargetEditorComp->SetCodeEditorVisibility(true);
+	NextTargetEditorComp->GetKeyboardFocus();
+
 	CurrentTarget = NextTarget;
 	return;
 }
@@ -458,6 +485,15 @@ void AEcmaCharacter::ChangeTarget()
 	// if logic get to here, player has target and another is in range
 	TargetNext();
 	return;
+}
+
+void AEcmaCharacter::DropTarget()
+{
+	if (CurrentTarget)
+	{
+		UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
+		CurrentTargetEditorComp->SetCodeEditorVisibility(false);
+	}
 }
 
 void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)

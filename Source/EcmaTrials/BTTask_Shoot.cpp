@@ -4,7 +4,7 @@
 #include "BTTask_Shoot.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "AIController.h"
-#include "EcmaCharacter.h"
+#include "EcmaEnemyCharacter.h"
 
 UBTTask_Shoot::UBTTask_Shoot()
 {
@@ -21,13 +21,14 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 	}
 	
 	//get AI pawn
-	AEcmaCharacter* Character = Cast<AEcmaCharacter>(OwnerComp.GetAIOwner()->GetPawn());
+	AEcmaEnemyCharacter* Character = Cast<AEcmaEnemyCharacter>(OwnerComp.GetAIOwner()->GetPawn());
 	if (Character == nullptr)
 	{
 		return EBTNodeResult::Failed;
 	}
 
-	//Character->Attack();
+	UE_LOG(LogTemp, Warning, TEXT("Should attack"));
+	Character->Attack();
 
 	return EBTNodeResult::Succeeded;
 }

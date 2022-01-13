@@ -195,7 +195,7 @@ AInteractableSubject* UCodeEditorComponent::GetSubjectActor()
 
 void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 {
-	// if subject is nullptr then affect the owning actor directly
+	// if subject is nullptr then affect the owning actor directly because ondelegatecommitipnputtext is overidden in actors that affect themself
 	if (Subject == nullptr)
 	{
 		if (Result == true)

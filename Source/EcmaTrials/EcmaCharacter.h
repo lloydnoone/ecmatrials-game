@@ -22,10 +22,33 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	bool bIsAttacking = false;
+	bool bIsDowned = false;
+	bool bIsCross = false;
+
+	FTimerHandle AttackTimer;
+	FTimerHandle DeathTimer;
+
+	float AttackAnimLength = 0.0f;
+	float ElapsedAttackTime = 0.0f;
+
+	//animation array
+	UPROPERTY(EditDefaultsOnly)
+	TArray<UAnimMontage*> AnimArray;
+
+	UCharacterMovementComponent* CharMovementComp;
+
+	USkeletalMeshComponent* Mesh;
+
+	UAnimMontage* CurrentAttackMontage;
+
 public:	
 	// function to call in ABP event graph to check death status
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsAttacking() const;
 
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
@@ -40,12 +63,14 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	//void Shoot();
-	void Attack();
-	void AttackTrace();
-	void Attacked();
+	virtual void Attack();
+	virtual void AttackTrace();
+	virtual void Attacked();
 
 	void AddActorInRange(AActor* Actor);
 	void RemoveActorInRange(AActor* Actor);
+
+	void ChangeTarget();
 
 private:
 	void MoveForward(float AxisValue);
@@ -57,11 +82,11 @@ private:
 	void MoveRight(float AxisValue);
 	void LookRight(float AxisValue);
 
-	void ChangeTarget();
 	void HandleNoTarget();
 	void ResetTarget();
 	void TargetNearest();
 	void TargetNext();
+	void DropTarget();
 
 	void LockOnCameraRotate(float DeltaTime);
 
@@ -77,22 +102,8 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	float Health;
 
-	bool IsAttacking = false;
-	bool IsDowned = false;
-	bool IsCross = false;
-
-	FTimerHandle AttackTimer;
-	FTimerHandle DeathTimer;
-
-	float AttackAnimLength = 0.0f;
-	float ElapsedAttackTime = 0.0f;
-
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathAnim;
-
-	//animation array
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UAnimMontage*> AnimArray;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* ImpactSound;
@@ -114,9 +125,5 @@ private:
 
 	UCameraComponent* Camera;
 
-	UCharacterMovementComponent* CharMovementComp;
-
 	AController* Controller;
-
-	USkeletalMeshComponent* Mesh;
 };

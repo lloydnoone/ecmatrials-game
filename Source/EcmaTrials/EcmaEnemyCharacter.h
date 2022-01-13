@@ -21,9 +21,20 @@ protected:
 public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	virtual void Attack() override;
+	virtual void AttackTrace() override;
+	virtual void Attacked() override;
+
 	void SetCodeForSpeedType(FString String);
+
+private:
 
 	USphereComponent* EditorCollisionPtr;
 
 	UCodeEditorComponent* CodeEditorPtr;
+
+	AEcmaCharacter* Player;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* Flash;
 };
