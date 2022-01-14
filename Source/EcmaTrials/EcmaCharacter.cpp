@@ -17,6 +17,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "CodeEditorComponent.h"
 #include "EcmaIntroLevelScriptActor.h"
+#include "PauseMenu.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -67,7 +68,7 @@ void AEcmaCharacter::BeginPlay()
 	}
 
 	//get controller
-	Controller = GetController();
+	Controller = GetWorld()->GetFirstPlayerController();//GetController();
 	if (Controller == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find player controller."))
@@ -75,7 +76,7 @@ void AEcmaCharacter::BeginPlay()
 
 	//get mesh
 	Mesh = GetMesh();
-	if (Controller == nullptr)
+	if (Mesh == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find character skeletal mesh."))
 	}
@@ -132,6 +133,7 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	PlayerInputComponent->BindAction(TEXT("ChangeTarget"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::ChangeTarget);
 	PlayerInputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::Interact);
 	PlayerInputComponent->BindAction(TEXT("DropTarget"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::DropTarget);
+	PlayerInputComponent->BindAction(TEXT("PauseGame"), EInputEvent::IE_Pressed, this, &AEcmaCharacter::PauseGame);
 	// while in codeeditor onpreviewkeydown in codeeditor.cpp submits code
 }
 
@@ -532,5 +534,46 @@ void AEcmaCharacter::Interact()
 	if (CurrentTarget != nullptr)
 	{
 		CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->GetKeyboardFocus();
+	}
+}
+
+void AEcmaCharacter::PauseGame()
+{
+	// get world object and player controller
+	UWorld* World = GetWorld();
+
+	// create pause menu if it hasnt been once already
+	if (!PauseMenu)
+	{
+		if (!PauseMenuClass)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("no pause menu class selected in character"));
+			return;
+		}
+		PauseMenu = NewObject<UPauseMenu>(this, PauseMenuClass);
+	}
+
+	// if its paused already
+	if (UGameplayStatics::IsGamePaused(World))
+	{
+		// unpause
+		PauseMenu->RemoveFromParent();
+		UGameplayStatics::SetGamePaused(World, false);
+		Controller->SetShowMouseCursor(false);
+		Controller->SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		// pause
+		PauseMenu->AddToViewport();
+		UGameplayStatics::SetGamePaused(World, true);
+		Controller->SetShowMouseCursor(true);
+
+		// set input options
+		FInputModeGameAndUI InputMode;
+		InputMode.SetWidgetToFocus(PauseMenu->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
+		InputMode.SetHideCursorDuringCapture(false);
+		Controller->SetInputMode(InputMode);
 	}
 }

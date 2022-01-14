@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class UAnimMontage;
+class UPauseMenu;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -92,6 +93,8 @@ private:
 
 	void Interact();
 
+	void PauseGame();
+
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)
 	float RotationRate = 10;
@@ -116,6 +119,12 @@ private:
 	//UPROPERTY()
 	//AGun* Gun;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UPauseMenu> PauseMenuClass;
+
+	UPROPERTY()
+	UPauseMenu* PauseMenu;
+
 	TArray<AActor*> ActorsInRange;
 
 	//index to use on interactables in range
@@ -125,5 +134,5 @@ private:
 
 	UCameraComponent* Camera;
 
-	AController* Controller;
+	APlayerController* Controller;
 };
