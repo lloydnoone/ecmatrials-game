@@ -49,6 +49,12 @@ public:
 	void ToggleTutorialPause(FString TableKey = "");
 	UFUNCTION(BlueprintCallable)
 	void ToggleTutorialCard(FString CardTag, bool bVisible);
+	UFUNCTION(BlueprintCallable)
+	void SkipSequence();
+	UFUNCTION(BlueprintCallable)
+	void AddSkipMsg();
+	UFUNCTION(BlueprintCallable)
+	void RemoveSkipMsg();
 
 private:
 	AEcmaPlayerController* PlayerController;
@@ -58,6 +64,11 @@ private:
 	TSubclassOf<class UTutorialText> TextWidgetClass;
 	UPROPERTY()
 	UTutorialText* TextWidget = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UTutorialText> SkipWidgetClass;
+	UPROPERTY()
+	UTutorialText* SkipWidget = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStringTable* TutorialStringTable;

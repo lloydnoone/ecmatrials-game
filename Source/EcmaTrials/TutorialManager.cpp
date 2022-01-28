@@ -47,12 +47,34 @@ void ATutorialManager::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt find player pawn"));
 	}
 
-	TextWidget = NewObject<UTutorialText>(this, TextWidgetClass);
-	if (TextWidget == nullptr)
+	if (!TextWidgetClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create text widget"));
-		return;
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager has no text class selected"));
 	}
+	else
+	{
+		TextWidget = NewObject<UTutorialText>(this, TextWidgetClass);
+		if (TextWidget == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create text widget"));
+			return;
+		}
+	}
+	
+	if (!SkipWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager has no skip class selected"));
+	}
+	else
+	{
+		SkipWidget = NewObject<UTutorialText>(this, SkipWidgetClass);
+		if (SkipWidget == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create skip widget"));
+			return;
+		}
+	}
+	
 
 	LevelSequences = GetLevelSequences();
 	if (LevelSequences.Num() == 0)
@@ -77,6 +99,7 @@ void ATutorialManager::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("No Tutorial cards found in tutorial manager"));
 	}
 
+	//get string table for popups
 	if (!TutorialStringTable)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TutorialStringTable is nullptr"));
@@ -89,22 +112,6 @@ void ATutorialManager::BeginPlay()
 
 	//Init for tutorial input
 	BindToInput();
-
-	/*TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "FirstCodeEditor", OutActors);
-	if (OutActors.Num() != 0)
-	{
-		UActorComponent* ActorComp = OutActors[0]->GetComponentByClass(USphereComponent::StaticClass());
-		if (!ActorComp)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("TM Couldnt find first editors sphere collision"));
-		}
-		else
-		{
-			USphereComponent* SphereCollision = Cast<USphereComponent>(ActorComp);
-			SphereCollision->OnComponentBeginOverlap
-		}
-	}*/
 }
 
 // Called every frame
@@ -118,12 +125,14 @@ void ATutorialManager::SequenceStarted()
 {
 	PlayerController->RemoveHUD();
 	PlayerPawn->DisableInput(PlayerController);
+	AddSkipMsg();
 }
 
 void ATutorialManager::SequenceEnded()
 {
 	PlayerController->ReactivateHUD();
 	PlayerPawn->EnableInput(PlayerController);
+	RemoveSkipMsg();
 }
 
 void ATutorialManager::AddTutorialMsg(FString TableKey)
@@ -135,7 +144,6 @@ void ATutorialManager::AddTutorialMsg(FString TableKey)
 		TextWidget->AddToViewport();
 		TextWidget->SetText(FText::FromStringTable(TableID, TableKey));
 	}
-	
 }
 
 void ATutorialManager::RemoveTutorialMsg()
@@ -143,6 +151,24 @@ void ATutorialManager::RemoveTutorialMsg()
 	if (TextWidget != nullptr)
 	{
 		TextWidget->RemoveFromParent();
+	}
+}
+
+void ATutorialManager::AddSkipMsg()
+{
+	// need to add to viewport so widget gets created, SetText will then work
+	if (SkipWidget != nullptr && !SkipWidget->IsInViewport())
+	{
+		SkipWidget->AddToViewport();
+		SkipWidget->SetText(FText::FromStringTable(TableID, "SkipMsg"));
+	}
+}
+
+void ATutorialManager::RemoveSkipMsg()
+{
+	if (SkipWidget != nullptr)
+	{
+		SkipWidget->RemoveFromParent();
 	}
 }
 
@@ -186,6 +212,7 @@ void ATutorialManager::BindToInput()
 	{
 		// Bind inputs here
 		InputComponent->BindAction("Continue", IE_Pressed, this, &ATutorialManager::Continue).bExecuteWhenPaused = true;
+		InputComponent->BindAction("Skip", IE_Pressed, this, & ATutorialManager::SkipSequence);
 		// etc...
 
 		// Now hook up our InputComponent to one in a Player
@@ -284,4 +311,13 @@ TArray<ATutorialCard*> ATutorialManager::GetTutorialCards()
 		Actors.Add(*it);
 	}
 	return Actors;
+}
+
+void ATutorialManager::SkipSequence()
+{
+	if (CurrentLevelSequence)
+	{
+		CurrentLevelSequence->SequencePlayer->GoToEndAndStop();
+		SequenceEnded();
+	}
 }

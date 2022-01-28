@@ -11,6 +11,7 @@ class UDataTable;
 class ALevelTrigger;
 class AForceField;
 class ATutorialManager;
+class ALevelSequenceActor;
 
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
@@ -47,6 +48,9 @@ private:
 	UPROPERTY()
 	ALevelTrigger* LevelTrigger;
 
+	UPROPERTY()
+	ALevelSequenceActor* BooleanSpawnSequence;
+
 	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;
 
@@ -56,6 +60,7 @@ private:
 	
 	TArray<AForceField*> ForceFields;
 	TArray<ALevelTrigger*> LevelTriggers;
+	TArray<ALevelSequenceActor*> LevelSequences;
 
 	template<class T>
 	TArray<T*> GetActorsToArray();

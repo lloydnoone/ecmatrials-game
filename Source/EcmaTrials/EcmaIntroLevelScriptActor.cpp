@@ -10,6 +10,7 @@
 #include "ForceField.h"
 #include "EngineUtils.h"
 #include "TutorialManager.h"
+#include "LevelSequenceActor.h"
 
 void AEcmaIntroLevelScriptActor::BeginPlay()
 {
@@ -38,6 +39,7 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 
 	ForceFields = GetActorsToArray<AForceField>();
 	LevelTriggers = GetActorsToArray<ALevelTrigger>();
+	LevelSequences = GetActorsToArray<ALevelSequenceActor>();
 
 	BooleanTransform = GetSpawnPointTransformWithTag("BooleanSpawn");
 	StringTransform = GetSpawnPointTransformWithTag("StringSpawn");
@@ -56,7 +58,7 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager in LevelOneScript is null"));
 	}
 
-	//.AddDynamic(this, &AEcmaIntroLevelScriptActor::BeginOverlap)
+	BooleanSpawnSequence = GetActorFromArray(LevelSequences, "BooleanSpawnSequence");
 }
 
 void AEcmaIntroLevelScriptActor::SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay)
@@ -121,7 +123,8 @@ void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* O
 {
 	if (!bFirstWaveBegun)
 	{
-		TutorialManager->ToggleTutorialPause("IntroText");
+		BooleanSpawnSequence->SequencePlayer->Play();
+		//TutorialManager->ToggleTutorialPause("IntroText");
 		// lower second force field
 		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
 		
@@ -184,6 +187,6 @@ T* AEcmaIntroLevelScriptActor::GetActorFromArray(TArray<T*> Array, FName Tag)
 	}
 
 	//if non found, log it out and return null
-	UE_LOG(LogTemp, Warning, TEXT("No force field found with %s tag"), *Tag.ToString())
+	UE_LOG(LogTemp, Warning, TEXT("No actor found with %s tag"), *Tag.ToString())
 	return nullptr;
 }
