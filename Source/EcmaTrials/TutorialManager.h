@@ -8,6 +8,9 @@
 
 class AEcmaPlayerController;
 class UTutorialText;
+class ALevelSequenceActor;
+class UStringTable;
+class ATutorialCard;
 
 UCLASS()
 class ECMATRIALS_API ATutorialManager : public AActor
@@ -27,15 +30,25 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-	void IntroStart();
+	void SequenceStarted();
 	UFUNCTION(BlueprintCallable)
-	void IntroEnd();
+	void SequenceEnded();
 	UFUNCTION(BlueprintCallable)
 	void UpdateTutorialText(FString Tablekey);
 	UFUNCTION(BlueprintCallable)
 	void AddTutorialMsg(FString TableKey);
 	UFUNCTION(BlueprintCallable)
 	void RemoveTutorialMsg();
+	UFUNCTION(BlueprintCallable)
+	void SetCurrentSequence(ULevelSequence* SequenceRef);
+	UFUNCTION(BlueprintCallable)
+	void Continue();
+	UFUNCTION(BlueprintCallable)
+	void SequencePause();
+	UFUNCTION(BlueprintCallable)
+	void ToggleTutorialPause(FString TableKey = "");
+	UFUNCTION(BlueprintCallable)
+	void ToggleTutorialCard(FString CardTag, bool bVisible);
 
 private:
 	AEcmaPlayerController* PlayerController;
@@ -46,5 +59,24 @@ private:
 	UPROPERTY()
 	UTutorialText* TextWidget = nullptr;
 
-	FName TableID = "TutorialStringTable";
+	UPROPERTY(EditDefaultsOnly)
+	class UStringTable* TutorialStringTable;
+
+	FName TableID;
+
+	ALevelSequenceActor* CurrentLevelSequence;
+
+	TArray<ALevelSequenceActor*> LevelSequences;
+
+	TArray<ATutorialCard*> TutorialCards;
+
+	bool bPausedByTutorial = false;
+
+	TArray<ALevelSequenceActor*> GetLevelSequences();
+
+	TArray<ATutorialCard*> GetTutorialCards();
+
+	ALevelSequenceActor* GetLevelSequenceByName(FString String);
+
+	void BindToInput();
 };

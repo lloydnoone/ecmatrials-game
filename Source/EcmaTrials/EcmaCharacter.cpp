@@ -119,7 +119,6 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//this->the current object
 	//Text maps to controller settings
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AEcmaCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
@@ -367,7 +366,6 @@ void AEcmaCharacter::ResetTarget()
 	
 	UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
 	EditorComp->SetCodeEditorVisibility(true);
-	EditorComp->GetKeyboardFocus();
 	return;
 }
 
@@ -410,7 +408,6 @@ void AEcmaCharacter::TargetNearest()
 		else
 		{
 			EditorComp->SetCodeEditorVisibility(true);
-			EditorComp->GetKeyboardFocus();
 			UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
 		}
 	}
@@ -454,7 +451,6 @@ void AEcmaCharacter::TargetNext()
 	//set code editor widget in screen with keyboard focus for next target
 	UCodeEditorComponent* NextTargetEditorComp = NextTarget->FindComponentByClass< UCodeEditorComponent >();
 	NextTargetEditorComp->SetCodeEditorVisibility(true);
-	NextTargetEditorComp->GetKeyboardFocus();
 
 	CurrentTarget = NextTarget;
 	return;

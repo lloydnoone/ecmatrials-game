@@ -248,6 +248,13 @@ void UCodeEditor::SetRequestUrl(FString Url)
 	RequestUrl = Url;
 }
 
+void UCodeEditor::AddEditorToScreen()
+{
+	AddToViewport();
+	TextInput->SetKeyboardFocus();
+	PlayAnimation(PopOut);
+}
+
 //code below was an attempt to fire off onsubmittext, might be usefull
 
 //FEventReply UAccessPanelInterface::OnPreviewKeyDown(FGeometry MyGeometry, FKeyEvent InKeyEvent)

@@ -14,6 +14,7 @@ class UStaticMesh;
 class UCodeEditor;
 class AInteractableSubject;
 class UDataTable;
+class UStringTable;
 
 USTRUCT(BlueprintType)
 struct FPostProccessColor
@@ -92,6 +93,8 @@ public:
 
 	void SetRequiredText(FString String);
 
+	void SetInfoText(FName TableID, FString TableKey);
+
 private:
 
 	AInteractableSubject* InitSubjectActor();
@@ -105,6 +108,14 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UDataTable* RequiredCodeTable;
+
+	UPROPERTY(EditAnywhere)
+	class UStringTable* InfoStringTable;
+
+	UPROPERTY(EditAnywhere)
+	FString InfoTableKey = "";
+
+	FName InfoStringTableID = "";
 
 	UPROPERTY(EditAnywhere)
 	FString RequestUrl = "";

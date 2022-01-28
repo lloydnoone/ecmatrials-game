@@ -12,7 +12,9 @@
 #include "InteractableSubject.h"
 #include "EngineUtils.h"
 #include "Components/MultiLineEditableText.h"
+#include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "Internationalization/StringTable.h"
 
 // Sets default values for this component's properties
 UCodeEditorComponent::UCodeEditorComponent()
@@ -65,6 +67,12 @@ void UCodeEditorComponent::BeginPlay()
 
 	CodeEditor->SetOwningActor(GetOwner());
 	CodeEditor->SetRequestUrl(RequestUrl);
+
+	//set string table ID if any then text
+	if (InfoStringTable)
+	{
+		InfoStringTableID = InfoStringTable->GetStringTableId();
+	}
 }
 
 
@@ -87,7 +95,10 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05);
 
 		if (CodeEditor->IsInViewport()) return;
-		CodeEditor->AddToViewport();
+		CodeEditor->AddEditorToScreen();
+
+		// add info text after widget has been init and added to screen
+		if (InfoStringTable) SetInfoText(InfoStringTableID, InfoTableKey);
 	}
 	else
 	{
@@ -127,6 +138,13 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 {
 	UE_LOG(LogTemp, Warning, TEXT("Overlapping"));
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
+
+	if (!Player)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("begin Overlap Player reference is null"));
+		return;
+	}
+
 	// dont add something if it wasnt the player that overlapped
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
@@ -241,5 +259,27 @@ void UCodeEditorComponent::SetRequiredText(FString String)
 	{
 		SpeedTypeEditor->SetRequiredText(String);
 	}
+}
+
+void UCodeEditorComponent::SetInfoText(FName TableID, FString TableKey)
+{
+	// make info text panel invisible if not string to fill it
+	if (TableID == "" || TableKey == "")
+	{
+		CodeEditor->InfoText->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
+	}
+
+	if (TableID == "")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant set info text as tableID is blank"));
+		return;
+	}
+	if (TableKey == "")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant set info text as tableID is blank"));
+		return;
+	}
+
+	CodeEditor->InfoText->SetText(FText::FromStringTable(TableID, TableKey));
 }
 

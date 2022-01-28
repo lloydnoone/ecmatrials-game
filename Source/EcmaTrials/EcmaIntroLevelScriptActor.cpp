@@ -9,6 +9,7 @@
 #include "LevelTrigger.h"
 #include "ForceField.h"
 #include "EngineUtils.h"
+#include "TutorialManager.h"
 
 void AEcmaIntroLevelScriptActor::BeginPlay()
 {
@@ -48,6 +49,14 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("LevelTrigger in LevelOneScript is null"));
 	}
 	LevelTrigger->OnActorBeginOverlap.AddDynamic(this, &AEcmaIntroLevelScriptActor::BeginOverlap);
+
+	TutorialManager = Cast<ATutorialManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATutorialManager::StaticClass()));
+	if (!TutorialManager)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager in LevelOneScript is null"));
+	}
+
+	//.AddDynamic(this, &AEcmaIntroLevelScriptActor::BeginOverlap)
 }
 
 void AEcmaIntroLevelScriptActor::SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay)
@@ -112,6 +121,7 @@ void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* O
 {
 	if (!bFirstWaveBegun)
 	{
+		TutorialManager->ToggleTutorialPause("IntroText");
 		// lower second force field
 		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
 		

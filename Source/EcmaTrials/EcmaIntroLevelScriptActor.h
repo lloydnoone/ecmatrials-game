@@ -10,6 +10,7 @@
 class UDataTable;
 class ALevelTrigger;
 class AForceField;
+class ATutorialManager;
 
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
@@ -24,17 +25,20 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly)
-		class UDataTable* BooleanCodeTable;
+
+	ATutorialManager* TutorialManager;
 
 	UPROPERTY(EditDefaultsOnly)
-		class UDataTable* StringCodeTable;
+	class UDataTable* BooleanCodeTable;
 
 	UPROPERTY(EditDefaultsOnly)
-		class UDataTable* NumberCodeTable;
+	class UDataTable* StringCodeTable;
 
 	UPROPERTY(EditDefaultsOnly)
-		TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
+	class UDataTable* NumberCodeTable;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
 
 	FTransform BooleanTransform;
 	FTransform StringTransform;

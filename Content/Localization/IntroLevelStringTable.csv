@@ -1,0 +1,7 @@
+Key,SourceString,Comment
+IntroText,"This string is from CSV",Welcome message
+QuitGameLabel,"Quit the Game",
+LongDescription,"Welcome to the thing.
+
+Here's multi-line text.",
+ButtonLabel,"Click me",

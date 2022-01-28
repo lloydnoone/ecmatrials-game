@@ -30,9 +30,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* ResponseOutput;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* InfoText;
+
 	// get access to this anim to trigger in C++
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* SlideIn;
+	
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* PopOut;
 
 	UFUNCTION()
 	virtual void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
@@ -55,6 +61,8 @@ public:
 	void ReceiveResponse(FResponse_PostCode Response);
 
 	void DisplayOutput(FString String, bool IsError);
+
+	void AddEditorToScreen();
 
 private:
 

@@ -22,5 +22,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* TextBlock;
 
+	// get access to this anim to trigger in C++
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* FadeIn;
+
 	void SetText(FText Text);
+
+	void AnimatedVisible(bool bVisible);
 };
