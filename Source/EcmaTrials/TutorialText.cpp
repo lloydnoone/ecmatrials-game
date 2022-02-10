@@ -19,6 +19,10 @@ bool UTutorialText::Initialize()
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Text has no fade in animation"));
 		return false;
 	}
+
+	//start invisible and fade in
+	SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
+
 	return true;
 }
 

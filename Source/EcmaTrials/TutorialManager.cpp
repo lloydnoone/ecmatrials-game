@@ -51,7 +51,7 @@ void ATutorialManager::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager has no text class selected"));
 	}
-	else
+	/*else
 	{
 		TextWidget = NewObject<UTutorialText>(this, TextWidgetClass);
 		if (TextWidget == nullptr)
@@ -59,7 +59,7 @@ void ATutorialManager::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create text widget"));
 			return;
 		}
-	}
+	}*/
 	
 	if (!SkipWidgetClass)
 	{
@@ -135,14 +135,20 @@ void ATutorialManager::SequenceEnded()
 	RemoveSkipMsg();
 }
 
-void ATutorialManager::AddTutorialMsg(FString TableKey)
+void ATutorialManager::AddTutorialMsg(FString TableKey, TSubclassOf<class UTutorialText> WidgetClass)
 {
+	TextWidget = NewObject<UTutorialText>(this, WidgetClass);
 	// need to add to viewport so widget gets created, SetText will then work
 	if (TextWidget != nullptr && !TextWidget->IsInViewport())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("table key is %s, should set text."), *TableKey);
 		TextWidget->AddToViewport();
+		TextWidget->AnimatedVisible(true);
 		TextWidget->SetText(FText::FromStringTable(TableID, TableKey));
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TextWidget was undefined or not in viewport"));
 	}
 }
 
@@ -160,6 +166,7 @@ void ATutorialManager::AddSkipMsg()
 	if (SkipWidget != nullptr && !SkipWidget->IsInViewport())
 	{
 		SkipWidget->AddToViewport();
+		SkipWidget->AnimatedVisible(true);
 		SkipWidget->SetText(FText::FromStringTable(TableID, "SkipMsg"));
 	}
 }
@@ -172,11 +179,11 @@ void ATutorialManager::RemoveSkipMsg()
 	}
 }
 
-void ATutorialManager::UpdateTutorialText(FString TableKey)
+void ATutorialManager::UpdateTutorialText(FString TableKey, UTutorialText* WidgetRef)
 {
-	if (TextWidget != nullptr)
+	if (WidgetRef != nullptr)
 	{
-		TextWidget->SetText(FText::FromStringTable(TableID, TableKey));
+		WidgetRef->SetText(FText::FromStringTable(TableID, TableKey));
 	}
 }
 
@@ -245,7 +252,7 @@ void ATutorialManager::SetCurrentSequence(ULevelSequence* SequenceRef)
 	CurrentLevelSequence = GetLevelSequenceByName(SequenceRef->GetName());
 }
 
-void ATutorialManager::ToggleTutorialPause(FString TableKey)
+void ATutorialManager::ToggleTutorialPause()
 {
 	// get world object and player controller
 	UWorld* World = GetWorld();
@@ -264,7 +271,7 @@ void ATutorialManager::ToggleTutorialPause(FString TableKey)
 	if (UGameplayStatics::IsGamePaused(World) && bPausedByTutorial == true)
 	{
 		// unpause
-		RemoveTutorialMsg();
+		RemoveTutorialMsg(); // remove any widgets that might have been added
 		UGameplayStatics::SetGamePaused(World, false);
 		PlayerController->SetShowMouseCursor(false);
 		PlayerController->SetInputMode(FInputModeGameOnly());
@@ -274,7 +281,7 @@ void ATutorialManager::ToggleTutorialPause(FString TableKey)
 	else
 	{
 		// pause
-		AddTutorialMsg(TableKey);
+		//AddTutorialMsg(TableKey, WidgetRef);
 		UGameplayStatics::SetGamePaused(World, true);
 		PlayerController->SetShowMouseCursor(true);
 

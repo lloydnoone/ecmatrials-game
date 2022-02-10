@@ -39,11 +39,15 @@ private:
 	class UDataTable* NumberCodeTable;
 
 	UPROPERTY(EditDefaultsOnly)
+	class UDataTable* NullCodeTable;
+
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
 
 	FTransform BooleanTransform;
 	FTransform StringTransform;
 	FTransform NumberTransform;
+	FTransform NullTransform;
 
 	UPROPERTY()
 	ALevelTrigger* LevelTrigger;

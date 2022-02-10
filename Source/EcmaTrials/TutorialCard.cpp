@@ -51,9 +51,6 @@ void ATutorialCard::BeginPlay()
 	}
 	else
 	{
-		//start invisible
-		TutorialTextWidget->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
-
 		TutorialTextWidget->SetText(FText::FromStringTable(TableID, TableKey));
 	}
 

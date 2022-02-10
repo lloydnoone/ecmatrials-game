@@ -31,6 +31,11 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("NumberCodeTable in LevelOneScript is nullptr"));
 		return;
 	}
+	if (!NullCodeTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NumberCodeTable in LevelOneScript is nullptr"));
+		return;
+	}
 	if (!EnemyBP)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyBP in LevelOneScript is nullptr"));
@@ -44,6 +49,7 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	BooleanTransform = GetSpawnPointTransformWithTag("BooleanSpawn");
 	StringTransform = GetSpawnPointTransformWithTag("StringSpawn");
 	NumberTransform = GetSpawnPointTransformWithTag("NumberSpawn");
+	NullTransform = GetSpawnPointTransformWithTag("NullSpawn");
 
 	LevelTrigger = GetActorFromArray(LevelTriggers, "FirstSpawn");
 	if (!LevelTrigger)
@@ -154,6 +160,12 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 		GetActorFromArray(ForceFields, "Fourth Force Field")->TestResults(true, false);
 		
 		SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
+	}
+	if (KillCount == 9)
+	{
+		GetActorFromArray(ForceFields, "Fifth Force Field")->TestResults(true, false);
+
+		SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
 	}
 }
 

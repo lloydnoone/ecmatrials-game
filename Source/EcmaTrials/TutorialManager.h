@@ -34,9 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SequenceEnded();
 	UFUNCTION(BlueprintCallable)
-	void UpdateTutorialText(FString Tablekey);
+	void UpdateTutorialText(FString Tablekey, UTutorialText* WidgetRef);
 	UFUNCTION(BlueprintCallable)
-	void AddTutorialMsg(FString TableKey);
+	void AddTutorialMsg(FString TableKey, TSubclassOf<class UTutorialText> AnotherClass);
 	UFUNCTION(BlueprintCallable)
 	void RemoveTutorialMsg();
 	UFUNCTION(BlueprintCallable)
@@ -46,7 +46,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SequencePause();
 	UFUNCTION(BlueprintCallable)
-	void ToggleTutorialPause(FString TableKey = "");
+	void ToggleTutorialPause();
 	UFUNCTION(BlueprintCallable)
 	void ToggleTutorialCard(FString CardTag, bool bVisible);
 	UFUNCTION(BlueprintCallable)
