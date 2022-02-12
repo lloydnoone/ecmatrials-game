@@ -13,6 +13,7 @@
 #include "EngineUtils.h"
 #include "Components/SphereComponent.h"
 #include "TutorialCard.h"
+#include "EnemyIntroWidget.h"
 
 // Sets default values
 ATutorialManager::ATutorialManager()
@@ -46,35 +47,11 @@ void ATutorialManager::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt find player pawn"));
 	}
-
-	if (!TextWidgetClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager has no text class selected"));
-	}
-	/*else
-	{
-		TextWidget = NewObject<UTutorialText>(this, TextWidgetClass);
-		if (TextWidget == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create text widget"));
-			return;
-		}
-	}*/
 	
 	if (!SkipWidgetClass)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager has no skip class selected"));
 	}
-	else
-	{
-		SkipWidget = NewObject<UTutorialText>(this, SkipWidgetClass);
-		if (SkipWidget == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager couldnt create skip widget"));
-			return;
-		}
-	}
-	
 
 	LevelSequences = GetLevelSequences();
 	if (LevelSequences.Num() == 0)
@@ -125,58 +102,44 @@ void ATutorialManager::SequenceStarted()
 {
 	PlayerController->RemoveHUD();
 	PlayerPawn->DisableInput(PlayerController);
-	AddSkipMsg();
+	AddTutorialWidget("SkipMsg", SkipWidgetClass);
 }
 
 void ATutorialManager::SequenceEnded()
 {
 	PlayerController->ReactivateHUD();
 	PlayerPawn->EnableInput(PlayerController);
-	RemoveSkipMsg();
+	RemoveTutorialWidgets();
 }
 
-void ATutorialManager::AddTutorialMsg(FString TableKey, TSubclassOf<class UTutorialText> WidgetClass)
+void ATutorialManager::AddTutorialWidget(FString TableKey, TSubclassOf<UTutorialText> WidgetClass)
 {
-	TextWidget = NewObject<UTutorialText>(this, WidgetClass);
-	// need to add to viewport so widget gets created, SetText will then work
-	if (TextWidget != nullptr && !TextWidget->IsInViewport())
+	UTutorialText* NewWidget = NewObject<UTutorialText>(this, WidgetClass);
+
+	if (NewWidget != nullptr && !NewWidget->IsInViewport())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("table key is %s, should set text."), *TableKey);
-		TextWidget->AddToViewport();
-		TextWidget->AnimatedVisible(true);
-		TextWidget->SetText(FText::FromStringTable(TableID, TableKey));
+		NewWidget->AddToViewport();
+		NewWidget->AnimatedVisible(true);
+		NewWidget->SetText(FText::FromStringTable(TableID, TableKey));
+
+		TutorialWidgets.Add(NewWidget);
 	}
 	else 
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TextWidget was undefined or not in viewport"));
+		UE_LOG(LogTemp, Warning, TEXT("NewWidget was undefined or not in viewport"));
 	}
 }
 
-void ATutorialManager::RemoveTutorialMsg()
+void ATutorialManager::RemoveTutorialWidgets()
 {
-	if (TextWidget != nullptr)
+	for (UTutorialText* Widget : TutorialWidgets)
 	{
-		TextWidget->RemoveFromParent();
+		if (Widget != nullptr)
+		{
+			Widget->RemoveFromParent();
+		}
 	}
-}
-
-void ATutorialManager::AddSkipMsg()
-{
-	// need to add to viewport so widget gets created, SetText will then work
-	if (SkipWidget != nullptr && !SkipWidget->IsInViewport())
-	{
-		SkipWidget->AddToViewport();
-		SkipWidget->AnimatedVisible(true);
-		SkipWidget->SetText(FText::FromStringTable(TableID, "SkipMsg"));
-	}
-}
-
-void ATutorialManager::RemoveSkipMsg()
-{
-	if (SkipWidget != nullptr)
-	{
-		SkipWidget->RemoveFromParent();
-	}
+	TutorialWidgets.Empty();
 }
 
 void ATutorialManager::UpdateTutorialText(FString TableKey, UTutorialText* WidgetRef)
@@ -257,21 +220,10 @@ void ATutorialManager::ToggleTutorialPause()
 	// get world object and player controller
 	UWorld* World = GetWorld();
 
-	// create pause menu if it hasnt been once already
-	if (!TextWidget)
-	{
-		if (!TextWidgetClass)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("no pause menu class selected in character"));
-			return;
-		}
-	}
-
 	// if its paused already
 	if (UGameplayStatics::IsGamePaused(World) && bPausedByTutorial == true)
 	{
 		// unpause
-		RemoveTutorialMsg(); // remove any widgets that might have been added
 		UGameplayStatics::SetGamePaused(World, false);
 		PlayerController->SetShowMouseCursor(false);
 		PlayerController->SetInputMode(FInputModeGameOnly());
@@ -281,13 +233,11 @@ void ATutorialManager::ToggleTutorialPause()
 	else
 	{
 		// pause
-		//AddTutorialMsg(TableKey, WidgetRef);
 		UGameplayStatics::SetGamePaused(World, true);
 		PlayerController->SetShowMouseCursor(true);
 
 		// set input options
 		FInputModeGameAndUI InputMode;
-		InputMode.SetWidgetToFocus(TextWidget->TakeWidget());
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
 		InputMode.SetHideCursorDuringCapture(false);
 		PlayerController->SetInputMode(InputMode);

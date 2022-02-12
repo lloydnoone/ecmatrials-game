@@ -52,9 +52,6 @@ private:
 	UPROPERTY()
 	ALevelTrigger* LevelTrigger;
 
-	UPROPERTY()
-	ALevelSequenceActor* BooleanSpawnSequence;
-
 	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;
 

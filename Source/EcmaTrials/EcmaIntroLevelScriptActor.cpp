@@ -63,8 +63,6 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager in LevelOneScript is null"));
 	}
-
-	BooleanSpawnSequence = GetActorFromArray(LevelSequences, "BooleanSpawnSequence");
 }
 
 void AEcmaIntroLevelScriptActor::SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay)
@@ -129,7 +127,7 @@ void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* O
 {
 	if (!bFirstWaveBegun)
 	{
-		BooleanSpawnSequence->SequencePlayer->Play();
+		GetActorFromArray(LevelSequences, "BooleanSpawnSequence")->SequencePlayer->Play();
 		//TutorialManager->ToggleTutorialPause("IntroText");
 		// lower second force field
 		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
@@ -151,8 +149,8 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 	KillCount++;
 	if (KillCount == 3)
 	{
+		GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
 		GetActorFromArray(ForceFields, "Third Force Field")->TestResults(true, false);
-		
 		SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);
 	}
 	if (KillCount == 6)

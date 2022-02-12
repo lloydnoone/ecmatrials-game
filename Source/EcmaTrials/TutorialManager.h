@@ -8,6 +8,7 @@
 
 class AEcmaPlayerController;
 class UTutorialText;
+class UEnemyIntroWidget;
 class ALevelSequenceActor;
 class UStringTable;
 class ATutorialCard;
@@ -36,9 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateTutorialText(FString Tablekey, UTutorialText* WidgetRef);
 	UFUNCTION(BlueprintCallable)
-	void AddTutorialMsg(FString TableKey, TSubclassOf<class UTutorialText> AnotherClass);
+	void AddTutorialWidget(FString TableKey, TSubclassOf<UTutorialText> WidgetClass);
 	UFUNCTION(BlueprintCallable)
-	void RemoveTutorialMsg();
+	void RemoveTutorialWidgets();
 	UFUNCTION(BlueprintCallable)
 	void SetCurrentSequence(ULevelSequence* SequenceRef);
 	UFUNCTION(BlueprintCallable)
@@ -51,24 +52,19 @@ public:
 	void ToggleTutorialCard(FString CardTag, bool bVisible);
 	UFUNCTION(BlueprintCallable)
 	void SkipSequence();
-	UFUNCTION(BlueprintCallable)
-	void AddSkipMsg();
-	UFUNCTION(BlueprintCallable)
-	void RemoveSkipMsg();
 
 private:
 	AEcmaPlayerController* PlayerController;
 	APawn* PlayerPawn;
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UTutorialText> TextWidgetClass;
 	UPROPERTY()
-	UTutorialText* TextWidget = nullptr;
+	TArray<UTutorialText*> TutorialWidgets;
+
+	UPROPERTY()
+	UEnemyIntroWidget* EnemyIntroWidget = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UTutorialText> SkipWidgetClass;
-	UPROPERTY()
-	UTutorialText* SkipWidget = nullptr;
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStringTable* TutorialStringTable;
