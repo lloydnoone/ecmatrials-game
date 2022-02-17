@@ -50,10 +50,14 @@ private:
 	FTransform NullTransform;
 
 	UPROPERTY()
-	ALevelTrigger* LevelTrigger;
+	ALevelTrigger* FirstSpawnTrigger;
+
+	UPROPERTY()
+	ALevelTrigger* FinalSpawnTrigger;
 
 	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;
+	bool bFinalWaveBegun = false;
 
 	void SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay);
 
@@ -70,5 +74,8 @@ private:
 	T* GetActorFromArray(TArray<T*> Array, FName Tag);
 
 	UFUNCTION()
-	void BeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	void FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor);
+
+	UFUNCTION()
+	void FinalSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor);
 };

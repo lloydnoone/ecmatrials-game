@@ -51,12 +51,11 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	NumberTransform = GetSpawnPointTransformWithTag("NumberSpawn");
 	NullTransform = GetSpawnPointTransformWithTag("NullSpawn");
 
-	LevelTrigger = GetActorFromArray(LevelTriggers, "FirstSpawn");
-	if (!LevelTrigger)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("LevelTrigger in LevelOneScript is null"));
-	}
-	LevelTrigger->OnActorBeginOverlap.AddDynamic(this, &AEcmaIntroLevelScriptActor::BeginOverlap);
+	FirstSpawnTrigger = GetActorFromArray(LevelTriggers, "FirstSpawn");
+	FirstSpawnTrigger->OnActorBeginOverlap.AddDynamic(this, &AEcmaIntroLevelScriptActor::FirstSpawnOverlap);
+
+	FinalSpawnTrigger = GetActorFromArray(LevelTriggers, "FinalSpawn");
+	FinalSpawnTrigger->OnActorBeginOverlap.AddDynamic(this, &AEcmaIntroLevelScriptActor::FinalSpawnOverlap);
 
 	TutorialManager = Cast<ATutorialManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ATutorialManager::StaticClass()));
 	if (!TutorialManager)
@@ -123,12 +122,11 @@ FTransform AEcmaIntroLevelScriptActor::GetSpawnPointTransformWithTag(FName Tag)
 	return FoundActors[0]->GetTransform();
 }
 
-void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* OtherActor)
+void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
 	if (!bFirstWaveBegun)
 	{
 		GetActorFromArray(LevelSequences, "BooleanSpawnSequence")->SequencePlayer->Play();
-		//TutorialManager->ToggleTutorialPause("IntroText");
 		// lower second force field
 		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
 		
@@ -139,6 +137,26 @@ void AEcmaIntroLevelScriptActor::BeginOverlap(AActor* OverlappedActor, AActor* O
 			SpawnEnemy(BooleanCodeTable, BooleanTransform, 3, 1.0f);
 			//only do this once
 			bFirstWaveBegun = true;
+		}
+	}
+}
+
+void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
+{
+	if (!bFinalWaveBegun)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("final spawn overlapped by %s Tag"), *OtherActor->GetName());
+		//start spawning enemies and playe sequence if player overlapped
+		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (OtherActor == PlayerPawn)
+		{
+			GetActorFromArray(LevelSequences, "FinalSpawnSequence")->SequencePlayer->Play();
+			SpawnEnemy(BooleanCodeTable, BooleanTransform, 3, 1.0f);
+			SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);
+			SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
+			SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
+			//only do this once
+			bFinalWaveBegun = true;
 		}
 	}
 }
@@ -155,14 +173,14 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 	}
 	if (KillCount == 6)
 	{
+		GetActorFromArray(LevelSequences, "StringSpawnSequence")->SequencePlayer->Play();
 		GetActorFromArray(ForceFields, "Fourth Force Field")->TestResults(true, false);
-		
 		SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
 	}
 	if (KillCount == 9)
 	{
+		GetActorFromArray(LevelSequences, "NullSpawnSequence")->SequencePlayer->Play();
 		GetActorFromArray(ForceFields, "Fifth Force Field")->TestResults(true, false);
-
 		SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
 	}
 }
