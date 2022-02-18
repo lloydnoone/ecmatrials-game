@@ -147,6 +147,15 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	// cleanup after death
 	if (IsDead())
 	{
+		// if it was the player and they had a target, remove code editor from screen
+		if (CurrentTarget)
+		{
+			if (UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
+			{
+				CurrentTargetEditorComp->SetCodeEditorVisibility(false);
+			}
+		}
+		
 		//notify game mode that a pawn was killed
 		AEcmaTrialsGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AEcmaTrialsGameModeBase>();
 		AEcmaIntroLevelScriptActor* LevelScript = Cast<AEcmaIntroLevelScriptActor>(GetWorld()->GetLevelScriptActor());
@@ -227,90 +236,90 @@ void AEcmaCharacter::Attacked()
 
 void AEcmaCharacter::AttackTrace()
 {
-	// if Character is dead, stop tracing and animating
-	if (IsDead())
-	{
-		bIsAttacking = false;
-		GetWorldTimerManager().ClearTimer(AttackTimer);
-		StopAnimMontage(CurrentAttackMontage);
-		return;
-	}
+	//// if Character is dead, stop tracing and animating
+	//if (IsDead())
+	//{
+	//	bIsAttacking = false;
+	//	GetWorldTimerManager().ClearTimer(AttackTimer);
+	//	StopAnimMontage(CurrentAttackMontage);
+	//	return;
+	//}
 
-	ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
-	// clear timer to stop tracing if anim has finished playing
-	if (ElapsedAttackTime >= AttackAnimLength)
-	{
-		bIsAttacking = false;
-		GetWorldTimerManager().ClearTimer(AttackTimer);
-		return;
-	}
+	//ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
+	//// clear timer to stop tracing if anim has finished playing
+	//if (ElapsedAttackTime >= AttackAnimLength)
+	//{
+	//	bIsAttacking = false;
+	//	GetWorldTimerManager().ClearTimer(AttackTimer);
+	//	return;
+	//}
 
-	// socket to trace on
-	FName SocketName = bIsCross ? "hand_r" : "foot_r";
-	
-	// set up params for trace func
-	FVector SocketLocation = Mesh->GetSocketLocation(SocketName);
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery3); // ObjectTypeQuery3 is Pawn according to dropdown list in blueprints
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	FHitResult HitResult;
+	//// socket to trace on
+	//FName SocketName = bIsCross ? "hand_r" : "foot_r";
+	//
+	//// set up params for trace func
+	//FVector SocketLocation = Mesh->GetSocketLocation(SocketName);
+	//TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	//ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery3); // ObjectTypeQuery3 is Pawn according to dropdown list in blueprints
+	//TArray<AActor*> ActorsToIgnore;
+	//ActorsToIgnore.Add(this);
+	//FHitResult HitResult;
 
-	bool HitFound = UKismetSystemLibrary::CapsuleTraceSingleForObjects(
-		GetWorld(),
-		SocketLocation,
-		SocketLocation,
-		22.0,
-		22.0,
-		ObjectTypes,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::None,
-		HitResult,
-		true,
-		FLinearColor::Red,
-		FLinearColor::Green,
-		0.1f
-	);
+	//bool HitFound = UKismetSystemLibrary::CapsuleTraceSingleForObjects(
+	//	GetWorld(),
+	//	SocketLocation,
+	//	SocketLocation,
+	//	22.0,
+	//	22.0,
+	//	ObjectTypes,
+	//	false,
+	//	ActorsToIgnore,
+	//	EDrawDebugTrace::None,
+	//	HitResult,
+	//	true,
+	//	FLinearColor::Red,
+	//	FLinearColor::Green,
+	//	0.1f
+	//);
 
-	if (HitFound)
-	{
-		AEcmaEnemyCharacter* HitActor = Cast<AEcmaEnemyCharacter>(HitResult.Actor);
-		if (HitActor)
-		{
-			HitActor->TakeDamage(100.f, FDamageEvent(), GetController(), this);
-		}
-	}
+	//if (HitFound)
+	//{
+	//	AEcmaEnemyCharacter* HitActor = Cast<AEcmaEnemyCharacter>(HitResult.Actor);
+	//	if (HitActor)
+	//	{
+	//		HitActor->TakeDamage(100.f, FDamageEvent(), GetController(), this);
+	//	}
+	//}
 }
 
 void AEcmaCharacter::Attack()
 {
-	if (!CharMovementComp->IsFalling() && !bIsAttacking)
-	{
-		//reset - these are used in attackTrace
-		ElapsedAttackTime = 0.0f;
-		bIsAttacking = true;
+	//if (!CharMovementComp->IsFalling() && !bIsAttacking)
+	//{
+	//	//reset - these are used in attackTrace
+	//	ElapsedAttackTime = 0.0f;
+	//	bIsAttacking = true;
 
-		// get random attack
-		int32 RandNum = FMath::RandRange(0, 1);
-		if (AnimArray.IsValidIndex(RandNum))
-		{
-			CurrentAttackMontage = AnimArray[RandNum];
+	//	// get random attack
+	//	int32 RandNum = FMath::RandRange(0, 1);
+	//	if (AnimArray.IsValidIndex(RandNum))
+	//	{
+	//		CurrentAttackMontage = AnimArray[RandNum];
 
-			// IsCross and AttackAnimLength are used in AttackTrace
-			// which limb is the attack using?
-			bIsCross = CurrentAttackMontage->GetFName().ToString().Contains("cross");
-			// play anim
-			AttackAnimLength = PlayAnimMontage(CurrentAttackMontage);
+	//		// IsCross and AttackAnimLength are used in AttackTrace
+	//		// which limb is the attack using?
+	//		bIsCross = CurrentAttackMontage->GetFName().ToString().Contains("cross");
+	//		// play anim
+	//		AttackAnimLength = PlayAnimMontage(CurrentAttackMontage);
 
-			// run attack trace every 0.1f until anim has finished
-			GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("couldnt find random attack anim"));
-		}
-	}
+	//		// run attack trace every 0.1f until anim has finished
+	//		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
+	//	}
+	//	else
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("couldnt find random attack anim"));
+	//	}
+	//}
 }
 
 void AEcmaCharacter::AddActorInRange(AActor* Actor)

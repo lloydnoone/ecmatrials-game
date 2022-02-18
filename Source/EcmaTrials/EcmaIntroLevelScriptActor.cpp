@@ -167,6 +167,7 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 	KillCount++;
 	if (KillCount == 3)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("killed 3 pawns"));
 		GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
 		GetActorFromArray(ForceFields, "Third Force Field")->TestResults(true, false);
 		SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);

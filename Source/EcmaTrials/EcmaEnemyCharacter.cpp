@@ -145,7 +145,7 @@ void AEcmaEnemyCharacter::AttackTrace()
 		
 		// if the hit was the player, then do the attack
 		AEcmaCharacter* HitActor = Cast<AEcmaCharacter>(HitResult.Actor);
-		if (HitActor)
+		if (HitActor && !HitActor->IsDead())
 		{
 			HitActor->TakeDamage(100.f, FDamageEvent(), GetController(), this);
 		}

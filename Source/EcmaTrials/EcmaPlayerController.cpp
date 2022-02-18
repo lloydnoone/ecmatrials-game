@@ -25,7 +25,7 @@ void AEcmaPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 
 	if (bIsWinner)
 	{
-		//create lose screen widget
+		//create win screen widget
 		UUserWidget* WinScreen = CreateWidget(this, WinScreenClass);
 
 		//show it on the screen
