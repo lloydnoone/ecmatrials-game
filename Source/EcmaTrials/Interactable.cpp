@@ -171,5 +171,5 @@ AInteractableSubject* AInteractable::GetSubjectActor()
 
 void AInteractable::SendResultToSubjectActor(bool Result)
 {
-	Subject->TestResults(Result, false);
+	Subject->TestResults(Result);
 }

@@ -3,10 +3,10 @@
 
 #include "ForceField.h"
 
-void AForceField::TestResults(bool bResult, bool bFlipLogic)
+void AForceField::TestResults(bool bResult)
 {
-	Super::TestResults(bResult, bFlipLogic);
-	if (bResult && !bFlipLogic)
+	Super::TestResults(bResult);
+	if (bResult)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ForceField Should open. "));
 		SetActorHiddenInGame(true);

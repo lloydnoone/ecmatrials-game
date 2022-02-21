@@ -51,7 +51,6 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		APawn* PlayerPawn = PlayerController->GetPawn();
 		GetOwningActor()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
-		DisplayOutput("Correct! killed an npc", false);
 	}
 	else
 	{

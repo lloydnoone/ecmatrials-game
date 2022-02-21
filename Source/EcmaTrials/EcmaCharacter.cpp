@@ -503,12 +503,33 @@ void AEcmaCharacter::DropTarget()
 	}
 }
 
+void AEcmaCharacter::SetCameraTarget(AActor* Actor)
+{
+	CameraTarget = Actor;
+}
+
 void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
 {
+	AActor* TargetThisTick = NULL;
+
 	if (CurrentTarget)
 	{
+		//clear misc camera target as enemies take priority
+		CameraTarget = NULL;
+		TargetThisTick = CurrentTarget;
+	}
+
+	//set misc CameraTarget if no enemies targeted
+	if (CameraTarget)
+	{
+		TargetThisTick = CameraTarget;
+	}
+
+	// if there is any target set, start interp
+	if (TargetThisTick)
+	{
 		// get current target location
-		FVector TargetLocation = CurrentTarget->GetActorLocation();
+		FVector TargetLocation = TargetThisTick->GetActorLocation();
 
 		// get the camera
 		FVector CameraLocation = Camera->GetComponentLocation();
@@ -531,7 +552,6 @@ void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
 
 		Controller->SetControlRotation(NewRotation);
 	}
-	
 }
 
 void AEcmaCharacter::Interact()

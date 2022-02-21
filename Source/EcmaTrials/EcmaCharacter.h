@@ -73,6 +73,8 @@ public:
 
 	void ChangeTarget();
 
+	void SetCameraTarget(AActor* Actor);
+
 private:
 	void MoveForward(float AxisValue);
 
@@ -131,6 +133,8 @@ private:
 	int32 TargetIndex = 0;
 
 	AActor* CurrentTarget;
+
+	AActor* CameraTarget;
 
 	UCameraComponent* Camera;
 

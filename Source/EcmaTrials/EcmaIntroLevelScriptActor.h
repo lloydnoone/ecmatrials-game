@@ -27,6 +27,8 @@ protected:
 
 private:
 
+	AEcmaCharacter* Player;
+
 	ATutorialManager* TutorialManager;
 
 	UPROPERTY(EditDefaultsOnly)

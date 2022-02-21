@@ -213,20 +213,26 @@ AInteractableSubject* UCodeEditorComponent::GetSubjectActor()
 
 void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 {
-	// if subject is nullptr then affect the owning actor directly because ondelegatecommitipnputtext is overidden in actors that affect themself
-	if (Subject == nullptr)
+	// if subject is nullptr then this component isnt on a AInteractableSubject but an enemy.
+	// this means the widget is speedType and doesnt need to make a request to send results.
+	// skip this part and that actor will be affected directly by the widget
+	// consider refactoring this to subject component.
+	if (Subject == nullptr) return;
+
+	// if the test passed then auto exit the editor after half a sec
+	if (Result == true)
 	{
-		if (Result == true)
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-			UE_LOG(LogTemp, Warning, TEXT("test passed would kill owner."));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("test failed would do nothing."));
-		}
-		return;
+			UE_LOG(LogTemp, Warning, TEXT("from results timer"));
+			SetCodeEditorVisibility(false);
+		}, 0.05f, false);
 	}
-	Subject->TestResults(Result, bFlipLogic);
+
+	if (bFlipLogic == true) Result = !Result;
+
+	Subject->TestResults(Result);
 }
 
 FString UCodeEditorComponent::GetRequiredText()

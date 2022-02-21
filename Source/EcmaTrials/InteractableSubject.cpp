@@ -25,7 +25,7 @@ void AInteractableSubject::Tick(float DeltaTime)
 
 }
 
-void AInteractableSubject::TestResults(bool bResult, bool bFlipLogic)
+void AInteractableSubject::TestResults(bool bResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("InteractableSubject TestResults Called. "));
 }

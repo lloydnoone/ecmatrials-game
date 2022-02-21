@@ -62,6 +62,8 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Tutorial Manager in LevelOneScript is null"));
 	}
+
+	Player = Cast<AEcmaCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 }
 
 void AEcmaIntroLevelScriptActor::SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay)
@@ -128,13 +130,17 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 	{
 		GetActorFromArray(LevelSequences, "BooleanSpawnSequence")->SequencePlayer->Play();
 		// lower second force field
-		GetActorFromArray(ForceFields, "Second Force Field")->TestResults(true, false);
-		
+		AForceField* ForceField = GetActorFromArray(ForceFields, "Second Force Field");
+		ForceField->TestResults(true);
+
 		//start spawning enemies
-		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-		if (OtherActor == PlayerPawn)
+		if (OtherActor == Player)
 		{
 			SpawnEnemy(BooleanCodeTable, BooleanTransform, 3, 1.0f);
+
+			//set camera target
+			Player->SetCameraTarget(ForceField);
+
 			//only do this once
 			bFirstWaveBegun = true;
 		}
@@ -147,8 +153,7 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 	{
 		UE_LOG(LogTemp, Warning, TEXT("final spawn overlapped by %s Tag"), *OtherActor->GetName());
 		//start spawning enemies and playe sequence if player overlapped
-		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-		if (OtherActor == PlayerPawn)
+		if (OtherActor == Player)
 		{
 			GetActorFromArray(LevelSequences, "FinalSpawnSequence")->SequencePlayer->Play();
 			SpawnEnemy(BooleanCodeTable, BooleanTransform, 3, 1.0f);
@@ -164,24 +169,30 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 {
 	// lower force field and spawn enemies for each wave
+	AForceField* ForceField = NULL;
 	KillCount++;
 	if (KillCount == 3)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("killed 3 pawns"));
 		GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
-		GetActorFromArray(ForceFields, "Third Force Field")->TestResults(true, false);
+		ForceField = GetActorFromArray(ForceFields, "Third Force Field");
+		ForceField->TestResults(true);
+		Player->SetCameraTarget(ForceField);
 		SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);
 	}
 	if (KillCount == 6)
 	{
 		GetActorFromArray(LevelSequences, "StringSpawnSequence")->SequencePlayer->Play();
-		GetActorFromArray(ForceFields, "Fourth Force Field")->TestResults(true, false);
+		ForceField = GetActorFromArray(ForceFields, "Fourth Force Field");
+		ForceField->TestResults(true);
+		Player->SetCameraTarget(ForceField);
 		SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
 	}
 	if (KillCount == 9)
 	{
 		GetActorFromArray(LevelSequences, "NullSpawnSequence")->SequencePlayer->Play();
-		GetActorFromArray(ForceFields, "Fifth Force Field")->TestResults(true, false);
+		ForceField = GetActorFromArray(ForceFields, "Fifth Force Field");
+		ForceField->TestResults(true);
+		Player->SetCameraTarget(ForceField);
 		SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
 	}
 }

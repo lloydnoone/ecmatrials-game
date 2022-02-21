@@ -143,7 +143,7 @@ void AEcmaEnemyCharacter::AttackTrace()
 		//if the hit was another enemy, then return dont do anything
 		if (HitResult.Actor != Player) return;
 		
-		// if the hit was the player, then do the attack
+		// if the actor is still alive, then do the damage
 		AEcmaCharacter* HitActor = Cast<AEcmaCharacter>(HitResult.Actor);
 		if (HitActor && !HitActor->IsDead())
 		{
