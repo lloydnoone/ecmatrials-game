@@ -15,6 +15,7 @@ class UCodeEditor;
 class AInteractableSubject;
 class UDataTable;
 class UStringTable;
+class UTextBlock;
 
 USTRUCT(BlueprintType)
 struct FPostProccessColor
@@ -95,6 +96,8 @@ public:
 
 	void SetInfoText(FName TableID, FString TableKey);
 
+	void SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock);
+
 private:
 
 	AInteractableSubject* InitSubjectActor();
@@ -111,6 +114,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class UStringTable* InfoStringTable;
+
+	UPROPERTY(EditAnywhere)
+	class UStringTable* UIStringTable;
 
 	UPROPERTY(EditAnywhere)
 	FString InfoTableKey = "";

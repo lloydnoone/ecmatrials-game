@@ -15,6 +15,7 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Internationalization/StringTable.h"
+#include "Internationalization/StringTableRegistry.h"
 
 // Sets default values for this component's properties
 UCodeEditorComponent::UCodeEditorComponent()
@@ -68,10 +69,16 @@ void UCodeEditorComponent::BeginPlay()
 	CodeEditor->SetOwningActor(GetOwner());
 	CodeEditor->SetRequestUrl(RequestUrl);
 
-	//set string table ID if any then text
+	//set string table ID if any
 	if (InfoStringTable)
 	{
 		InfoStringTableID = InfoStringTable->GetStringTableId();
+	}
+
+	// check UI string table is valid
+	if (!FStringTableRegistry::Get().FindStringTable("/Game/StringTables/UIText.UIText"))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
 	}
 }
 
@@ -97,8 +104,16 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		if (CodeEditor->IsInViewport()) return;
 		CodeEditor->AddEditorToScreen();
 
+		// set text for UI buttons
+		SetTextFromTable("/Game/StringTables/UIText.UIText", "ToSubmit", CodeEditor->ToSubmit);
+		SetTextFromTable("/Game/StringTables/UIText.UIText", "ToExit", CodeEditor->ToExit);
+
 		// add info text after widget has been init and added to screen
-		if (InfoStringTable) SetInfoText(InfoStringTableID, InfoTableKey);
+		if (InfoStringTable)
+		{
+			//set text for info panel
+			SetTextFromTable(InfoStringTableID, InfoTableKey, CodeEditor->InfoText);
+		}
 	}
 	else
 	{
@@ -111,13 +126,6 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		}
 	}
 }
-
-//void UCodeEditorComponent::LoadWidgetClass()
-//{
-//	FStringClassReference MyWidgetClassRef(TEXT("/Game/UI/WBP_AccessPanelInterface.WBP_AccessPanelInterface"));
-//	UClass* MyWidgetClass = MyWidgetClassRef.TryLoadClass<UCodeEditor>();
-//	CodeEditor = CreateWidget<UCodeEditor>(GetWorld()->GetFirstPlayerController(), MyWidgetClass);
-//}
 
 void UCodeEditorComponent::GetKeyboardFocus()
 {
@@ -269,7 +277,7 @@ void UCodeEditorComponent::SetRequiredText(FString String)
 
 void UCodeEditorComponent::SetInfoText(FName TableID, FString TableKey)
 {
-	// make info text panel invisible if not string to fill it
+	// make info text panel invisible if no string to fill it
 	if (TableID == "" || TableKey == "")
 	{
 		CodeEditor->InfoText->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
@@ -287,5 +295,29 @@ void UCodeEditorComponent::SetInfoText(FName TableID, FString TableKey)
 	}
 
 	CodeEditor->InfoText->SetText(FText::FromStringTable(TableID, TableKey));
+}
+
+void UCodeEditorComponent::SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock)
+{
+	UE_LOG(LogTemp, Warning, TEXT("TableID is: %s"), *TableID.ToString());
+	// make info text panel invisible if no string to fill it
+	if (TableID == "" || TableKey == "")
+	{
+		TextBlock->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
+	}
+
+	if (TableID == "")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant set text from table as tableID is blank"));
+		return;
+	}
+	if (TableKey == "")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cant set text from table as tableID is blank"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Text from table is: %s"), *FText::FromStringTable(TableID, TableKey).ToString());
+	TextBlock->SetText(FText::FromStringTable(TableID, TableKey));
 }
 

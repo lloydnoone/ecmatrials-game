@@ -33,6 +33,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* InfoText;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* ToSubmit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UTextBlock* ToExit;
+
 	// get access to this anim to trigger in C++
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* SlideIn;
