@@ -9,6 +9,7 @@
 class UCameraComponent;
 class UAnimMontage;
 class UPauseMenu;
+class ALaptop;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -120,6 +121,14 @@ private:
 	// pointer to the actual gun
 	//UPROPERTY()
 	//AGun* Gun;
+
+	// restrict class selection in blueprint defaults to a subclass of laptop
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ALaptop> LaptopClass;
+
+	// pointer to the actual laptop
+	UPROPERTY()
+	ALaptop* Laptop;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UPauseMenu> PauseMenuClass;

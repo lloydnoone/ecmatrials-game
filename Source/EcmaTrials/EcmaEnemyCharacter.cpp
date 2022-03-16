@@ -12,7 +12,7 @@
 void AEcmaEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("In Enemy pawn begin play"))
+	
 	//get EditorCollison
 	UActorComponent* SphereComp = GetComponentByClass(USphereComponent::StaticClass());
 	if (!SphereComp)
@@ -157,7 +157,6 @@ void AEcmaEnemyCharacter::Attack()
 	// if player is dead, do nothing
 	if (Player->IsDead()) return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Must have player reference"))
 	if (!CharMovementComp->IsFalling() && !bIsAttacking)
 	{
 		//reset - these are used in attackTrace
@@ -190,8 +189,6 @@ void AEcmaEnemyCharacter::Attacked()
 {
 	Super::Attacked();
 
-	UE_LOG(LogTemp, Warning, TEXT("in enemy attacked"));
-
 	// get all sockets
 	TArray<FName> SocketNames = Mesh->GetAllSocketNames();
 	
@@ -201,7 +198,6 @@ void AEcmaEnemyCharacter::Attacked()
 		// get random location
 		int32 RandNum = FMath::RandRange(0, SocketNames.Num() - 1);
 
-		UE_LOG(LogTemp, Warning, TEXT("should spawn flash"));
 		// spawn flash there
 		UGameplayStatics::SpawnEmitterAttached(Flash, Mesh, SocketNames[RandNum]);
 	}

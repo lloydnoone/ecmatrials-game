@@ -9,7 +9,6 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "HttpService.h"
-#include "Interactable.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "CodeEditorComponent.h"
 #include "EcmaEnemyCharacter.h"
@@ -86,7 +85,6 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 	//return focus to game to automatically fire off commitinputtext
 	if (InKeyEvent.GetKey().ToString() == "LeftControl")
 	{
-		UE_LOG(LogTemp, Warning, TEXT("code editor handling left control"));
 		UWidgetBlueprintLibrary::SetFocusToGameViewport();
 		return FReply::Handled();
 	};

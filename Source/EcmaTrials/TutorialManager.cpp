@@ -13,7 +13,6 @@
 #include "EngineUtils.h"
 #include "Components/SphereComponent.h"
 #include "TutorialCard.h"
-#include "EnemyIntroWidget.h"
 
 // Sets default values
 ATutorialManager::ATutorialManager()
@@ -193,7 +192,6 @@ void ATutorialManager::BindToInput()
 
 void ATutorialManager::Continue()
 {
-	UE_LOG(LogTemp, Warning, TEXT("X was Pressed"));
 	// press play on current running sequence
 	if (CurrentLevelSequence && CurrentLevelSequence->GetSequencePlayer()->IsPaused())
 	{
@@ -252,7 +250,6 @@ void ATutorialManager::ToggleTutorialCard(FString CardTag, bool bVisible)
 	{
 		if (Card->ActorHasTag(FName(CardTag)))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Card must have been found"))
 			Card->AnimatedVisible(bVisible);
 			return;
 		}

@@ -151,7 +151,6 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 {
 	if (!bFinalWaveBegun)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("final spawn overlapped by %s Tag"), *OtherActor->GetName());
 		//start spawning enemies and playe sequence if player overlapped
 		if (OtherActor == Player)
 		{
@@ -204,7 +203,6 @@ TArray<T*> AEcmaIntroLevelScriptActor::GetActorsToArray()
 	for (TActorIterator<T> It(GetWorld()); It; ++It)
 	{
 		T* Actor = *It;
-		UE_LOG(LogTemp, Warning, TEXT("adding %s to array"), *Actor->GetName());
 		ActorArray.Add(Actor);
 	}
 
@@ -222,7 +220,6 @@ T* AEcmaIntroLevelScriptActor::GetActorFromArray(TArray<T*> Array, FName Tag)
 {
 	for (T* Actor : Array)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("found actor with %s tag"), *Tag.ToString())
 		if (Actor->ActorHasTag(Tag)) return Actor;
 	}
 

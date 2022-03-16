@@ -60,9 +60,6 @@ private:
 	UPROPERTY()
 	TArray<UTutorialText*> TutorialWidgets;
 
-	UPROPERTY()
-	UEnemyIntroWidget* EnemyIntroWidget = nullptr;
-
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UTutorialText> SkipWidgetClass;
 

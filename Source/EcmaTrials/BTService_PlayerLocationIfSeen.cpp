@@ -29,14 +29,5 @@ void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerComp
 		return;
 	}
 
-	/*if (AIController->LineOfSightTo(PlayerPawn))
-	{*/
-		UE_LOG(LogTemp, Warning, TEXT("%s Can See Player, Should set"), *OwnerComp.GetAIOwner()->GetPawn()->GetName());
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), PlayerPawn);
-	/*}
-	else
-	{*/
-		/*UE_LOG(LogTemp, Warning, TEXT("%s Cant See Player, will unset"), *OwnerComp.GetAIOwner()->GetPawn()->GetName());
-		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());*/
-	//}
+	OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), PlayerPawn);
 }

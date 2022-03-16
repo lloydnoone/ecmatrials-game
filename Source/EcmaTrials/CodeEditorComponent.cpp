@@ -54,7 +54,7 @@ void UCodeEditorComponent::BeginPlay()
 
 	if (!Subject)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Subject is nullptr, will affect owning actor instead."));
+		// if no subject, owning actor will be affected instead
 	}
 
 	if (!CollisionSphere)
@@ -73,12 +73,6 @@ void UCodeEditorComponent::BeginPlay()
 	if (InfoStringTable)
 	{
 		InfoStringTableID = InfoStringTable->GetStringTableId();
-	}
-
-	// check UI string table is valid
-	if (!FStringTableRegistry::Get().FindStringTable("/Game/StringTables/UIText.UIText"))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
 	}
 }
 
@@ -104,9 +98,18 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		if (CodeEditor->IsInViewport()) return;
 		CodeEditor->AddEditorToScreen();
 
-		// set text for UI buttons
-		SetTextFromTable("/Game/StringTables/UIText.UIText", "ToSubmit", CodeEditor->ToSubmit);
-		SetTextFromTable("/Game/StringTables/UIText.UIText", "ToExit", CodeEditor->ToExit);
+		// check UI string table is valid
+		if (FStringTableRegistry::Get().FindStringTableAsset("/Game/StringTables/UIText.UIText"))
+		{
+			// set text for UI buttons
+			SetTextFromTable("/Game/StringTables/UIText.UIText", "ToSubmit", CodeEditor->ToSubmit);
+			SetTextFromTable("/Game/StringTables/UIText.UIText", "ToExit", CodeEditor->ToExit);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
+		}
+		
 
 		// add info text after widget has been init and added to screen
 		if (InfoStringTable)
@@ -144,7 +147,6 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapping"));
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
 
 	if (!Player)
@@ -161,7 +163,6 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	// highlight with outline
 	for (UMeshComponent* MeshComp : Meshes)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("In Mesh loop"));
 		MeshComp->SetRenderCustomDepth(true);
 		MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
 	}
@@ -205,12 +206,11 @@ AInteractableSubject* UCodeEditorComponent::InitSubjectActor()
 		AInteractableSubject* Actor = *It;
 		if (Actor->ActorHasTag(SubjectTag))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("actor with %s tag found."), *SubjectTag.GetPlainNameString());
 			return Actor;
 		}
 	}
+
 	//if no actor found, will affect owner as ecmaenemy
-	UE_LOG(LogTemp, Warning, TEXT("No actor with subject tag found. Affecting %s instead."), *GetOwner()->GetName());
 	return nullptr;
 }
 
@@ -233,7 +233,6 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
-			UE_LOG(LogTemp, Warning, TEXT("from results timer"));
 			SetCodeEditorVisibility(false);
 		}, 0.05f, false);
 	}
@@ -275,31 +274,8 @@ void UCodeEditorComponent::SetRequiredText(FString String)
 	}
 }
 
-void UCodeEditorComponent::SetInfoText(FName TableID, FString TableKey)
-{
-	// make info text panel invisible if no string to fill it
-	if (TableID == "" || TableKey == "")
-	{
-		CodeEditor->InfoText->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
-	}
-
-	if (TableID == "")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cant set info text as tableID is blank"));
-		return;
-	}
-	if (TableKey == "")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cant set info text as tableID is blank"));
-		return;
-	}
-
-	CodeEditor->InfoText->SetText(FText::FromStringTable(TableID, TableKey));
-}
-
 void UCodeEditorComponent::SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock)
 {
-	UE_LOG(LogTemp, Warning, TEXT("TableID is: %s"), *TableID.ToString());
 	// make info text panel invisible if no string to fill it
 	if (TableID == "" || TableKey == "")
 	{
@@ -317,7 +293,6 @@ void UCodeEditorComponent::SetTextFromTable(FName TableID, FString TableKey, UTe
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Text from table is: %s"), *FText::FromStringTable(TableID, TableKey).ToString());
 	TextBlock->SetText(FText::FromStringTable(TableID, TableKey));
 }
 

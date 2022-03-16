@@ -27,7 +27,6 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Should attack"));
 	Character->Attack();
 
 	return EBTNodeResult::Succeeded;

@@ -72,7 +72,6 @@ void ATutorialCard::BeginOverlap(UPrimitiveComponent* OverlappedComponent,
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapping"));
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
 
 	if (!Player)

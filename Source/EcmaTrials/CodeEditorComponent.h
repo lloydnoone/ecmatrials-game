@@ -94,8 +94,6 @@ public:
 
 	void SetRequiredText(FString String);
 
-	void SetInfoText(FName TableID, FString TableKey);
-
 	void SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock);
 
 private:

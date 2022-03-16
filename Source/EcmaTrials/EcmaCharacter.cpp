@@ -5,7 +5,6 @@
 #include "Gun.h"
 #include "Components/CapsuleComponent.h"
 #include "EcmaTrialsGameModeBase.h"
-#include "Interactable.h"
 #include "Components/WidgetComponent.h"
 #include "CodeEditor.h"
 #include "Components/MultiLineEditableText.h"
@@ -18,6 +17,7 @@
 #include "CodeEditorComponent.h"
 #include "EcmaIntroLevelScriptActor.h"
 #include "PauseMenu.h"
+#include "Laptop.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -44,6 +44,12 @@ void AEcmaCharacter::BeginPlay()
 
 	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	//Gun->SetOwner(this);
+
+	// Laptopclass set in blueprint
+	Laptop = GetWorld()->SpawnActor<ALaptop>(LaptopClass);
+
+	Laptop->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Laptop"));
+	Laptop->SetOwner(this);
 
 	//get camera
 	UActorComponent* ActorComp = GetComponentByClass(UCameraComponent::StaticClass());
@@ -142,7 +148,6 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	//if health is less than DamageToApply then return health instead to keep health above zero
 	DamageToApply = FMath::Min(Health, DamageToApply);
 	Health -= DamageToApply;
-	UE_LOG(LogTemp, Warning, TEXT("Health left %f"), Health);
 
 	// cleanup after death
 	if (IsDead())
@@ -231,7 +236,6 @@ void AEcmaCharacter::Attacked()
 		bIsDowned = true;
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
 	}
-	UE_LOG(LogTemp, Warning, TEXT("end of player attacked"));
 }
 
 void AEcmaCharacter::AttackTrace()
@@ -324,13 +328,10 @@ void AEcmaCharacter::Attack()
 
 void AEcmaCharacter::AddActorInRange(AActor* Actor)
 {
+	// if it has an editor component, it must be valid target
 	if (Actor->FindComponentByClass< UCodeEditorComponent >())
 	{
 		ActorsInRange.Add(Actor);
-		for (AActor* Element : ActorsInRange)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %s"), *Element->GetName());
-		}
 	}
 	
 }
@@ -343,36 +344,22 @@ void AEcmaCharacter::RemoveActorInRange(AActor* Actor)
 		return;
 	}
 	ActorsInRange.Remove(Actor);
-	for (AActor* Element : ActorsInRange)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Interactables in range: %s"), *Element->GetName());
-	}
-	// if interactable is current target, set CurrentTarget to nullpointer
+
+	// if interactable that moved away is current target, set CurrentTarget to nullpointer
 	if (Actor == CurrentTarget)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Current target out of range. clearing. "));
 		CurrentTarget = nullptr;
 	}
 }
 
 void AEcmaCharacter::HandleNoTarget()
 {
-	UE_LOG(LogTemp, Warning, TEXT("No interactables in range. Not setting target. "));
+	// if no target, do nothing
 	return;
-	if (CurrentTarget)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
-	}
 }
 
 void AEcmaCharacter::ResetTarget()
 {
-	if (CurrentTarget)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
-	}
-	UE_LOG(LogTemp, Warning, TEXT("Only one target same as current so refreshing target"));
-	
 	UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
 	EditorComp->SetCodeEditorVisibility(true);
 	return;
@@ -380,7 +367,7 @@ void AEcmaCharacter::ResetTarget()
 
 void AEcmaCharacter::TargetNearest()
 {
-	UE_LOG(LogTemp, Warning, TEXT("No target. finding closest. "));
+	// for when theres not target, find closest
 	AActor* Nearest = nullptr;
 
 	float Distance = 0;
@@ -417,7 +404,6 @@ void AEcmaCharacter::TargetNearest()
 		else
 		{
 			EditorComp->SetCodeEditorVisibility(true);
-			UE_LOG(LogTemp, Warning, TEXT("Target is: %s"), *CurrentTarget->GetName());
 		}
 	}
 	else 
@@ -429,8 +415,7 @@ void AEcmaCharacter::TargetNearest()
 
 void AEcmaCharacter::TargetNext()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Have a current target, there is another in range. should move to next. "));
-	// has a current target and there is more than one in range
+	// has a current target and there is more than one in range, should move to next
 	int32 CurrentIndex = 0;
 	int32 NextIndex = 0;
 	AActor* NextTarget;
@@ -467,7 +452,6 @@ void AEcmaCharacter::TargetNext()
 
 void AEcmaCharacter::ChangeTarget()
 {
-	UE_LOG(LogTemp, Warning, TEXT("interactables in range: %i"), ActorsInRange.Num());
 	//return early if nothing is in range
 	if (ActorsInRange.Num() <= 0)
 	{	
