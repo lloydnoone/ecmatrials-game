@@ -56,6 +56,11 @@ void AEcmaEnemyCharacter::BeginPlay()
 	}
 }
 
+void AEcmaEnemyCharacter::SetupLaptop()
+{
+	//do nothing
+}
+
 void AEcmaEnemyCharacter::SetCodeForSpeedType(FString String)
 {
 	CodeEditorPtr->SetRequiredText(String);

@@ -55,6 +55,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
 
+	UFUNCTION(BlueprintPure)
+	bool HasTarget();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -98,6 +101,9 @@ private:
 
 	void PauseGame();
 
+	virtual void SetupLaptop();
+	void ToggleLaptop(bool Open);
+
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)
 	float RotationRate = 10;
@@ -110,6 +116,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* LaptopMontage;
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* ImpactSound;

@@ -33,8 +33,8 @@ void ALaptop::Tick(float DeltaTime)
 
 }
 
-void ALaptop::Open()
+void ALaptop::Open(bool Open)
 {
-
+	OpenMesh->SetVisibility(Open);
+	ClosedMesh->SetVisibility(!Open);
 }
-

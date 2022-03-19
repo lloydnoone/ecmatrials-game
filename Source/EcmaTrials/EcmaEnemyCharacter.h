@@ -29,6 +29,8 @@ public:
 
 private:
 
+	virtual void SetupLaptop() override;
+
 	USphereComponent* EditorCollisionPtr;
 
 	UCodeEditorComponent* CodeEditorPtr;

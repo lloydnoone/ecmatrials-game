@@ -45,11 +45,7 @@ void AEcmaCharacter::BeginPlay()
 	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 	//Gun->SetOwner(this);
 
-	// Laptopclass set in blueprint
-	Laptop = GetWorld()->SpawnActor<ALaptop>(LaptopClass);
-
-	Laptop->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Laptop"));
-	Laptop->SetOwner(this);
+	SetupLaptop();
 
 	//get camera
 	UActorComponent* ActorComp = GetComponentByClass(UCameraComponent::StaticClass());
@@ -95,6 +91,45 @@ void AEcmaCharacter::BeginPlay()
 	if (DeathAnim == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find death animation."))
+	}
+}
+
+void AEcmaCharacter::SetupLaptop()
+{
+	if (LaptopClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find no laptop class set."))
+	}
+
+	if (LaptopMontage == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find laptop montage."))
+	}
+
+	// Laptopclass set in blueprint
+	Laptop = GetWorld()->SpawnActor<ALaptop>(LaptopClass);
+
+	Laptop->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Laptop"));
+	Laptop->SetOwner(this);
+}
+
+void AEcmaCharacter::ToggleLaptop(bool Open)
+{
+	Laptop->Open(Open);
+
+	if (!LaptopMontage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find laptop montage."));
+		return;
+	}
+
+	if (Open)
+	{
+		PlayAnimMontage(LaptopMontage);
+	}
+	if (!Open)
+	{
+		StopAnimMontage(LaptopMontage);
 	}
 }
 
@@ -349,6 +384,9 @@ void AEcmaCharacter::RemoveActorInRange(AActor* Actor)
 	if (Actor == CurrentTarget)
 	{
 		CurrentTarget = nullptr;
+		
+		//close laptop
+		ToggleLaptop(false);
 	}
 }
 
@@ -459,6 +497,9 @@ void AEcmaCharacter::ChangeTarget()
 		return;
 	}
 
+	//must be a target in range, open laptop
+	ToggleLaptop(true);
+
 	// if there is only one in range and its the current target, reset visibility and keyboard focus
 	if (ActorsInRange.Num() == 1 && ActorsInRange[0] == CurrentTarget)
 	{
@@ -484,7 +525,15 @@ void AEcmaCharacter::DropTarget()
 	{
 		UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
 		CurrentTargetEditorComp->SetCodeEditorVisibility(false);
+
+		// close laptop
+		ToggleLaptop(false);
 	}
+}
+
+bool AEcmaCharacter::HasTarget()
+{
+	return CurrentTarget ? true : false;
 }
 
 void AEcmaCharacter::SetCameraTarget(AActor* Actor)

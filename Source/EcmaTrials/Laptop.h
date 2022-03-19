@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ALaptop();
 
-	void Open();
+	void Open(bool Open);
 
 protected:
 	// Called when the game starts or when spawned
