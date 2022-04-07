@@ -22,10 +22,22 @@ public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	virtual void Attack() override;
-	virtual void AttackTrace() override;
 	virtual void Attacked() override;
+	virtual void StopAttack() override;
 
 	void SetCodeForSpeedType(FString String);
+
+	virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult) override;
+
+	virtual void EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex) override;
 
 private:
 

@@ -10,6 +10,7 @@ class UCameraComponent;
 class UAnimMontage;
 class UPauseMenu;
 class ALaptop;
+class UBoxComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -69,8 +70,8 @@ public:
 
 	//void Shoot();
 	virtual void Attack();
-	virtual void AttackTrace();
 	virtual void Attacked();
+	virtual void StopAttack();
 
 	void AddActorInRange(AActor* Actor);
 	void RemoveActorInRange(AActor* Actor);
@@ -81,6 +82,20 @@ public:
 	void SetCameraTarget(AActor* Actor);
 
 	void MoveToStandpoint();
+
+	UFUNCTION()
+	virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 
 private:
 	void MoveForward(float AxisValue);
@@ -106,6 +121,8 @@ private:
 	virtual void SetupLaptop();
 	void ToggleLaptop(bool Open);
 
+	void SetupAttackCollision();
+
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)
 	float RotationRate = 10;
@@ -124,14 +141,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* ImpactSound;
-
-	// restrict class selection in blueprint defaults to a subclass of gun
-	//UPROPERTY(EditDefaultsOnly)
-	//TSubclassOf<AGun> GunClass;
-
-	// pointer to the actual gun
-	//UPROPERTY()
-	//AGun* Gun;
 
 	// restrict class selection in blueprint defaults to a subclass of laptop
 	UPROPERTY(EditDefaultsOnly)
@@ -159,4 +168,11 @@ private:
 	UCameraComponent* Camera;
 
 	APlayerController* Controller;
+
+	//attack hit boxes
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* PunchCollisionBox;
+
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* KickCollisionBox;
 };

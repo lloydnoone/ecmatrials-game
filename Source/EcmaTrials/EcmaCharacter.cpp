@@ -20,6 +20,7 @@
 #include "Laptop.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -29,6 +30,9 @@ AEcmaCharacter::AEcmaCharacter()
 
 	UCapsuleComponent* Capsule = FindComponentByClass<UCapsuleComponent>();
 	SetRootComponent(Capsule);
+
+
+	SetupAttackCollision();
 }
 
 // Called when the game starts or when spawned
@@ -37,15 +41,6 @@ void AEcmaCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Health = MaxHealth;
-
-	// Gunclass set in blueprint
-	//Gun = GetWorld()->SpawnActor<AGun>(GunClass);
-
-	//hide rifle mesh that exists in character mesh to then spawn with the actual - was used on wraith mesh
-	//GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-
-	//Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-	//Gun->SetOwner(this);
 
 	SetupLaptop();
 
@@ -94,6 +89,14 @@ void AEcmaCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find death animation."))
 	}
+
+	PunchCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEcmaCharacter::BeginAttackOverlap);
+	PunchCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AEcmaCharacter::EndAttackOverlap);
+	PunchCollisionBox->IgnoreActorWhenMoving(this, true);
+
+	KickCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEcmaCharacter::BeginAttackOverlap);
+	KickCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AEcmaCharacter::EndAttackOverlap);
+	KickCollisionBox->IgnoreActorWhenMoving(this, true);
 }
 
 void AEcmaCharacter::SetupLaptop()
@@ -113,6 +116,15 @@ void AEcmaCharacter::SetupLaptop()
 
 	Laptop->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Laptop"));
 	Laptop->SetOwner(this);
+}
+
+void AEcmaCharacter::SetupAttackCollision()
+{
+	PunchCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PunchCollision"));
+	PunchCollisionBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_r"));
+	
+	KickCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("KickCollision"));
+	KickCollisionBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("foot_r"));
 }
 
 void AEcmaCharacter::ToggleLaptop(bool Open)
@@ -276,92 +288,14 @@ void AEcmaCharacter::Attacked()
 	}
 }
 
-void AEcmaCharacter::AttackTrace()
-{
-	//// if Character is dead, stop tracing and animating
-	//if (IsDead())
-	//{
-	//	bIsAttacking = false;
-	//	GetWorldTimerManager().ClearTimer(AttackTimer);
-	//	StopAnimMontage(CurrentAttackMontage);
-	//	return;
-	//}
-
-	//ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
-	//// clear timer to stop tracing if anim has finished playing
-	//if (ElapsedAttackTime >= AttackAnimLength)
-	//{
-	//	bIsAttacking = false;
-	//	GetWorldTimerManager().ClearTimer(AttackTimer);
-	//	return;
-	//}
-
-	//// socket to trace on
-	//FName SocketName = bIsCross ? "hand_r" : "foot_r";
-	//
-	//// set up params for trace func
-	//FVector SocketLocation = Mesh->GetSocketLocation(SocketName);
-	//TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	//ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery3); // ObjectTypeQuery3 is Pawn according to dropdown list in blueprints
-	//TArray<AActor*> ActorsToIgnore;
-	//ActorsToIgnore.Add(this);
-	//FHitResult HitResult;
-
-	//bool HitFound = UKismetSystemLibrary::CapsuleTraceSingleForObjects(
-	//	GetWorld(),
-	//	SocketLocation,
-	//	SocketLocation,
-	//	22.0,
-	//	22.0,
-	//	ObjectTypes,
-	//	false,
-	//	ActorsToIgnore,
-	//	EDrawDebugTrace::None,
-	//	HitResult,
-	//	true,
-	//	FLinearColor::Red,
-	//	FLinearColor::Green,
-	//	0.1f
-	//);
-
-	//if (HitFound)
-	//{
-	//	AEcmaEnemyCharacter* HitActor = Cast<AEcmaEnemyCharacter>(HitResult.Actor);
-	//	if (HitActor)
-	//	{
-	//		HitActor->TakeDamage(100.f, FDamageEvent(), GetController(), this);
-	//	}
-	//}
-}
-
 void AEcmaCharacter::Attack()
 {
-	//if (!CharMovementComp->IsFalling() && !bIsAttacking)
-	//{
-	//	//reset - these are used in attackTrace
-	//	ElapsedAttackTime = 0.0f;
-	//	bIsAttacking = true;
+	// do nothing
+}
 
-	//	// get random attack
-	//	int32 RandNum = FMath::RandRange(0, 1);
-	//	if (AnimArray.IsValidIndex(RandNum))
-	//	{
-	//		CurrentAttackMontage = AnimArray[RandNum];
-
-	//		// IsCross and AttackAnimLength are used in AttackTrace
-	//		// which limb is the attack using?
-	//		bIsCross = CurrentAttackMontage->GetFName().ToString().Contains("cross");
-	//		// play anim
-	//		AttackAnimLength = PlayAnimMontage(CurrentAttackMontage);
-
-	//		// run attack trace every 0.1f until anim has finished
-	//		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
-	//	}
-	//	else
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("couldnt find random attack anim"));
-	//	}
-	//}
+void AEcmaCharacter::StopAttack()
+{
+	//do nothing
 }
 
 void AEcmaCharacter::AddActorInRange(AActor* Actor)
@@ -667,4 +601,22 @@ void AEcmaCharacter::MoveToStandpoint()
 			UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), ArrowComp->GetComponentLocation());
 		}
 	}
+}
+
+void AEcmaCharacter::BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex,
+	bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	// do nothing
+}
+
+void AEcmaCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	// do nothing
 }

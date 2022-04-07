@@ -124,6 +124,7 @@ void AEcmaEnemyCharacter::StopAttack()
 	// go back to movement in anim BP
 	bIsAttacking = false;
 	GetWorldTimerManager().ClearTimer(AttackTimer);
+	UE_LOG(LogTemp, Warning, TEXT("atttack stopped"))
 }
 
 void AEcmaEnemyCharacter::Attacked()
