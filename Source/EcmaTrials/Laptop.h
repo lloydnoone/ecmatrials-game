@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Laptop.generated.h"
 
+class AEcmaCharacter;
+
 UCLASS()
 class ECMATRIALS_API ALaptop : public AActor
 {
@@ -16,6 +18,8 @@ public:
 	ALaptop();
 
 	void Open(bool Open);
+
+	bool LaptopNeedsSpace();
 
 protected:
 	// Called when the game starts or when spawned
@@ -34,4 +38,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* ClosedMesh;
+
+	FTimerHandle TraceTimer;
+
+	AEcmaCharacter* OwningPlayer;
+
+	UFUNCTION()
+	void LaptopTouched(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

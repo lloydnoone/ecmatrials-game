@@ -18,6 +18,8 @@
 #include "EcmaIntroLevelScriptActor.h"
 #include "PauseMenu.h"
 #include "Laptop.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -143,6 +145,11 @@ bool AEcmaCharacter::IsAttacking() const
 	return bIsAttacking;
 }
 
+bool AEcmaCharacter::IsPunch() const
+{
+	return bIsCross;
+}
+
 float AEcmaCharacter::GetHealthPercent() const
 {
 	return Health / MaxHealth;
@@ -219,10 +226,6 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		// disable pawn
 		DetachFromControllerPendingDestroy();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		// code for ragdoll, too buggy to use during slow mo
-		//Mesh->SetSimulatePhysics(true);
-		//CharMovementComp->DisableMovement();
 	}
 
 	return DamageToApply;
@@ -368,7 +371,6 @@ void AEcmaCharacter::AddActorInRange(AActor* Actor)
 	{
 		ActorsInRange.Add(Actor);
 	}
-	
 }
 
 void AEcmaCharacter::RemoveActorInRange(AActor* Actor)
@@ -528,6 +530,8 @@ void AEcmaCharacter::DropTarget()
 
 		// close laptop
 		ToggleLaptop(false);
+
+		CurrentTarget = nullptr;
 	}
 }
 
@@ -633,5 +637,34 @@ void AEcmaCharacter::PauseGame()
 		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockInFullscreen);
 		InputMode.SetHideCursorDuringCapture(false);
 		Controller->SetInputMode(InputMode);
+	}
+}
+
+void AEcmaCharacter::MoveToStandpoint()
+{
+	if (!CurrentTarget)
+	{
+		return;
+	}
+
+	UActorComponent* Comps = CurrentTarget->GetComponentByClass(UArrowComponent::StaticClass());
+
+	if (!Comps)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Standpoint not found."));
+		return;
+	}
+	else
+	{
+		UArrowComponent* ArrowComp = Cast<UArrowComponent>(Comps);
+		if (!ArrowComp)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Couldnt cast to arrowcomp for standpoint."));
+			return;
+		}
+		else
+		{
+			UAIBlueprintHelperLibrary::SimpleMoveToLocation(GetController(), ArrowComp->GetComponentLocation());
+		}
 	}
 }

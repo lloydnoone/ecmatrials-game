@@ -9,7 +9,6 @@
 
 class USphereComponent;
 class UWidgetComponent;
-class USceneCompenent;
 class UStaticMesh;
 class UCodeEditor;
 class AInteractableSubject;

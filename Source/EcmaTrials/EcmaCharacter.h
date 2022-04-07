@@ -24,19 +24,16 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//controls anim BP
 	bool bIsAttacking = false;
-	bool bIsDowned = false;
 	bool bIsCross = false;
+	bool bIsDowned = false;
 
 	FTimerHandle AttackTimer;
 	FTimerHandle DeathTimer;
 
-	float AttackAnimLength = 0.0f;
+	float AttackAnimLength = 1.8f;
 	float ElapsedAttackTime = 0.0f;
-
-	//animation array
-	UPROPERTY(EditDefaultsOnly)
-	TArray<UAnimMontage*> AnimArray;
 
 	UCharacterMovementComponent* CharMovementComp;
 
@@ -51,6 +48,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsAttacking() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsPunch() const;
 
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
@@ -76,8 +76,11 @@ public:
 	void RemoveActorInRange(AActor* Actor);
 
 	void ChangeTarget();
+	void DropTarget();
 
 	void SetCameraTarget(AActor* Actor);
+
+	void MoveToStandpoint();
 
 private:
 	void MoveForward(float AxisValue);
@@ -93,7 +96,6 @@ private:
 	void ResetTarget();
 	void TargetNearest();
 	void TargetNext();
-	void DropTarget();
 
 	void LockOnCameraRotate(float DeltaTime);
 

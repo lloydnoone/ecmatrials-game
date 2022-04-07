@@ -96,12 +96,12 @@ void ATutorialCard::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	if (!Player)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("End Overlap Player reference is null"));
+		UE_LOG(LogTemp, Warning, TEXT("End Overlap Player reference is null in tutorial card"));
 		return;
 	}
 	if (!this)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("End Overlap this reference is null"));
+		UE_LOG(LogTemp, Warning, TEXT("End Overlap this reference is null in tutorial card"));
 		return;
 	}
 

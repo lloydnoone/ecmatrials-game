@@ -92,9 +92,6 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 	}
 	if (Show)
 	{
-		//slow time when editor is in view port
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05);
-
 		if (CodeEditor->IsInViewport()) return;
 		CodeEditor->AddEditorToScreen();
 
@@ -107,10 +104,10 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
+			// always not valid first time but then works anyway??
+			//UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
 		}
 		
-
 		// add info text after widget has been init and added to screen
 		if (InfoStringTable)
 		{
@@ -122,9 +119,6 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 	{
 		if (CodeEditor->IsInViewport())
 		{
-			// set time dilation to normal speed
-			UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0);
-
 			CodeEditor->RemoveFromViewport();
 		}
 	}
@@ -147,11 +141,10 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
+	// if its not a player character, do nothing
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
-
 	if (!Player)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("begin Overlap Player reference is null"));
 		return;
 	}
 
@@ -174,15 +167,14 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	int32 OtherBodyIndex)
 {
 	AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
-
 	if (!Player)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("End Overlap Player reference is null"));
+		// return if it wasnt the player
 		return;
 	}
 	if (!this)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("End Overlap this reference is null"));
+		UE_LOG(LogTemp, Warning, TEXT("End Overlap this reference is null in code editor component"));
 		return;
 	}
 
@@ -191,6 +183,7 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 
 	SetCodeEditorVisibility(false);
 	Player->RemoveActorInRange(GetOwner());
+
 	// unhighlight with outline
 	for (UMeshComponent* MeshComp : Meshes)
 	{
@@ -234,6 +227,15 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
 		{
 			SetCodeEditorVisibility(false);
+
+			//update players target
+			ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+			AEcmaCharacter* Player = Cast<AEcmaCharacter>(Character);
+			if (Player)
+			{
+				Player->DropTarget();
+			}
+
 		}, 0.05f, false);
 	}
 

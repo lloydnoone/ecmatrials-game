@@ -100,14 +100,17 @@ void AEcmaEnemyCharacter::AttackTrace()
 	// if Character is dead, stop tracing and animating
 	if (IsDead())
 	{
+		// stop attack in anim BP
 		bIsAttacking = false;
+
+		// stop tracing
 		GetWorldTimerManager().ClearTimer(AttackTimer);
-		StopAnimMontage(CurrentAttackMontage);
 		return;
 	}
 
 	ElapsedAttackTime += GetWorldTimerManager().GetTimerElapsed(AttackTimer);
-	// clear timer to stop tracing if anim has finished playing
+
+	// stop tracing and animation past anim length
 	if (ElapsedAttackTime >= AttackAnimLength)
 	{
 		bIsAttacking = false;
@@ -135,7 +138,7 @@ void AEcmaEnemyCharacter::AttackTrace()
 		ObjectTypes,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::None,
+		EDrawDebugTrace::ForOneFrame,
 		HitResult,
 		true,
 		FLinearColor::Red,
@@ -160,33 +163,24 @@ void AEcmaEnemyCharacter::AttackTrace()
 void AEcmaEnemyCharacter::Attack()
 {
 	// if player is dead, do nothing
-	if (Player->IsDead()) return;
+	if (Player->IsDead())
+	{
+		return;
+	}
 
 	if (!CharMovementComp->IsFalling() && !bIsAttacking)
 	{
 		//reset - these are used in attackTrace
 		ElapsedAttackTime = 0.0f;
+
+		//play attack animation
 		bIsAttacking = true;
 
-		// get random attack
-		int32 RandNum = FMath::RandRange(0, 1);
-		if (AnimArray.IsValidIndex(RandNum))
-		{
-			CurrentAttackMontage = AnimArray[RandNum];
+		// random choice of kick/punch
+		bIsCross = FMath::RandRange(0, 1) == 1 ? true : false;
 
-			// IsCross and AttackAnimLength are used in AttackTrace
-			// which limb is the attack using?
-			bIsCross = CurrentAttackMontage->GetFName().ToString().Contains("cross");
-			// play anim
-			AttackAnimLength = PlayAnimMontage(CurrentAttackMontage);
-			
-			// run attack trace every 0.1f until anim has finished
-			GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("couldnt find random attack anim"));
-		}
+		// run attack trace every 0.1f until anim has finished
+		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::AttackTrace, 0.01f, true, 0.0f);
 	}
 }
 
