@@ -4,6 +4,7 @@
 #include "EcmaPlayerController.h"
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 void AEcmaPlayerController::BeginPlay()
 {
@@ -44,6 +45,10 @@ void AEcmaPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 		{
 			LoseScreen->AddToViewport();
 		}
+
+		// set time dilation to normal speed in case player had a target
+		EndGameFocus->CustomTimeDilation = 1.0f;
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0);
 	}
 
 	// restart the level after player dies

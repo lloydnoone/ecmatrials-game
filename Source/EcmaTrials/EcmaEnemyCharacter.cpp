@@ -130,6 +130,9 @@ void AEcmaEnemyCharacter::Attacked()
 {
 	Super::Attacked();
 
+	//stop attacking
+	bIsAttacking = false;
+
 	// get all sockets
 	TArray<FName> SocketNames = Mesh->GetAllSocketNames();
 	

@@ -85,11 +85,6 @@ void AEcmaCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find impact sound."))
 	}
 
-	if (DeathAnim == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find death animation."))
-	}
-
 	PunchCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEcmaCharacter::BeginAttackOverlap);
 	PunchCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AEcmaCharacter::EndAttackOverlap);
 	PunchCollisionBox->IgnoreActorWhenMoving(this, true);
@@ -140,10 +135,12 @@ void AEcmaCharacter::ToggleLaptop(bool Open)
 	if (Open)
 	{
 		PlayAnimMontage(LaptopMontage);
+		bIsTyping = true;
 	}
 	if (!Open)
 	{
 		StopAnimMontage(LaptopMontage);
+		bIsTyping = false;
 	}
 }
 
@@ -160,6 +157,11 @@ bool AEcmaCharacter::IsAttacking() const
 bool AEcmaCharacter::IsPunch() const
 {
 	return bIsCross;
+}
+
+bool AEcmaCharacter::IsTyping() const
+{
+	return bIsTyping;
 }
 
 float AEcmaCharacter::GetHealthPercent() const
@@ -238,6 +240,9 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		// disable pawn
 		DetachFromControllerPendingDestroy();
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		
+		//stop typing
+		StopAnimMontage(LaptopMontage);
 	}
 
 	return DamageToApply;
@@ -272,12 +277,6 @@ void AEcmaCharacter::LookRightRate(float AxisValue)
 	//speed * amount * time of one frame = distance
 	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
 }
-
-
-//void AEcmaCharacter::Shoot()
-//{
-//	Gun->PullTrigger();
-//}
 
 void AEcmaCharacter::Attacked()
 {
@@ -494,6 +493,8 @@ void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
 	if (CameraTarget)
 	{
 		TargetThisTick = CameraTarget;
+		FTimerHandle CameraTimer;
+		GetWorldTimerManager().SetTimer(CameraTimer, this, &AEcmaCharacter::ClearCameraTarget, 2.0f, false);
 	}
 
 	// if there is any target set, start interp
@@ -523,6 +524,11 @@ void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
 
 		Controller->SetControlRotation(NewRotation);
 	}
+}
+
+void AEcmaCharacter::ClearCameraTarget()
+{
+	CameraTarget = nullptr;
 }
 
 void AEcmaCharacter::Interact()

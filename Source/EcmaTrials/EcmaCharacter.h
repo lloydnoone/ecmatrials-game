@@ -29,6 +29,7 @@ protected:
 	bool bIsAttacking = false;
 	bool bIsCross = false;
 	bool bIsDowned = false;
+	bool bIsTyping = false;
 
 	FTimerHandle AttackTimer;
 	FTimerHandle DeathTimer;
@@ -52,6 +53,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsPunch() const;
+
+	UFUNCTION(BlueprintPure)
+	bool IsTyping() const;
 
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
@@ -113,6 +117,7 @@ private:
 	void TargetNext();
 
 	void LockOnCameraRotate(float DeltaTime);
+	void ClearCameraTarget();
 
 	void Interact();
 
@@ -132,9 +137,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	float Health;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* DeathAnim;
 
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* LaptopMontage;

@@ -159,6 +159,7 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 			SpawnEnemy(NumberCodeTable, NumberTransform, 3, 1.0f);
 			SpawnEnemy(StringCodeTable, StringTransform, 3, 1.0f);
 			SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
+			Player->SetCameraTarget(GetActorFromArray(ForceFields, "Final Intro Force Field"));
 			//only do this once
 			bFinalWaveBegun = true;
 		}

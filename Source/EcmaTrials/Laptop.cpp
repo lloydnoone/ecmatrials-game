@@ -66,8 +66,8 @@ void ALaptop::Open(bool Open)
 	{
 		OpenMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-		OwningPlayer->CustomTimeDilation = 1.0f;
 		// set time dilation to normal speed
+		OwningPlayer->CustomTimeDilation = 1.0f;
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0);
 	}
 }

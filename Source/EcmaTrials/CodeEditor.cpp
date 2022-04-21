@@ -195,7 +195,9 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 	// highlight syntax
 	FString RawInputText = TextInput->GetText().ToString();
-	FString FormattedString = RawInputText.Replace(TEXT("const"), TEXT("<const>const</>")).Replace(TEXT("let"), TEXT("<const>let</>"));
+	FString FormattedString = RawInputText
+		.Replace(TEXT("const"), TEXT("<const>const</>"), ESearchCase::CaseSensitive)
+		.Replace(TEXT("let"), TEXT("<const>let</>"), ESearchCase::CaseSensitive);
 	FText Text = FText::FromString(FormattedString);
 
 	//update syntax highlighter to latest
