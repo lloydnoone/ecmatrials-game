@@ -13,6 +13,9 @@ UCLASS()
 class ECMATRIALS_API AEcmaEnemyCharacter : public AEcmaCharacter
 {
 	GENERATED_BODY()
+public:
+	// Sets default values for this character's properties
+	AEcmaEnemyCharacter();
 
 protected:
 	// Called when the game starts or when spawned
@@ -43,6 +46,8 @@ private:
 
 	virtual void SetupLaptop() override;
 
+	virtual void SetupAttackCollision() override;
+
 	USphereComponent* EditorCollisionPtr;
 
 	UCodeEditorComponent* CodeEditorPtr;
@@ -51,4 +56,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	UParticleSystem* Flash;
+
+	TArray<UMeshComponent*> Meshes;
+
+	//attack hit boxes
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* LSwordCollision;
+
+	UPROPERTY(VisibleAnywhere)
+	UBoxComponent* RSwordCollision;
 };

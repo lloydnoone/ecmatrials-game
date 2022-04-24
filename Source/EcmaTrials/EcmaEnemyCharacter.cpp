@@ -7,6 +7,14 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+
+AEcmaEnemyCharacter::AEcmaEnemyCharacter()
+{
+
+	SetupAttackCollision();
+}
 
 // Called when the game starts or when spawned
 void AEcmaEnemyCharacter::BeginPlay()
@@ -54,11 +62,28 @@ void AEcmaEnemyCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has no flash"))
 	}
+
+	LSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
+	LSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
+	LSwordCollision->IgnoreActorWhenMoving(this, true);
+
+	RSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
+	RSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
+	RSwordCollision->IgnoreActorWhenMoving(this, true);
 }
 
 void AEcmaEnemyCharacter::SetupLaptop()
 {
 	//do nothing
+}
+
+void AEcmaEnemyCharacter::SetupAttackCollision()
+{
+	LSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LSwordCollision"));
+	LSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_lSocket"));
+
+	RSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("RSwordCollision"));
+	RSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_rSocket"));
 }
 
 void AEcmaEnemyCharacter::SetCodeForSpeedType(FString String)
@@ -86,7 +111,9 @@ float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 			//automatically switch to next target
 			PlayerEcmaCharacter->ChangeTarget();
 		}
-		GetMesh()->SetRenderCustomDepth(false);
+
+		CodeEditorPtr->Highlight(false);
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	// play anims and effects
@@ -112,7 +139,7 @@ void AEcmaEnemyCharacter::Attack()
 		bIsAttacking = true;
 
 		// random choice of kick/punch
-		bIsCross = FMath::RandRange(0, 1) == 1 ? true : false;
+		bLeftAttack = FMath::RandRange(0, 1) == 1 ? true : false;
 
 		// run attack trace every 0.1f until anim has finished
 		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::StopAttack, AttackAnimLength, false);
@@ -154,8 +181,8 @@ void AEcmaEnemyCharacter::BeginAttackOverlap(UPrimitiveComponent* OverlappedComp
 	bool bFromSweep,
 	const FHitResult& SweepResult)
 {
-	// if not attacking or if its not the player do nothing
-	if (!bIsAttacking || OtherActor != Player)
+	// if not attacking, falling or if its not the player do nothing
+	if ((!bIsAttacking && !GetCharacterMovement()->IsFalling()) || OtherActor != Player)
 	{
 		return;
 	}

@@ -153,12 +153,7 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 
 	Player->AddActorInRange(GetOwner());
 
-	// highlight with outline
-	for (UMeshComponent* MeshComp : Meshes)
-	{
-		MeshComp->SetRenderCustomDepth(true);
-		MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
-	}
+	Highlight(true);
 }
 
 void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
@@ -184,11 +179,28 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	SetCodeEditorVisibility(false);
 	Player->RemoveActorInRange(GetOwner());
 
-	// unhighlight with outline
-	for (UMeshComponent* MeshComp : Meshes)
+	Highlight(false);
+}
+
+void UCodeEditorComponent::Highlight(bool bHighlight)
+{
+	if (bHighlight)
 	{
-		MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
-		MeshComp->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
+		// highlight with outline
+		for (UMeshComponent* MeshComp : Meshes)
+		{
+			MeshComp->SetRenderCustomDepth(true);
+			MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
+		}
+	}
+	else
+	{
+		// unhighlight with outline
+		for (UMeshComponent* MeshComp : Meshes)
+		{
+			MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
+			MeshComp->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
+		}
 	}
 }
 

@@ -27,7 +27,7 @@ protected:
 
 	//controls anim BP
 	bool bIsAttacking = false;
-	bool bIsCross = false;
+	bool bLeftAttack = false;
 	bool bIsDowned = false;
 	bool bIsTyping = false;
 
@@ -52,7 +52,7 @@ public:
 	bool IsAttacking() const;
 
 	UFUNCTION(BlueprintPure)
-	bool IsPunch() const;
+	bool IsLeftAttack() const;
 
 	UFUNCTION(BlueprintPure)
 	bool IsTyping() const;
@@ -126,7 +126,7 @@ private:
 	virtual void SetupLaptop();
 	void ToggleLaptop(bool Open);
 
-	void SetupAttackCollision();
+	virtual void SetupAttackCollision();
 
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)
@@ -170,11 +170,4 @@ private:
 	UCameraComponent* Camera;
 
 	APlayerController* Controller;
-
-	//attack hit boxes
-	UPROPERTY(VisibleAnywhere)
-	UBoxComponent* PunchCollisionBox;
-
-	UPROPERTY(VisibleAnywhere)
-	UBoxComponent* KickCollisionBox;
 };

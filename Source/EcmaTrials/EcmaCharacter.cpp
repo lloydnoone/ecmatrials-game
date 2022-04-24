@@ -20,7 +20,6 @@
 #include "Laptop.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Components/ArrowComponent.h"
-#include "Components/BoxComponent.h"
 
 // Sets default values
 AEcmaCharacter::AEcmaCharacter()
@@ -30,9 +29,6 @@ AEcmaCharacter::AEcmaCharacter()
 
 	UCapsuleComponent* Capsule = FindComponentByClass<UCapsuleComponent>();
 	SetRootComponent(Capsule);
-
-
-	SetupAttackCollision();
 }
 
 // Called when the game starts or when spawned
@@ -84,14 +80,6 @@ void AEcmaCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find impact sound."))
 	}
-
-	PunchCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEcmaCharacter::BeginAttackOverlap);
-	PunchCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AEcmaCharacter::EndAttackOverlap);
-	PunchCollisionBox->IgnoreActorWhenMoving(this, true);
-
-	KickCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEcmaCharacter::BeginAttackOverlap);
-	KickCollisionBox->OnComponentEndOverlap.AddDynamic(this, &AEcmaCharacter::EndAttackOverlap);
-	KickCollisionBox->IgnoreActorWhenMoving(this, true);
 }
 
 void AEcmaCharacter::SetupLaptop()
@@ -115,11 +103,7 @@ void AEcmaCharacter::SetupLaptop()
 
 void AEcmaCharacter::SetupAttackCollision()
 {
-	PunchCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("PunchCollision"));
-	PunchCollisionBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("hand_r"));
-	
-	KickCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("KickCollision"));
-	KickCollisionBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("foot_r"));
+	//do nothing
 }
 
 void AEcmaCharacter::ToggleLaptop(bool Open)
@@ -154,9 +138,9 @@ bool AEcmaCharacter::IsAttacking() const
 	return bIsAttacking;
 }
 
-bool AEcmaCharacter::IsPunch() const
+bool AEcmaCharacter::IsLeftAttack() const
 {
-	return bIsCross;
+	return bLeftAttack;
 }
 
 bool AEcmaCharacter::IsTyping() const

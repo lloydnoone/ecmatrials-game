@@ -95,6 +95,8 @@ public:
 
 	void SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock);
 
+	void Highlight(bool bHighlight);
+
 private:
 
 	AInteractableSubject* InitSubjectActor();
