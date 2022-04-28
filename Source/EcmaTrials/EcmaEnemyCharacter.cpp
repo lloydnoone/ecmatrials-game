@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TimelineComponent.h"
 
 AEcmaEnemyCharacter::AEcmaEnemyCharacter()
 {
@@ -94,6 +95,9 @@ void AEcmaEnemyCharacter::SetCodeForSpeedType(FString String)
 float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	// play anims and effects
+	Attacked();
 	
 	if (IsDead())
 	{
@@ -114,10 +118,8 @@ float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 
 		CodeEditorPtr->Highlight(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Disintegrate();
 	}
-
-	// play anims and effects
-	Attacked();
 	
 	return DamageToApply;
 }
@@ -196,4 +198,52 @@ void AEcmaEnemyCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedCompon
 	int32 OtherBodyIndex)
 {
 	// do nothing
+}
+
+// Called every frame
+void AEcmaEnemyCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	//if timeline is playing, need to call tick timeleine
+	if (MovementTimeline.IsPlaying())
+	{
+		MovementTimeline.TickTimeline(DeltaTime);
+	}
+
+}
+
+void AEcmaEnemyCharacter::ProcessDisintegrateTimeline(float Value)
+{
+	if (Material)
+	{
+		Material->SetScalarParameterValue(TEXT("Radius"), Value * 10);
+		UE_LOG(LogTemp, Warning, TEXT("Value is: %f"), Value);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy has no material"));
+	}
+}
+
+void AEcmaEnemyCharacter::OnEndDisintegrateTimeline()
+{
+	Destroy();
+}
+
+void AEcmaEnemyCharacter::Disintegrate()
+{
+	// init and bind progress function
+	FOnTimelineFloat ProgressFunction;
+	ProgressFunction.BindUFunction(this, TEXT("ProcessDisintegrateTimeline"));
+	MovementTimeline.AddInterpFloat(DisintegrateCurve, ProgressFunction);
+
+	//init and bind finished function
+	FOnTimelineEvent OnTimelineFinishedFunction;
+	OnTimelineFinishedFunction.BindUFunction(this, TEXT("OnEndDisintegrateTimeline"));
+	MovementTimeline.SetTimelineFinishedFunc(OnTimelineFinishedFunction);
+
+	//stop on last keyframe
+	MovementTimeline.SetTimelineLength(TL_LastKeyFrame);
+	MovementTimeline.Play();
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h"
 #include "EcmaCharacter.generated.h"
 
 class UCameraComponent;
@@ -41,7 +42,15 @@ protected:
 
 	USkeletalMeshComponent* Mesh;
 
+	UPROPERTY()
+	UMaterialInstanceDynamic* Material;
+
 	UAnimMontage* CurrentAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
+	UCurveFloat* DisintegrateCurve;
+
+	FTimeline MovementTimeline;
 
 public:	
 	// function to call in ABP event graph to check death status
@@ -127,6 +136,8 @@ private:
 	void ToggleLaptop(bool Open);
 
 	virtual void SetupAttackCollision();
+
+	virtual void Disintegrate();
 
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)

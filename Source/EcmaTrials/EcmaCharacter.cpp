@@ -80,6 +80,13 @@ void AEcmaCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Couldnt find impact sound."))
 	}
+
+	Material = UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), this);
+	if (Material == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt create material."))
+	}
+	Mesh->SetMaterial(0, Material);
 }
 
 void AEcmaCharacter::SetupLaptop()
@@ -609,4 +616,9 @@ void AEcmaCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 	int32 OtherBodyIndex)
 {
 	// do nothing
+}
+
+void AEcmaCharacter::Disintegrate()
+{
+	//do nothing
 }

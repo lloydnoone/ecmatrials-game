@@ -24,6 +24,9 @@ protected:
 public:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
 	virtual void Attack() override;
 	virtual void Attacked() override;
 	virtual void StopAttack() override;
@@ -47,6 +50,14 @@ private:
 	virtual void SetupLaptop() override;
 
 	virtual void SetupAttackCollision() override;
+
+	virtual void Disintegrate() override;
+
+	UFUNCTION()
+	void ProcessDisintegrateTimeline(float Value);
+
+	UFUNCTION()
+	void OnEndDisintegrateTimeline();
 
 	USphereComponent* EditorCollisionPtr;
 
