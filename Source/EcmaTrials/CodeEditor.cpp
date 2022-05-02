@@ -39,6 +39,7 @@ bool UCodeEditor::Initialize()
 
 	//add function to onTextCommitted
 	TextInput->OnTextCommitted.AddDynamic(this, &UCodeEditor::DelegateCommitInputText);
+	TextInput->OnTextChanged.AddDynamic(this, &UCodeEditor::DelegateOnTextChanged);
 
 	GetHttpService();
 	
@@ -79,6 +80,11 @@ void UCodeEditor::DelegateCommitInputText(const FText& InText, ETextCommit::Type
 	HttpService->PostCode(PostCode, this, RequestUrl);
 }
 
+void UCodeEditor::DelegateOnTextChanged(const FText& InText)
+{
+	HighlightSyntax(InText.ToString());
+}
+
 //catch input before its sent to textinput
 FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
@@ -88,34 +94,6 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 		UWidgetBlueprintLibrary::SetFocusToGameViewport();
 		return FReply::Handled();
 	};
-
-	//use the key if its a letter
-	FString Letter = InKeyEvent.GetKey().ToString();
-	if (Letter.Len() == 1)
-	{
-		// if shift then upper, if not, lower
-		if (InKeyEvent.IsLeftShiftDown() || InKeyEvent.IsRightShiftDown())
-		{
-			Letter.ToUpperInline();
-		}
-		else
-		{
-			Letter.ToLowerInline();
-		}
-	}
-	else
-	{
-		//if not a letter, just update to latest input
-		SyntaxHighlight->SetText(TextInput->GetText());
-		return  FReply::Unhandled();
-	}
-
-	// add current letter to end of old string
-	FString String = TextInput->GetText().ToString() + Letter;
-	FText Text = FText::FromString(String);
-
-	//set text and latest character for syntax highlighting
-	SyntaxHighlight->SetText(Text);
 
 	return  FReply::Unhandled();
 }
@@ -192,18 +170,93 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 	// get top right corner of widget
 	FVector2D ScreenStart = TextInput->GetCachedGeometry().GetLocalPositionAtCoordinates(FVector2D(1.f, 0.f));
 	UWidgetBlueprintLibrary::DrawLine(Context, ScreenStart, InteractableLocation, FLinearColor::White, true, 2.0f);
+	
+	return LayerId;
+}
 
-	// highlight syntax
-	FString RawInputText = TextInput->GetText().ToString();
-	FString FormattedString = RawInputText
-		.Replace(TEXT("const"), TEXT("<const>const</>"), ESearchCase::CaseSensitive)
-		.Replace(TEXT("let"), TEXT("<const>let</>"), ESearchCase::CaseSensitive);
+void UCodeEditor::HighlightSyntax(FString RawInput) const
+{
+	RawInput = TextInput->GetText().ToString();
+
+	//tag symbols
+	//must do / < > first to avoid problems breaking tags
+	TArray<FString> Symbols = { "<",">","/","+","-","%","*",";",":","|","=","!","?" };
+	for (FString Symbol : Symbols)
+	{
+		FString SymbolReplace = "<symbol>" + Symbol + "</>";
+		RawInput.ReplaceInline(*Symbol, *SymbolReplace, ESearchCase::CaseSensitive);
+	}
+
+	// tag keywords
+	TArray<FString> Keywords = { "const","let" };
+	for (FString Keyword : Keywords)
+	{
+		FString KeywordReplace = "<keyword>" + Keyword + "</>";
+		RawInput.ReplaceInline(*Keyword, *KeywordReplace, ESearchCase::CaseSensitive);
+	}
+
+	// tag strings
+	const FRegexPattern WholeStringPattern(TEXT("\"([^\"]+)?\"?"));
+	FRegexMatcher WholeStringMatcher(WholeStringPattern, RawInput);
+
+	//WholeStringMatcher.FindNext();
+
+	// below is an attempt to regex and replace strings manually to improve functionality
+
+	// replace offset for readjusting replace positions after resizing
+	//int32 Offset = 0;
+	//int32 MatchCount = 0;
+	//while (WholeStringMatcher.FindNext())
+	//{
+	//	UE_LOG(LogTemp, Error, TEXT("New Match"));
+	//	UE_LOG(LogTemp, Warning, TEXT("Match count: %i"), MatchCount);
+	//	//construct replace string
+	//	UE_LOG(LogTemp, Warning, TEXT("Match beginning: %i"), WholeStringMatcher.GetMatchBeginning());
+	//	FString Capture = WholeStringMatcher.GetCaptureGroup(0);
+	//	FString One = WholeStringMatcher.GetCaptureGroup(0);
+	//	UE_LOG(LogTemp, Warning, TEXT("One: %s"), *One);
+	//	FString ReplaceString = "<string>" + Capture + "</>";
+	//	FString Tags = "<string></>";
+
+	//	// apply offsets after first match
+	//	if (!(MatchCount == 0))
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("Should apply offset"));
+	//		Offset += Tags.Len();
+	//	}
+
+	//	int32 Start = WholeStringMatcher.GetCaptureGroupBeginning(0) + Offset;
+	//	int32 End = WholeStringMatcher.GetCaptureGroupEnding(0) + Offset;
+	//	UE_LOG(LogTemp, Warning, TEXT("End: %i"), End);
+
+	//	//remove capture group
+	//	RawInput.RemoveAt(Start, End);
+	//	UE_LOG(LogTemp, Warning, TEXT("After removal: %s"), *RawInput);
+	//	
+	//	RawInput.InsertAt(Start, ReplaceString);
+
+	//	UE_LOG(LogTemp, Warning, TEXT("output: %s"), *RawInput);
+	//	MatchCount++;
+	//}
+
+	//tage any whole strings
+	FString Capture = WholeStringMatcher.GetCaptureGroup(0);
+	UE_LOG(LogTemp, Warning, TEXT("Capture: %s"), *Capture);
+
+	FString ReplacementString = "<string>" + Capture + "</>";
+	UE_LOG(LogTemp, Warning, TEXT("Replacement: %s"), *ReplacementString);
+
+	RawInput.ReplaceInline(*Capture, *ReplacementString);
+	UE_LOG(LogTemp, Warning, TEXT("Replaced inline: %s"), *RawInput);
+
+	FString FormattedString = RawInput;
+	UE_LOG(LogTemp, Warning, TEXT("Formatted String: %s"), *FormattedString);
+	UE_LOG(LogTemp, Warning, TEXT("Formatted String: %i"), FormattedString.Len());
+
 	FText Text = FText::FromString(FormattedString);
 
 	//update syntax highlighter to latest
 	SyntaxHighlight->SetText(Text);
-	
-	return LayerId;
 }
 
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
@@ -225,7 +278,7 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 		DisplayOutput(FomattedString, true);
 	}
 
-	//get actors editor component and use it to handle results
+	//get this actors editor component and use it to handle results
 	UCodeEditorComponent* EditorComp = OwningActor->FindComponentByClass< UCodeEditorComponent >(); // ::StaticClass());
 	if (EditorComp == nullptr)
 	{

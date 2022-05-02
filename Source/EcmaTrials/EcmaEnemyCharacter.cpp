@@ -217,8 +217,7 @@ void AEcmaEnemyCharacter::ProcessDisintegrateTimeline(float Value)
 {
 	if (Material)
 	{
-		Material->SetScalarParameterValue(TEXT("Radius"), Value * 10);
-		UE_LOG(LogTemp, Warning, TEXT("Value is: %f"), Value);
+		Material->SetScalarParameterValue(TEXT("Radius"), Value);
 	}
 	else
 	{

@@ -49,6 +49,9 @@ public:
 	UFUNCTION()
 	virtual void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);
 
+	UFUNCTION()
+	virtual void DelegateOnTextChanged(const FText& InText);
+
 	// catch keyboard presses before text input handles them
 	virtual FReply NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
@@ -80,7 +83,12 @@ private:
 
 	AActor* OwningActor;
 
+	// to hold previous input and check if syntax highlighting actually needs update rather than every frame
+	FString PreviousTextInput;
+
 	void GetHttpService();
+
+	void HighlightSyntax(FString RawInput) const;
 
 	//code below was an attempt to fire off onsubmittext, might be usefull
 
