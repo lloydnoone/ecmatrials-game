@@ -36,6 +36,7 @@ bool UCodeEditorSpeedType::Initialize()
 
 	//add function to onTextCommitted
 	TextInput->OnTextCommitted.AddDynamic(this, &UCodeEditorSpeedType::DelegateCommitInputText);
+	TextInput->OnTextChanged.AddDynamic(this, &Super::DelegateOnTextChanged);
 
 	//set required text
 	RequiredText->SetText(FText::FromString(CodeString));

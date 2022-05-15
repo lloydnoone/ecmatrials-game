@@ -90,6 +90,8 @@ private:
 
 	void HighlightSyntax(FString RawInput) const;
 
+	//FString RegexReplace(FString Regex, FString String, FString ReplaceString) const;
+
 	//code below was an attempt to fire off onsubmittext, might be usefull
 
 	//UPROPERTY(meta = (BindWidget))

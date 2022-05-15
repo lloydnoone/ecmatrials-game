@@ -176,6 +176,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 void UCodeEditor::HighlightSyntax(FString RawInput) const
 {
+	UE_LOG(LogTemp, Warning, TEXT("Highlight syntax called."));
 	RawInput = TextInput->GetText().ToString();
 
 	//tag symbols
@@ -195,69 +196,99 @@ void UCodeEditor::HighlightSyntax(FString RawInput) const
 		RawInput.ReplaceInline(*Keyword, *KeywordReplace, ESearchCase::CaseSensitive);
 	}
 
+	//array of tag types, used to clear strings innet text of tags
+	TArray<FString> Tags = { "<keyword>","<symbol>","</>" };
+
 	// tag strings
 	const FRegexPattern WholeStringPattern(TEXT("\"([^\"]+)?\"?"));
 	FRegexMatcher WholeStringMatcher(WholeStringPattern, RawInput);
 
-	//WholeStringMatcher.FindNext();
+	//keep track of current index
+	int32 CurrentIdx = 0;
 
-	// below is an attempt to regex and replace strings manually to improve functionality
+	while (WholeStringMatcher.FindNext())
+	{
+		FString Capture = WholeStringMatcher.GetCaptureGroup(0);
 
-	// replace offset for readjusting replace positions after resizing
-	//int32 Offset = 0;
-	//int32 MatchCount = 0;
-	//while (WholeStringMatcher.FindNext())
-	//{
-	//	UE_LOG(LogTemp, Error, TEXT("New Match"));
-	//	UE_LOG(LogTemp, Warning, TEXT("Match count: %i"), MatchCount);
-	//	//construct replace string
-	//	UE_LOG(LogTemp, Warning, TEXT("Match beginning: %i"), WholeStringMatcher.GetMatchBeginning());
-	//	FString Capture = WholeStringMatcher.GetCaptureGroup(0);
-	//	FString One = WholeStringMatcher.GetCaptureGroup(0);
-	//	UE_LOG(LogTemp, Warning, TEXT("One: %s"), *One);
-	//	FString ReplaceString = "<string>" + Capture + "</>";
-	//	FString Tags = "<string></>";
+		// get index of capture found after our current index
+		int32 CaptureIdx = RawInput.Find(Capture, ESearchCase::CaseSensitive, ESearchDir::FromStart, CurrentIdx);
 
-	//	// apply offsets after first match
-	//	if (!(MatchCount == 0))
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Should apply offset"));
-	//		Offset += Tags.Len();
-	//	}
+		//construct replace string
+		FString ReplaceString = "<string>" + Capture + "</>";
 
-	//	int32 Start = WholeStringMatcher.GetCaptureGroupBeginning(0) + Offset;
-	//	int32 End = WholeStringMatcher.GetCaptureGroupEnding(0) + Offset;
-	//	UE_LOG(LogTemp, Warning, TEXT("End: %i"), End);
+		RawInput.RemoveAt(CaptureIdx, Capture.Len());
+		RawInput.InsertAt(CaptureIdx, ReplaceString);
 
-	//	//remove capture group
-	//	RawInput.RemoveAt(Start, End);
-	//	UE_LOG(LogTemp, Warning, TEXT("After removal: %s"), *RawInput);
-	//	
-	//	RawInput.InsertAt(Start, ReplaceString);
-
-	//	UE_LOG(LogTemp, Warning, TEXT("output: %s"), *RawInput);
-	//	MatchCount++;
-	//}
-
-	//tage any whole strings
-	FString Capture = WholeStringMatcher.GetCaptureGroup(0);
-	UE_LOG(LogTemp, Warning, TEXT("Capture: %s"), *Capture);
-
-	FString ReplacementString = "<string>" + Capture + "</>";
-	UE_LOG(LogTemp, Warning, TEXT("Replacement: %s"), *ReplacementString);
-
-	RawInput.ReplaceInline(*Capture, *ReplacementString);
-	UE_LOG(LogTemp, Warning, TEXT("Replaced inline: %s"), *RawInput);
+		// update current index to only search remaining chars
+		CurrentIdx = CaptureIdx + ReplaceString.Len();
+	}
 
 	FString FormattedString = RawInput;
-	UE_LOG(LogTemp, Warning, TEXT("Formatted String: %s"), *FormattedString);
-	UE_LOG(LogTemp, Warning, TEXT("Formatted String: %i"), FormattedString.Len());
 
 	FText Text = FText::FromString(FormattedString);
 
 	//update syntax highlighter to latest
 	SyntaxHighlight->SetText(Text);
 }
+
+//FString UCodeEditor::RegexReplace(FString Regex, FString String, FString ReplaceString) const
+//{
+//
+//	// group pattern
+//	const FRegexPattern GroupPattern(Regex);
+//	FRegexMatcher GroupMatcher(GroupPattern, String);
+//
+//	
+//	TMap<FString, int32> CaptureMap;
+//	int32 Counter = 0;
+//	int32 CurrentIdx = 0;
+//
+//	//store capture groups in map with current idx
+//	while (GroupMatcher.FindNext())
+//	{
+//		bool bGroupsCollected = false;
+//		while (!bGroupsCollected)
+//		{
+//			FString Capture = GroupMatcher.GetCaptureGroup(Counter);
+//			if (Capture.Len() == 0)
+//			{
+//				// if this capture is empty, stop collecting
+//				bGroupsCollected = true;
+//				break;
+//			}
+//
+//			//get index of capture in string
+//			int32 CaptureIdx = String.Find(Capture, ESearchCase::CaseSensitive, ESearchDir::FromStart, CurrentIdx);
+//
+//			// update current index to only search remaining chars
+//			CurrentIdx = CurrentIdx + Capture.Len();
+//
+//			// add the variable and its starting index in the string to the map
+//			CaptureMap.Add(Capture, CaptureIdx);
+//			UE_LOG(LogTemp, Warning, TEXT("variable 0: %s"), *GroupMatcher.GetCaptureGroup(Counter));
+//
+//			Counter++;
+//		}
+//	}
+//
+//	TMultiMap<int32, AActor*> exampleIntegerToActorMap;
+//	for (const TPair<FString, int32>& pair : CaptureMap)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("key: %s"), *pair.Key);
+//		UE_LOG(LogTemp, Warning, TEXT("Value: %i"), pair.Value);
+//	}
+//
+//	// store variables in map with current idx
+//	TMultiMap<int32, FString> VariableMap;
+//	//reset counter and idx
+//	Counter = 0;
+//	CurrentIdx = 0;
+//
+//
+//
+//
+//	return "test";
+//}
 
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
