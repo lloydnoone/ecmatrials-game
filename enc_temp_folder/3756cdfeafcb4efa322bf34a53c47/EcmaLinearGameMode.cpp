@@ -25,10 +25,7 @@ void AEcmaLinearGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	
 	FString PlayerStartName = OptionsString.RightChop(1);
 	UE_LOG(LogTemp, Warning, TEXT("PlayerStartName: %s"), *PlayerStartName);
-
-	AActor* StartSpot = FindPlayerStart_Implementation(NewPlayer, PlayerStartName);
-
-	RestartPlayerAtPlayerStart(NewPlayer, StartSpot);
+	
 }
 
 void AEcmaLinearGameMode::EndGame(bool bIsPlayerWinner)
