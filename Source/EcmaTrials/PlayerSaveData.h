@@ -14,10 +14,16 @@ class ECMATRIALS_API UPlayerSaveData : public USaveGame
 {
 	GENERATED_BODY()
 
-private:
-	FString SavePointName = "";
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+	FString SavePointName = "Start";
+
+	UPROPERTY(BlueprintReadWrite)
 	FString PlayerSlotName = "";
-	FName LevelName = "";
+
+	UPROPERTY(BlueprintReadWrite)
+	FName LevelName = "LevelOne";
 
 public:
 	void SetPlayerSlotName(FString SlotName);

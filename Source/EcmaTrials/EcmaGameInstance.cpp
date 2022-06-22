@@ -11,19 +11,29 @@ void UEcmaGameInstance::Init()
 {
 	Super::Init();
 
-	USaveGame* SaveGame = nullptr;
+	//GetWorld()->GetTimerManager().SetTimer(LoadGameDelayHandle, this, &UEcmaGameInstance::LoadGameData, 5.0f, false);
+	LoadGameData();
+}
 
+void UEcmaGameInstance::LoadGameData()
+{
 	if (UGameplayStatics::DoesSaveGameExist(GameSlotName, 0))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Data Exists"));
 		//load and set game from slot
-		SaveGame = UGameplayStatics::LoadGameFromSlot(GameSlotName, 0);
+		GameSaveData = Cast<UGameSaveData>(UGameplayStatics::LoadGameFromSlot(GameSlotName, 0));
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Data Does not Exist"));
 		// create and set game save data
-		SaveGame = UGameplayStatics::CreateSaveGameObject(USaveGame::StaticClass());
+		GameSaveData = Cast<UGameSaveData>(UGameplayStatics::CreateSaveGameObject(UGameSaveData::StaticClass()));
 	}
-	GameSaveData = Cast<UGameSaveData>(SaveGame);
+
+	if (!GameSaveData)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GameSaveData is Null"));
+	}
 }
 
 bool UEcmaGameInstance::LoadPlayerData(FString PlayerSlotName)
@@ -52,7 +62,7 @@ bool UEcmaGameInstance::CreatePlayerData(FString PlayerSlotName)
 	if (!UGameplayStatics::DoesSaveGameExist(PlayerSlotName, 0))
 	{
 		// create and save new player slot
-		SaveGame = UGameplayStatics::CreateSaveGameObject(USaveGame::StaticClass());
+		SaveGame = UGameplayStatics::CreateSaveGameObject(UPlayerSaveData::StaticClass());
 		PlayerSaveData = Cast<UPlayerSaveData>(SaveGame);
 		PlayerSaveData->SetPlayerSlotName(PlayerSlotName);
 		UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSlotName, 0);

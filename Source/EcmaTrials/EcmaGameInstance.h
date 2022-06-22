@@ -20,18 +20,25 @@ class ECMATRIALS_API UEcmaGameInstance : public UGameInstance
 
 public:
 
+	UPROPERTY(BlueprintReadWrite)
+	UGameSaveData* GameSaveData;
+
+	UPROPERTY(BlueprintReadWrite)
+	UPlayerSaveData* PlayerSaveData;
+
 	virtual void Init() override;
 
+	UFUNCTION(BlueprintCallable)
 	bool LoadPlayerData(FString PlayerSlotName);
+
+	UFUNCTION(BlueprintCallable)
 	bool CreatePlayerData(FString PlayerSlotName);
 
 private:
 
+	FTimerHandle LoadGameDelayHandle;
+
+	void LoadGameData();
+
 	const FString GameSlotName = "GameSaveData";
-
-	UPROPERTY()
-	UGameSaveData* GameSaveData = nullptr;
-
-	UPROPERTY()
-	UPlayerSaveData* PlayerSaveData = nullptr;
 };

@@ -3,6 +3,7 @@
 
 #include "EcmaLinearGameMode.h"
 #include "EngineUtils.h"
+#include "GameFramework/PlayerStart.h"
 
 void AEcmaLinearGameMode::PawnKilled(APawn* PawnKilled)
 {
@@ -21,7 +22,8 @@ void AEcmaLinearGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	// use implementation version of handlestartingnewplayer as it is a blueprint native event
 	// do stuff here before before super and player controller init to update things like hud etc
 
-	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	// dont call this super as it will start at a random start
+	//Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 	
 	FString PlayerStartName = OptionsString.RightChop(1);
 	UE_LOG(LogTemp, Warning, TEXT("PlayerStartName: %s"), *PlayerStartName);

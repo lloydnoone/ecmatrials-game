@@ -14,7 +14,8 @@ class ECMATRIALS_API UGameSaveData : public USaveGame
 {
 	GENERATED_BODY()
 
-private:
+public:
+	UPROPERTY(BlueprintReadWrite)
 	TArray<FString> SaveSlots;
 
 public:
