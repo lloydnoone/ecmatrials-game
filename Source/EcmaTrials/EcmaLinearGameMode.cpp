@@ -25,6 +25,7 @@ void AEcmaLinearGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	// dont call this super as it will start at a random start
 	//Super::HandleStartingNewPlayer_Implementation(NewPlayer);
 	
+	// options string starts with a "?" when passed into open level. Remove that here
 	FString PlayerStartName = OptionsString.RightChop(1);
 	UE_LOG(LogTemp, Warning, TEXT("PlayerStartName: %s"), *PlayerStartName);
 

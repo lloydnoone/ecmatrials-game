@@ -19,6 +19,7 @@ void AForceField::BeginPlay()
 	Super::BeginPlay();
 	
 	// load any saved status
+	UE_LOG(LogTemp, Warning, TEXT("loading forcefield status"));
 	PlayerSaveComponent->LoadForceFieldStatus(this);
 }
 
@@ -26,6 +27,7 @@ void AForceField::TestResults(bool bResult)
 {
 	Super::TestResults(bResult);
 
+	UE_LOG(LogTemp, Warning, TEXT("Saving forcefield status"));
 	// save status in player data
 	PlayerSaveComponent->SaveForceFieldStatus(this);
 

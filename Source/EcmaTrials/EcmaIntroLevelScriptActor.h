@@ -12,6 +12,7 @@ class ALevelTrigger;
 class AForceField;
 class ATutorialManager;
 class ALevelSequenceActor;
+class UPlayerSaveComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
@@ -19,6 +20,8 @@ class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptAct
 	GENERATED_BODY()
 	
 public:
+	AEcmaIntroLevelScriptActor();
+
 	virtual void PawnKilled(APawn* PawnKilled) override;
 
 protected:
@@ -56,6 +59,9 @@ private:
 
 	UPROPERTY()
 	ALevelTrigger* FinalSpawnTrigger;
+
+	UPROPERTY(VisibleAnywhere)
+	UPlayerSaveComponent* PlayerSaveComponent;
 
 	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;

@@ -11,6 +11,16 @@
 #include "EngineUtils.h"
 #include "TutorialManager.h"
 #include "LevelSequenceActor.h"
+#include "PlayerSaveComponent.h"
+
+AEcmaIntroLevelScriptActor::AEcmaIntroLevelScriptActor()
+{
+	PlayerSaveComponent = CreateDefaultSubobject<UPlayerSaveComponent>(TEXT("PlayerSaveComponent"));
+	if (!PlayerSaveComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerSaveComponent in LevelOneScript is null"));
+	}
+}
 
 void AEcmaIntroLevelScriptActor::BeginPlay()
 {
@@ -64,6 +74,10 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	}
 
 	Player = Cast<AEcmaCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!Player)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Player in LevelOneScript is null"));
+	}
 }
 
 void AEcmaIntroLevelScriptActor::SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay)
@@ -128,6 +142,9 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 {
 	if (!bFirstWaveBegun)
 	{
+		// save for first checkpoint here
+		PlayerSaveComponent->SaveCheckpoint("FirstCheckpoint");
+
 		GetActorFromArray(LevelSequences, "BooleanSpawnSequence")->SequencePlayer->Play();
 		// lower second force field
 		AForceField* ForceField = GetActorFromArray(ForceFields, "Second Force Field");
@@ -194,6 +211,10 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 		ForceField->TestResults(true);
 		Player->SetCameraTarget(ForceField);
 		SpawnEnemy(NullCodeTable, NullTransform, 3, 1.0f);
+	}
+	if (KillCount == 12)
+	{
+		// save for second checkpoint here
 	}
 }
 

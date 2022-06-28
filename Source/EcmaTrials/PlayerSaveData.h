@@ -25,6 +25,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	FName LevelName = "LevelOne";
 
+	UPROPERTY(BlueprintReadWrite)
+	TMap<FString, bool> ForceFieldMap;
+
 public:
 	void SetPlayerSlotName(FString SlotName);
 	void SetSavePointName(FString PointName);
