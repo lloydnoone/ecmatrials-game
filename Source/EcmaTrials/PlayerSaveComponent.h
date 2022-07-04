@@ -31,6 +31,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void SaveCheckpoint(FString Checkpoint);
+	FString GetCurrentCheckpoint();
+
 	void SaveForceFieldStatus(AForceField* ForceField);
 
 	void LoadForceFieldStatus(AForceField* ForceField);

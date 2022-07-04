@@ -140,7 +140,7 @@ FTransform AEcmaIntroLevelScriptActor::GetSpawnPointTransformWithTag(FName Tag)
 
 void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (!bFirstWaveBegun)
+	if (PlayerSaveComponent->GetCurrentCheckpoint() == "Start")
 	{
 		// save for first checkpoint here
 		PlayerSaveComponent->SaveCheckpoint("FirstCheckpoint");
@@ -166,7 +166,7 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 
 void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	if (!bFinalWaveBegun)
+	if (!(PlayerSaveComponent->GetCurrentCheckpoint() == "ThirdCheckpoint"))
 	{
 		//start spawning enemies and playe sequence if player overlapped
 		if (OtherActor == Player)
@@ -214,8 +214,14 @@ void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 	}
 	if (KillCount == 12)
 	{
-		// save for second checkpoint here
+		// save for second checkpiont here
+		PlayerSaveComponent->SaveCheckpoint("SecondCheckpoint");
 	}
+	//if (KillCount == 24)
+	//{
+	//	// save for second checkpiont here
+	//	PlayerSaveComponent->SaveCheckpoint("ThirdCheckpoint");
+	//}
 }
 
 template<class T>

@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool CreatePlayerData(FString PlayerSlotName);
 
+	UFUNCTION(BlueprintCallable)
+	bool DeletePlayerData(FString PlayerSlotName);
+
 private:
 
 	FTimerHandle LoadGameDelayHandle;

@@ -46,6 +46,11 @@ void UPlayerSaveComponent::SaveCheckpoint(FString Checkpoint)
 	UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSaveData->PlayerSlotName, 0);
 }
 
+FString UPlayerSaveComponent::GetCurrentCheckpoint()
+{
+	return PlayerSaveData->SavePointName;
+}
+
 void UPlayerSaveComponent::SaveForceFieldStatus(AForceField* ForceField)
 {
 	// make sure it has a tag

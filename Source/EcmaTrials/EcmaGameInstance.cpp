@@ -78,3 +78,18 @@ bool UEcmaGameInstance::CreatePlayerData(FString PlayerSlotName)
 		return false;
 	}
 }
+
+bool UEcmaGameInstance::DeletePlayerData(FString PlayerSlotName)
+{
+	USaveGame* SaveGame = nullptr;
+
+	if (UGameplayStatics::DoesSaveGameExist(PlayerSlotName, 0))
+	{
+		 return UGameplayStatics::DeleteGameInSlot(PlayerSlotName, 0);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Delete player Slot does not exist"));
+		return false;
+	}
+}
