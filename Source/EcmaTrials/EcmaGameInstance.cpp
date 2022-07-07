@@ -85,7 +85,12 @@ bool UEcmaGameInstance::DeletePlayerData(FString PlayerSlotName)
 
 	if (UGameplayStatics::DoesSaveGameExist(PlayerSlotName, 0))
 	{
-		 return UGameplayStatics::DeleteGameInSlot(PlayerSlotName, 0);
+		//remove slot name from game data
+		GameSaveData->RemoveSlot(PlayerSlotName);
+
+		//delete actual save file
+		UGameplayStatics::SaveGameToSlot(GameSaveData, GameSlotName, 0);
+		return UGameplayStatics::DeleteGameInSlot(PlayerSlotName, 0);
 	}
 	else
 	{

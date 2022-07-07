@@ -20,4 +20,5 @@ public:
 
 public:
 	void AddSlot(FString PlayerSlotName);
+	void RemoveSlot(FString PlayerSlotName);
 };

@@ -57,17 +57,6 @@ void ATutorialManager::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No level sequences found in tutorial manager"));
 	}
-	else
-	{
-		if (ALevelSequenceActor* Sequence = GetLevelSequenceByName("IntroLevelSequence"))
-		{
-			Sequence->SequencePlayer->Play();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("TM Couldnt find sequence."));
-		}
-	}
 
 	TutorialCards = GetTutorialCards();
 	if (TutorialCards.Num() == 0)

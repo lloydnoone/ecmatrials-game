@@ -176,7 +176,6 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 void UCodeEditor::HighlightSyntax(FString RawInput) const
 {
-	UE_LOG(LogTemp, Warning, TEXT("Highlight syntax called."));
 	RawInput = TextInput->GetText().ToString();
 
 	//tag symbols

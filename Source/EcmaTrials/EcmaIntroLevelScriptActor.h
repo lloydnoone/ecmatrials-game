@@ -13,6 +13,7 @@ class AForceField;
 class ATutorialManager;
 class ALevelSequenceActor;
 class UPlayerSaveComponent;
+class ASpawnPoint;
 
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
@@ -23,6 +24,15 @@ public:
 	AEcmaIntroLevelScriptActor();
 
 	virtual void PawnKilled(APawn* PawnKilled) override;
+
+	UFUNCTION()
+	void OnBooleanGroupKill(int32 WaveNum);
+	UFUNCTION()
+	void OnNumberGroupKill(int32 WaveNum);
+	UFUNCTION()
+	void OnStringGroupKill(int32 WaveNum);
+	UFUNCTION()
+	void OnNullGroupKill(int32 WaveNum);
 
 protected:
 	// Called when the game starts
@@ -49,10 +59,10 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
 
-	FTransform BooleanTransform;
-	FTransform StringTransform;
-	FTransform NumberTransform;
-	FTransform NullTransform;
+	ASpawnPoint* BooleanSpawn;
+	ASpawnPoint* StringSpawn;
+	ASpawnPoint* NumberSpawn;
+	ASpawnPoint* NullSpawn;
 
 	UPROPERTY()
 	ALevelTrigger* FirstSpawnTrigger;
@@ -66,14 +76,11 @@ private:
 	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;
 	bool bFinalWaveBegun = false;
-
-	void SpawnEnemy(UDataTable* CodeTable, FTransform SpawnPointTransform, int32 Amount, float Delay);
-
-	FTransform GetSpawnPointTransformWithTag(FName Tag);
 	
 	TArray<AForceField*> ForceFields;
 	TArray<ALevelTrigger*> LevelTriggers;
 	TArray<ALevelSequenceActor*> LevelSequences;
+	TArray<ASpawnPoint*> SpawnPoints;
 
 	template<class T>
 	TArray<T*> GetActorsToArray();
