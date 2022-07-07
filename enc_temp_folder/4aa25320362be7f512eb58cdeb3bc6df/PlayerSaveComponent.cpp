@@ -44,7 +44,11 @@ void UPlayerSaveComponent::SaveCheckpoint(FString Checkpoint)
 {
 	PlayerSaveData->SavePointName = Checkpoint;
 	bool Result = UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSaveData->PlayerSlotName, 0);
-	if (!Result)
+	if (Result)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("should have saved checkpoint: %s"), *Checkpoint);
+	}
+	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Failed to save checkpoint"), *Checkpoint);
 	}

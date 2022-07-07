@@ -274,7 +274,7 @@ void AEcmaCharacter::Attacked()
 	if (!bIsDowned)
 	{
 		bIsDowned = true;
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, GetActorLocation(), 0.2f, 4.0f);
 	}
 }
 

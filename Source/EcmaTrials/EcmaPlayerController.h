@@ -7,6 +7,7 @@
 #include "CodeEditor.h"
 #include "EcmaPlayerController.generated.h"
 
+class UPlayerSaveComponent;
 
 /**
  * 
@@ -17,6 +18,8 @@ class ECMATRIALS_API AEcmaPlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+	AEcmaPlayerController();
+
 	virtual void GameHasEnded(class AActor* EndGameFocus = nullptr, bool bIsWinner = false) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -24,6 +27,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReactivateHUD();
+
+	void RestartAtCheckpoint();
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,6 +45,9 @@ private:
 	UUserWidget* HUD;
 
 	UCodeEditor* CodeEditor;
+
+	UPROPERTY(VisibleAnywhere)
+	UPlayerSaveComponent* PlayerSaveComponent;
 
 	// timer properties
 	UPROPERTY(EditAnywhere)

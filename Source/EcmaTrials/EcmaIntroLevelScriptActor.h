@@ -73,7 +73,6 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UPlayerSaveComponent* PlayerSaveComponent;
 
-	int32 KillCount = 0;
 	bool bFirstWaveBegun = false;
 	bool bFinalWaveBegun = false;
 	

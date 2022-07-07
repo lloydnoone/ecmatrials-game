@@ -33,6 +33,9 @@ public:
 	void SaveCheckpoint(FString Checkpoint);
 	FString GetCurrentCheckpoint();
 
+	void SaveLevel(FString LevelName);
+	FName GetCurrentLevel();
+
 	void SaveForceFieldStatus(AForceField* ForceField);
 
 	void LoadForceFieldStatus(AForceField* ForceField);

@@ -187,43 +187,7 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 
 void AEcmaIntroLevelScriptActor::PawnKilled(APawn* PawnKilled)
 {
-	// lower force field and spawn enemies for each wave
-	AForceField* ForceField = NULL;
-	KillCount++;
-	if (KillCount == 3)
-	{
-		//GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
-		//ForceField = GetActorFromArray(ForceFields, "Third Force Field");
-		//ForceField->TestResults(true);
-		//Player->SetCameraTarget(ForceField);
-		//NumberSpawn->SpawnEnemy(NumberCodeTable, 3, 1.0f);
-	}
-	if (KillCount == 6)
-	{
-		//GetActorFromArray(LevelSequences, "StringSpawnSequence")->SequencePlayer->Play();
-		//ForceField = GetActorFromArray(ForceFields, "Fourth Force Field");
-		//ForceField->TestResults(true);
-		//Player->SetCameraTarget(ForceField);
-		//StringSpawn->SpawnEnemy(StringCodeTable, 3, 1.0f);
-	}
-	if (KillCount == 9)
-	{
-		//GetActorFromArray(LevelSequences, "NullSpawnSequence")->SequencePlayer->Play();
-		//ForceField = GetActorFromArray(ForceFields, "Fifth Force Field");
-		//ForceField->TestResults(true);
-		//Player->SetCameraTarget(ForceField);
-		//NullSpawn->SpawnEnemy(NullCodeTable, 3, 1.0f);
-	}
-	if (KillCount == 12)
-	{
-		// save for second checkpiont here
-		//PlayerSaveComponent->SaveCheckpoint("SecondCheckpoint");
-	}
-	//if (KillCount == 24)
-	//{
-	//	// save for second checkpiont here
-	//	PlayerSaveComponent->SaveCheckpoint("ThirdCheckpoint");
-	//}
+
 }
 
 template<class T>

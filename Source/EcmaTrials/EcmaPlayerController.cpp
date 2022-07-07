@@ -5,6 +5,16 @@
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerSaveComponent.h"
+
+AEcmaPlayerController::AEcmaPlayerController()
+{
+	PlayerSaveComponent = CreateDefaultSubobject<UPlayerSaveComponent>(TEXT("PlayerSaveComponent"));
+	if (!PlayerSaveComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerSaveComponent in LevelOneScript is null"));
+	}
+}
 
 void AEcmaPlayerController::BeginPlay()
 {
@@ -52,7 +62,12 @@ void AEcmaPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 	}
 
 	// restart the level after player dies
-	GetWorldTimerManager().SetTimer(RestartTimer, this, &APlayerController::RestartLevel, RestartDelay);
+	GetWorldTimerManager().SetTimer(RestartTimer, this, &AEcmaPlayerController::RestartAtCheckpoint, RestartDelay);
+}
+
+void AEcmaPlayerController::RestartAtCheckpoint()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), PlayerSaveComponent->GetCurrentLevel(), true, PlayerSaveComponent->GetCurrentCheckpoint());
 }
 
 void AEcmaPlayerController::RemoveHUD()
