@@ -12,6 +12,7 @@ class UAnimMontage;
 class UPauseMenu;
 class ALaptop;
 class UBoxComponent;
+class UAudioComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -38,13 +39,20 @@ protected:
 	float AttackAnimLength = 1.8f;
 	float ElapsedAttackTime = 0.0f;
 
+	UPROPERTY()
 	UCharacterMovementComponent* CharMovementComp;
 
-	USkeletalMeshComponent* Mesh;
+	UPROPERTY()
+	UAudioComponent* AudioComp;
 
+	UPROPERTY()
+	USkeletalMeshComponent* MeshComp;
+
+	// disintegration material
 	UPROPERTY()
 	UMaterialInstanceDynamic* Material;
 
+	UPROPERTY()
 	UAnimMontage* CurrentAttackMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
@@ -137,7 +145,14 @@ private:
 
 	virtual void SetupAttackCollision();
 
-	virtual void Disintegrate();
+	//disintegration functions
+	UFUNCTION()
+	void ProcessDisintegrateTimeline(float Value);
+
+	UFUNCTION()
+	void OnEndDisintegrateTimeline();
+
+	void Disintegrate(bool bReverse);
 
 	//rate of thumbstick rotation
 	UPROPERTY(EditAnywhere)

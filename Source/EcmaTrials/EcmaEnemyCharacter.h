@@ -51,14 +51,6 @@ private:
 
 	virtual void SetupAttackCollision() override;
 
-	virtual void Disintegrate() override;
-
-	UFUNCTION()
-	void ProcessDisintegrateTimeline(float Value);
-
-	UFUNCTION()
-	void OnEndDisintegrateTimeline();
-
 	USphereComponent* EditorCollisionPtr;
 
 	UCodeEditorComponent* CodeEditorPtr;

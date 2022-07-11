@@ -99,3 +99,8 @@ void ASpawnPoint::OnEnemyDestroyed(AActor* Actor)
 	}
 }
 
+void ASpawnPoint::SetWaveNum(int32 NewWaveNum)
+{
+	WaveNum = NewWaveNum;
+}
+

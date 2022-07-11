@@ -59,6 +59,7 @@ void AEcmaPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 		// set time dilation to normal speed in case player had a target
 		EndGameFocus->CustomTimeDilation = 1.0f;
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0);
+		UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1.0, 0.0f);
 	}
 
 	// restart the level after player dies

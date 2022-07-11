@@ -168,6 +168,12 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 {
 	if (!(PlayerSaveComponent->GetCurrentCheckpoint() == "ThirdCheckpoint"))
 	{
+		// make sure correct wave will spawn
+		for (ASpawnPoint* SP : SpawnPoints)
+		{
+			SP->SetWaveNum(2);
+		}
+
 		//start spawning enemies and playe sequence if player overlapped
 		if (OtherActor == Player)
 		{

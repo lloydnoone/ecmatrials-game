@@ -654,23 +654,19 @@ void AEcmaCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void AEcmaCharacter::ProcessDisintegrateTimeline(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("animating material for disintegrate"));
 	if (Material)
 	{
 		Material->SetScalarParameterValue(TEXT("Radius"), Value);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Character has no material for disintegrate"));
+		UE_LOG(LogTemp, Warning, TEXT("Enemy has no material"));
 	}
 }
 
 void AEcmaCharacter::OnEndDisintegrateTimeline()
 {
-	if (IsDead())
-	{
-		Destroy();
-	}
+	Destroy();
 }
 
 void AEcmaCharacter::Disintegrate(bool bReverse)
@@ -690,7 +686,7 @@ void AEcmaCharacter::Disintegrate(bool bReverse)
 	
 	if (bReverse) // if play in reversse as part of spawn effect
 	{
-		MovementTimeline.ReverseFromEnd();
+		MovementTimeline.Reverse();
 	}
 	else
 	{

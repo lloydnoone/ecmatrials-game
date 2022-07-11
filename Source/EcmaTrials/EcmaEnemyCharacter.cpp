@@ -118,7 +118,6 @@ float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 
 		CodeEditorPtr->Highlight(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Disintegrate();
 	}
 	
 	return DamageToApply;
@@ -163,7 +162,7 @@ void AEcmaEnemyCharacter::Attacked()
 	bIsAttacking = false;
 
 	// get all sockets
-	TArray<FName> SocketNames = Mesh->GetAllSocketNames();
+	TArray<FName> SocketNames = MeshComp->GetAllSocketNames();
 	
 	//get three random socket locations and spawn flash there
 	for (int i = 0; i < 3; i++)
@@ -172,7 +171,7 @@ void AEcmaEnemyCharacter::Attacked()
 		int32 RandNum = FMath::RandRange(0, SocketNames.Num() - 1);
 
 		// spawn flash there
-		UGameplayStatics::SpawnEmitterAttached(Flash, Mesh, SocketNames[RandNum]);
+		UGameplayStatics::SpawnEmitterAttached(Flash, MeshComp, SocketNames[RandNum]);
 	}
 }
 
@@ -204,45 +203,4 @@ void AEcmaEnemyCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedCompon
 void AEcmaEnemyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//if timeline is playing, need to call tick timeleine
-	if (MovementTimeline.IsPlaying())
-	{
-		MovementTimeline.TickTimeline(DeltaTime);
-	}
-
-}
-
-void AEcmaEnemyCharacter::ProcessDisintegrateTimeline(float Value)
-{
-	if (Material)
-	{
-		Material->SetScalarParameterValue(TEXT("Radius"), Value);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy has no material"));
-	}
-}
-
-void AEcmaEnemyCharacter::OnEndDisintegrateTimeline()
-{
-	Destroy();
-}
-
-void AEcmaEnemyCharacter::Disintegrate()
-{
-	// init and bind progress function
-	FOnTimelineFloat ProgressFunction;
-	ProgressFunction.BindUFunction(this, TEXT("ProcessDisintegrateTimeline"));
-	MovementTimeline.AddInterpFloat(DisintegrateCurve, ProgressFunction);
-
-	//init and bind finished function
-	FOnTimelineEvent OnTimelineFinishedFunction;
-	OnTimelineFinishedFunction.BindUFunction(this, TEXT("OnEndDisintegrateTimeline"));
-	MovementTimeline.SetTimelineFinishedFunc(OnTimelineFinishedFunction);
-
-	//stop on last keyframe
-	MovementTimeline.SetTimelineLength(TL_LastKeyFrame);
-	MovementTimeline.Play();
 }
