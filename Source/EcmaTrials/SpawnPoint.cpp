@@ -25,6 +25,7 @@ void ASpawnPoint::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
+	//cleare timer on restart
 	GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
 }
 
@@ -102,5 +103,10 @@ void ASpawnPoint::OnEnemyDestroyed(AActor* Actor)
 void ASpawnPoint::SetWaveNum(int32 NewWaveNum)
 {
 	WaveNum = NewWaveNum;
+}
+
+int32 ASpawnPoint::GetWaveNum()
+{
+	return WaveNum;
 }
 

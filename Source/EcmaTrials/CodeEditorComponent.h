@@ -48,6 +48,8 @@ struct FRequiredCodeTableRow : public FTableRowBase
 		FString RequiredCode;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTestResult, bool, bResult);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ECMATRIALS_API UCodeEditorComponent : public UActorComponent
 {
@@ -96,6 +98,9 @@ public:
 	void SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock);
 
 	void Highlight(bool bHighlight);
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable, BlueprintCallable)
+	FTestResult TestResult;
 
 private:
 

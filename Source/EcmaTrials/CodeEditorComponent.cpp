@@ -251,6 +251,8 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		}, 0.05f, false);
 	}
 
+	TestResult.Broadcast(Result);
+
 	if (bFlipLogic == true) Result = !Result;
 
 	Subject->TestResults(Result);

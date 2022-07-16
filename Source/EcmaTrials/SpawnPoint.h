@@ -46,7 +46,8 @@ public:
 	void SpawnEnemy(UDataTable* CodeTable, int32 Amount, float Delay);
 
 	void SetWaveNum(int32 NewWaveNum);
+	int32 GetWaveNum();
 
-	UPROPERTY(VisibleAnywhere, BlueprintAssignable, BlueprintCallable)
+	UPROPERTY(BlueprintCallable)
 	FGroupKill GroupKill;
 };

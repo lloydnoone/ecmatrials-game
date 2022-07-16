@@ -19,7 +19,7 @@ UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
 {
 	GENERATED_BODY()
-	
+
 public:
 	AEcmaIntroLevelScriptActor();
 
@@ -75,7 +75,7 @@ private:
 
 	bool bFirstWaveBegun = false;
 	bool bFinalWaveBegun = false;
-	
+
 	TArray<AForceField*> ForceFields;
 	TArray<ALevelTrigger*> LevelTriggers;
 	TArray<ALevelSequenceActor*> LevelSequences;
@@ -84,7 +84,7 @@ private:
 	template<class T>
 	TArray<T*> GetActorsToArray();
 
-	template<class T> 
+	template<class T>
 	T* GetActorFromArray(TArray<T*> Array, FName Tag);
 
 	UFUNCTION()

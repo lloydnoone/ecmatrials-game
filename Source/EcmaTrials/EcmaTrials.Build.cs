@@ -8,7 +8,7 @@ public class EcmaTrials : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "GameplayTasks", "UMG", "Http", "Json", "JsonUtilities", "LevelSequence", "MovieScene" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "GameplayTasks", "UMG", "Http", "Json", "JsonUtilities", "LevelSequence", "MovieScene", "Niagara" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

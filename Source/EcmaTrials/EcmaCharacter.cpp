@@ -654,7 +654,6 @@ void AEcmaCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 
 void AEcmaCharacter::ProcessDisintegrateTimeline(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("animating material for disintegrate"));
 	if (Material)
 	{
 		Material->SetScalarParameterValue(TEXT("Radius"), Value);

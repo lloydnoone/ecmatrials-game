@@ -13,6 +13,7 @@
 #include "LevelSequenceActor.h"
 #include "PlayerSaveComponent.h"
 #include "SpawnPoint.h"
+#include "Components/BoxComponent.h"
 
 AEcmaIntroLevelScriptActor::AEcmaIntroLevelScriptActor()
 {
@@ -95,6 +96,11 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 
 void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	if (OtherActor != Player)
+	{
+		return;
+	}
+
 	if ((PlayerSaveComponent->GetCurrentCheckpoint() == "Start" || PlayerSaveComponent->GetCurrentCheckpoint() == "FirstCheckpoint") && bFirstWaveBegun == false)
 	{
 		// save for first checkpoint here
@@ -122,6 +128,7 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 
 void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 {
+	UE_LOG(LogTemp, Warning, TEXT("BooleanGroupKill wave num: %i"), WaveNum);
 	if (WaveNum == 1)
 	{
 		GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
@@ -134,8 +141,10 @@ void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 
 void AEcmaIntroLevelScriptActor::OnNumberGroupKill(int32 WaveNum)
 {
+	UE_LOG(LogTemp, Warning, TEXT("NumberGroupKill wave num: %i"), WaveNum);
 	if (WaveNum == 1)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("should do stuff"));
 		GetActorFromArray(LevelSequences, "StringSpawnSequence")->SequencePlayer->Play();
 		AForceField* ForceField = GetActorFromArray(ForceFields, "Fourth Force Field");
 		ForceField->TestResults(true);
@@ -146,6 +155,7 @@ void AEcmaIntroLevelScriptActor::OnNumberGroupKill(int32 WaveNum)
 
 void AEcmaIntroLevelScriptActor::OnStringGroupKill(int32 WaveNum)
 {
+	UE_LOG(LogTemp, Warning, TEXT("StringGroupKill wave num: %i"), WaveNum);
 	if (WaveNum == 1)
 	{
 		GetActorFromArray(LevelSequences, "NullSpawnSequence")->SequencePlayer->Play();
@@ -158,6 +168,7 @@ void AEcmaIntroLevelScriptActor::OnStringGroupKill(int32 WaveNum)
 
 void AEcmaIntroLevelScriptActor::OnNullGroupKill(int32 WaveNum)
 {
+	UE_LOG(LogTemp, Warning, TEXT("NullGroupKill wave num: %i"), WaveNum);
 	if (WaveNum == 1)
 	{
 		PlayerSaveComponent->SaveCheckpoint("SecondCheckpoint");
@@ -166,8 +177,25 @@ void AEcmaIntroLevelScriptActor::OnNullGroupKill(int32 WaveNum)
 
 void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	if (OtherActor != Player)
+	{
+		return;
+	}
+
 	if (!(PlayerSaveComponent->GetCurrentCheckpoint() == "ThirdCheckpoint"))
 	{
+		//if all waves are at 3, save and return
+		for (ASpawnPoint* SP : SpawnPoints)
+		{
+			if (SP->GetWaveNum() != 3)
+			{
+				break;
+			}
+
+			PlayerSaveComponent->SaveCheckpoint("ThirdCheckpoint");
+			return;
+		}
+
 		// make sure correct wave will spawn
 		for (ASpawnPoint* SP : SpawnPoints)
 		{
