@@ -6,6 +6,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameSaveData.h"
 #include "PlayerSaveData.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
+
+UEcmaGameInstance::UEcmaGameInstance()
+{
+
+}
 
 void UEcmaGameInstance::Init()
 {
@@ -13,6 +20,7 @@ void UEcmaGameInstance::Init()
 
 	//GetWorld()->GetTimerManager().SetTimer(LoadGameDelayHandle, this, &UEcmaGameInstance::LoadGameData, 5.0f, false);
 	LoadGameData();
+	//InitMusic() do this here during editor play and the music starts outside the game, had to calll this function in levelscript instead
 }
 
 void UEcmaGameInstance::LoadGameData()
@@ -96,5 +104,73 @@ bool UEcmaGameInstance::DeletePlayerData(FString PlayerSlotName)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Delete player Slot does not exist"));
 		return false;
+	}
+}
+
+void UEcmaGameInstance::InitMusic()
+{
+	UE_LOG(LogTemp, Warning, TEXT("In start music"))
+	if (AmbientCue == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Music cue not found"))
+	}
+	if (CombatCue == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Combat cue not found"))
+	}
+
+	InitAmbientMusic();
+	
+	//start playing ambience
+	FadeToAmbience();
+}
+
+void UEcmaGameInstance::InitAmbientMusic()
+{
+	//set up ambient audio component
+	AmbientMusicComp = UGameplayStatics::SpawnSound2D(GetWorld(), AmbientCue, 0.7, 1.0, 1.0, nullptr, true);
+	AmbientMusicComp->bAutoActivate = false;
+	AmbientMusicComp->SetUISound(true);
+	AmbientMusicComp->SetSound(AmbientCue);
+	AmbientMusicComp->bIgnoreForFlushing = true;
+}
+
+void UEcmaGameInstance::InitCombatMusic()
+{
+	//setup combat music component to fade to later
+	CombatMusicComp = UGameplayStatics::SpawnSound2D(GetWorld(), CombatCue, 0.7, 1.0, 1.0, nullptr, true);
+	CombatMusicComp->bAutoActivate = false;
+	CombatMusicComp->SetUISound(true);
+	CombatMusicComp->SetSound(CombatCue);
+	CombatMusicComp->bIgnoreForFlushing = true;
+}
+
+void UEcmaGameInstance::FadeToAmbience()
+{
+	if (!AmbientMusicComp)
+	{
+		InitAmbientMusic();
+	}
+
+	AmbientMusicComp->FadeIn(5.0f);
+
+	if (CombatMusicComp && CombatMusicComp->IsPlaying())
+	{
+		CombatMusicComp->FadeOut(5.0f, 0.0f);
+	}
+}
+
+void UEcmaGameInstance::FadeToCombat()
+{
+	if (!CombatMusicComp)
+	{
+		InitCombatMusic();
+	}
+
+	CombatMusicComp->FadeIn(5.0f);
+
+	if (AmbientMusicComp && AmbientMusicComp->IsPlaying())
+	{
+		AmbientMusicComp->FadeOut(5.0f, 0.0f);
 	}
 }

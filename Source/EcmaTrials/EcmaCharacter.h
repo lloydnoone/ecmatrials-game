@@ -55,7 +55,7 @@ protected:
 	UPROPERTY()
 	UAnimMontage* CurrentAttackMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Spline")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Disintegrate")
 	UCurveFloat* DisintegrateCurve;
 
 	FTimeline MovementTimeline;

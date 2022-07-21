@@ -14,6 +14,7 @@
 #include "PlayerSaveComponent.h"
 #include "SpawnPoint.h"
 #include "Components/BoxComponent.h"
+#include "EcmaGameInstance.h"
 
 AEcmaIntroLevelScriptActor::AEcmaIntroLevelScriptActor()
 {
@@ -96,6 +97,13 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 
 void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	//start playing combat music
+	UEcmaGameInstance* GameInst = Cast<UEcmaGameInstance>(GetGameInstance());
+	if (GameInst)
+	{
+		GameInst->FadeToCombat();
+	}
+
 	if (OtherActor != Player)
 	{
 		return;
