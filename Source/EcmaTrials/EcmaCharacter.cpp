@@ -45,14 +45,14 @@ void AEcmaCharacter::BeginPlay()
 	UActorComponent* ActorComp = GetComponentByClass(UCameraComponent::StaticClass());
 	if (!ActorComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find camera component"))
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find camera component in character"))
 	}
 	else
 	{
 		Camera = Cast<UCameraComponent>(ActorComp);
 		if (!Camera)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Cast to camera failed."))
+			UE_LOG(LogTemp, Warning, TEXT("Cast to camera failed in character."))
 		}
 	}
 
@@ -85,7 +85,7 @@ void AEcmaCharacter::BeginPlay()
 	Material = UMaterialInstanceDynamic::Create(MeshComp->GetMaterial(0), this);
 	if (Material == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt create material."))
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt create dynamic material in character."))
 	}
 	MeshComp->SetMaterial(0, Material);
 
@@ -93,7 +93,7 @@ void AEcmaCharacter::BeginPlay()
 	AudioComp = Cast<UAudioComponent>(GetComponentByClass(UAudioComponent::StaticClass()));
 	if (!AudioComp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find audio component."))
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find audio component in character."))
 	}
 	else
 	{

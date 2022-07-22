@@ -14,6 +14,7 @@ class ATutorialManager;
 class ALevelSequenceActor;
 class UPlayerSaveComponent;
 class ASpawnPoint;
+class UEcmaGameInstance;
 
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
@@ -80,6 +81,9 @@ private:
 	TArray<ALevelTrigger*> LevelTriggers;
 	TArray<ALevelSequenceActor*> LevelSequences;
 	TArray<ASpawnPoint*> SpawnPoints;
+
+	UPROPERTY()
+	UEcmaGameInstance* GameInst;
 
 	template<class T>
 	TArray<T*> GetActorsToArray();

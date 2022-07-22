@@ -156,7 +156,7 @@ void UEcmaGameInstance::FadeToAmbience()
 
 	if (CombatMusicComp && CombatMusicComp->IsPlaying())
 	{
-		CombatMusicComp->FadeOut(5.0f, 0.0f);
+		CombatMusicComp->FadeOut(10.0f, 0.0f);
 	}
 }
 
@@ -171,6 +171,6 @@ void UEcmaGameInstance::FadeToCombat()
 
 	if (AmbientMusicComp && AmbientMusicComp->IsPlaying())
 	{
-		AmbientMusicComp->FadeOut(5.0f, 0.0f);
+		AmbientMusicComp->FadeOut(10.0f, 0.0f);
 	}
 }

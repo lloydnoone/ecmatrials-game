@@ -3,6 +3,7 @@
 
 #include "ForceField.h"
 #include "PlayerSaveComponent.h"
+#include "Components/AudioComponent.h"
 
 AForceField::AForceField()
 {
@@ -20,6 +21,13 @@ void AForceField::BeginPlay()
 	
 	// load any saved status
 	PlayerSaveComponent->LoadForceFieldStatus(this);
+
+	//get audio
+	AudioComp = Cast<UAudioComponent>(GetComponentByClass(UAudioComponent::StaticClass()));
+	if (!AudioComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find audio component in forcefield."));
+	}
 }
 
 void AForceField::TestResults(bool bResult)
@@ -31,6 +39,11 @@ void AForceField::TestResults(bool bResult)
 
 	if (bResult)
 	{
+		if (AudioComp)
+		{
+			AudioComp->Activate();
+		}
+		
 		SetActorHiddenInGame(true);
 		SetActorEnableCollision(false);
 		SetActorTickEnabled(false);

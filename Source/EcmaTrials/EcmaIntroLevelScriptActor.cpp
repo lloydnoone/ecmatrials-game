@@ -88,6 +88,13 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	GetActorFromArray(SpawnPoints, "StringSpawn")->GroupKill.AddDynamic(this, &AEcmaIntroLevelScriptActor::OnStringGroupKill);
 	GetActorFromArray(SpawnPoints, "NullSpawn")->GroupKill.AddDynamic(this, &AEcmaIntroLevelScriptActor::OnNullGroupKill);
 
+
+	GameInst = Cast<UEcmaGameInstance>(GetGameInstance());
+	if (!GameInst)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("no game instance in LevelOneScript"));
+	}
+
 	//play intro
 	if (PlayerSaveComponent->GetCurrentCheckpoint() == "Start")
 	{
@@ -97,12 +104,6 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 
 void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
-	//start playing combat music
-	UEcmaGameInstance* GameInst = Cast<UEcmaGameInstance>(GetGameInstance());
-	if (GameInst)
-	{
-		GameInst->FadeToCombat();
-	}
 
 	if (OtherActor != Player)
 	{
@@ -111,6 +112,9 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 
 	if ((PlayerSaveComponent->GetCurrentCheckpoint() == "Start" || PlayerSaveComponent->GetCurrentCheckpoint() == "FirstCheckpoint") && bFirstWaveBegun == false)
 	{
+		//start playing combat music
+		GameInst->FadeToCombat();
+
 		// save for first checkpoint here
 		PlayerSaveComponent->SaveCheckpoint("FirstCheckpoint");
 
@@ -137,6 +141,7 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 {
 	UE_LOG(LogTemp, Warning, TEXT("BooleanGroupKill wave num: %i"), WaveNum);
+	UE_LOG(LogTemp, Warning, TEXT("enemies left: %i"), GetActorsToArray<AEcmaEnemyCharacter>().Num());
 	if (WaveNum == 1)
 	{
 		GetActorFromArray(LevelSequences, "NumberSpawnSequence")->SequencePlayer->Play();
@@ -145,25 +150,39 @@ void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 		Player->SetCameraTarget(ForceField);
 		NumberSpawn->SpawnEnemy(NumberCodeTable, 3, 1.0f);
 	}
+
+	if (WaveNum == 3 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should start panel hint sequence"), WaveNum);
+		GetActorFromArray(LevelSequences, "FinalPanelHint")->SequencePlayer->Play();
+	}
 }
 
 void AEcmaIntroLevelScriptActor::OnNumberGroupKill(int32 WaveNum)
 {
 	UE_LOG(LogTemp, Warning, TEXT("NumberGroupKill wave num: %i"), WaveNum);
+	UE_LOG(LogTemp, Warning, TEXT("enemies left: %i"), GetActorsToArray<AEcmaEnemyCharacter>().Num());
+
 	if (WaveNum == 1)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("should do stuff"));
 		GetActorFromArray(LevelSequences, "StringSpawnSequence")->SequencePlayer->Play();
 		AForceField* ForceField = GetActorFromArray(ForceFields, "Fourth Force Field");
 		ForceField->TestResults(true);
 		Player->SetCameraTarget(ForceField);
 		StringSpawn->SpawnEnemy(StringCodeTable, 3, 1.0f);
 	}
+
+	if (WaveNum == 3 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should start panel hint sequence"), WaveNum);
+		GetActorFromArray(LevelSequences, "FinalPanelHint")->SequencePlayer->Play();
+	}
 }
 
 void AEcmaIntroLevelScriptActor::OnStringGroupKill(int32 WaveNum)
 {
 	UE_LOG(LogTemp, Warning, TEXT("StringGroupKill wave num: %i"), WaveNum);
+	UE_LOG(LogTemp, Warning, TEXT("enemies left: %i"), GetActorsToArray<AEcmaEnemyCharacter>().Num());
 	if (WaveNum == 1)
 	{
 		GetActorFromArray(LevelSequences, "NullSpawnSequence")->SequencePlayer->Play();
@@ -172,14 +191,30 @@ void AEcmaIntroLevelScriptActor::OnStringGroupKill(int32 WaveNum)
 		Player->SetCameraTarget(ForceField);
 		NullSpawn->SpawnEnemy(NullCodeTable, 3, 1.0f);
 	}
+
+	if (WaveNum == 3 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should start panel hint sequence"), WaveNum);
+		GetActorFromArray(LevelSequences, "FinalPanelHint")->SequencePlayer->Play();
+	}
 }
 
 void AEcmaIntroLevelScriptActor::OnNullGroupKill(int32 WaveNum)
 {
 	UE_LOG(LogTemp, Warning, TEXT("NullGroupKill wave num: %i"), WaveNum);
+	UE_LOG(LogTemp, Warning, TEXT("enemies left: %i"), GetActorsToArray<AEcmaEnemyCharacter>().Num());
 	if (WaveNum == 1)
 	{
 		PlayerSaveComponent->SaveCheckpoint("SecondCheckpoint");
+	}
+	
+	//start playing ambient music
+	GameInst->FadeToAmbience();
+
+	if (WaveNum == 3 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Should start panel hint sequence"), WaveNum);
+		GetActorFromArray(LevelSequences, "FinalPanelHint")->SequencePlayer->Play();
 	}
 }
 
@@ -197,6 +232,7 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 		{
 			if (SP->GetWaveNum() != 3)
 			{
+				// break out of for loop
 				break;
 			}
 
@@ -210,20 +246,20 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 			SP->SetWaveNum(2);
 		}
 
-		//start spawning enemies and playe sequence if player overlapped
-		if (OtherActor == Player)
-		{
-			GetActorFromArray(LevelSequences, "FinalSpawnSequence")->SequencePlayer->Play();
+		//start playing combat music
+		GameInst->FadeToCombat();
 
-			BooleanSpawn->SpawnEnemy(BooleanCodeTable, 3, 1.0f);
-			NumberSpawn->SpawnEnemy(NumberCodeTable, 3, 1.0f);
-			StringSpawn->SpawnEnemy(StringCodeTable, 3, 1.0f);
-			NullSpawn->SpawnEnemy(NullCodeTable, 3, 1.0f);
+		//start spawning enemies and player sequence if player overlapped
+		GetActorFromArray(LevelSequences, "FinalSpawnSequence")->SequencePlayer->Play();
 
-			Player->SetCameraTarget(GetActorFromArray(ForceFields, "Final Intro Force Field"));
-			//only do this once
-			bFinalWaveBegun = true;
-		}
+		BooleanSpawn->SpawnEnemy(BooleanCodeTable, 3, 1.0f);
+		NumberSpawn->SpawnEnemy(NumberCodeTable, 3, 1.0f);
+		StringSpawn->SpawnEnemy(StringCodeTable, 3, 1.0f);
+		NullSpawn->SpawnEnemy(NullCodeTable, 3, 1.0f);
+
+		Player->SetCameraTarget(GetActorFromArray(ForceFields, "Final Intro Force Field"));
+		//only do this once
+		bFinalWaveBegun = true;
 	}
 }
 

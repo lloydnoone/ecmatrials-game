@@ -11,6 +11,8 @@
  */
 
 class UPlayerSaveComponent;
+class UAudioComponent;
+class USoundCue;
 
 UCLASS()
 class ECMATRIALS_API AForceField : public AInteractableSubject
@@ -30,4 +32,10 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	UPlayerSaveComponent* PlayerSaveComponent;
+
+	UPROPERTY()
+	UAudioComponent* AudioComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundCue* ShutdownCue;
 };
