@@ -8,6 +8,7 @@
 
 class UCapsuleComponent;
 class UNiagaraComponent;
+class UAudioComponent;
 
 UCLASS()
 class ECMATRIALS_API AGoal : public AActor
@@ -49,4 +50,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	FName PanelTag = "Not Set";
+
+	UPROPERTY()
+	UAudioComponent* AudioComp;
 };

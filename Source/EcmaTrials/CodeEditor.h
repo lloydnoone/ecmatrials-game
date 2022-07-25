@@ -73,7 +73,11 @@ public:
 
 	void AddEditorToScreen();
 
+	void RemoveEditorFromScreen();
+
 private:
+
+	FText PreviousCode = FText::FromString(L"");
 
 	FString RequestUrl = "";
 

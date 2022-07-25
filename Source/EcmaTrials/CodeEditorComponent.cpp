@@ -114,12 +114,14 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 			//set text for info panel
 			SetTextFromTable(InfoStringTableID, InfoTableKey, CodeEditor->InfoText);
 		}
+
+		GetKeyboardFocus();
 	}
 	else
 	{
 		if (CodeEditor->IsInViewport())
 		{
-			CodeEditor->RemoveFromViewport();
+			CodeEditor->RemoveEditorFromScreen();
 		}
 	}
 }

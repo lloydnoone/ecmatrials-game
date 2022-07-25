@@ -153,7 +153,6 @@ void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 
 	if (WaveNum == 3 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Should start panel hint sequence"), WaveNum);
 		GetActorFromArray(LevelSequences, "FinalPanelHint")->SequencePlayer->Play();
 	}
 }

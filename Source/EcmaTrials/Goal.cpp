@@ -6,6 +6,8 @@
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "CodeEditorComponent.h"
+#include "Components/AudioComponent.h"
+#include "EcmaCharacter.h"
 
 // Sets default values
 AGoal::AGoal()
@@ -60,7 +62,12 @@ void AGoal::BeginPlay()
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &AGoal::OnOverlap);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &AGoal::EndOverlap);
 
-
+	//get audio
+	AudioComp = Cast<UAudioComponent>(GetComponentByClass(UAudioComponent::StaticClass()));
+	if (!AudioComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find audio component in character."))
+	}
 }
 
 // Called every frame
@@ -72,8 +79,14 @@ void AGoal::Tick(float DeltaTime)
 
 void AGoal::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// re activate to start anim again
-	EffectComponent->ActivateSystem();
+	if (OtherActor == GetWorld()->GetFirstPlayerController()->GetPawn())
+	{
+		AEcmaCharacter* Player = Cast<AEcmaCharacter>(OtherActor);
+
+		// re activate to start anim again
+		EffectComponent->ActivateSystem();
+		AudioComp->Activate();
+	}
 }
 
 void AGoal::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

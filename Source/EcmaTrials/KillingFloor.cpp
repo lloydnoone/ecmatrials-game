@@ -10,17 +10,17 @@ void AKillingFloor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AEcmaCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-	if (!Player)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt player in killing floor"))
-	}
-
 	GetCollisionComponent()->OnComponentBeginOverlap.AddDynamic(this, &AKillingFloor::OnBeginOverlap);
 }
 
 void AKillingFloor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	Player = Cast<AEcmaCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if (!Player)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find player in killing floor"))
+	}
+
 	if (Other == Player)
 	{
 		Player->TakeDamage(100.0f, FDamageEvent(), Player->GetController(), this);

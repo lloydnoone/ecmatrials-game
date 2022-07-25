@@ -195,7 +195,15 @@ void UCodeEditor::HighlightSyntax(FString RawInput) const
 		RawInput.ReplaceInline(*Keyword, *KeywordReplace, ESearchCase::CaseSensitive);
 	}
 
-	//array of tag types, used to clear strings innet text of tags
+	// tag bools
+	TArray<FString> Bools = { "true","false" };
+	for (FString Bool : Bools)
+	{
+		FString BoolReplace = "<bool>" + Bool + "</>";
+		RawInput.ReplaceInline(*Bool, *BoolReplace, ESearchCase::CaseSensitive);
+	}
+
+	//array of tag types, used to clear strings inner text of tags
 	TArray<FString> Tags = { "<keyword>","<symbol>","</>" };
 
 	// tag strings
@@ -334,8 +342,20 @@ void UCodeEditor::SetRequestUrl(FString Url)
 void UCodeEditor::AddEditorToScreen()
 {
 	AddToViewport();
+	// this keyboard focus line doesntseem to work in packaged build, focus is set again later
 	TextInput->SetKeyboardFocus();
+
+	// get previous code fron last commited input that was cleared and restore it
+	TextInput->SetText(PreviousCode);
+	HighlightSyntax(PreviousCode.ToString());
+
 	PlayAnimation(PopOut);
+}
+
+void UCodeEditor::RemoveEditorFromScreen()
+{
+	PreviousCode = TextInput->GetText();
+	RemoveFromViewport();
 }
 
 //code below was an attempt to fire off onsubmittext, might be usefull
