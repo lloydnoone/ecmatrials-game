@@ -11,6 +11,8 @@ class UTextBlock;
 class AHttpService;
 class UCodeEditorComponent;
 class URichTextBlock;
+class USoundCue;
+
 struct FResponse_PostCode;
 
 UCLASS()
@@ -45,6 +47,13 @@ public:
 	
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* PopOut;
+
+	//code submit sounds
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundCue* CorrectSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundCue* ErrorSound;
 
 	UFUNCTION()
 	virtual void DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType);

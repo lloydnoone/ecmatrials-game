@@ -12,6 +12,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "CodeEditorComponent.h"
 #include "EcmaEnemyCharacter.h"
+#include "Sound/SoundCue.h"
 
 #define LOCTEXT_NAMESPACE "EcmaTrials"
 
@@ -34,6 +35,18 @@ bool UCodeEditor::Initialize()
 	if (!SyntaxHighlight)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SyntaxHighlight is nullptr"));
+		return false;
+	}
+
+	if (!CorrectSound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("correct sound is nullptr"));
+		return false;
+	}
+
+	if (!ErrorSound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Error sound is nullptr"));
 		return false;
 	}
 
@@ -196,7 +209,7 @@ void UCodeEditor::HighlightSyntax(FString RawInput) const
 	}
 
 	// tag bools
-	TArray<FString> Bools = { "true","false" };
+	TArray<FString> Bools = { "true","false","undefined","null"};
 	for (FString Bool : Bools)
 	{
 		FString BoolReplace = "<bool>" + Bool + "</>";
@@ -302,16 +315,19 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 	// display response output to player
 	if (Response.message == "Test passed")
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), CorrectSound);
 		DisplayOutput(Response.message, false);
 	}
 	else if (Response.message == "Test failed")
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ErrorSound);
 		FString FomattedString = FString(Response.error.name + "\n" + Response.error.message);
 		DisplayOutput(FomattedString, true);
 	}
 	else
 	{
 		//FString LineNumber = Response.error.stack.Mid(6,2).TrimEnd();
+		UGameplayStatics::PlaySound2D(GetWorld(), ErrorSound);
 		FString FomattedString = FString("Line Number: " + Response.error.LineNumber + "\n" + Response.error.name + "\n" + Response.error.message);
 		DisplayOutput(FomattedString, true);
 	}

@@ -6,6 +6,8 @@
 #include "EcmaEnemyCharacter.h"
 #include "CodeEditorComponent.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 bool UCodeEditorSpeedType::Initialize()
 {
@@ -34,6 +36,18 @@ bool UCodeEditorSpeedType::Initialize()
 		return false;
 	}
 
+	if (!CorrectSound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("correct sound is nullptr"));
+		return false;
+	}
+
+	if (!ErrorSound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Error sound is nullptr"));
+		return false;
+	}
+
 	//add function to onTextCommitted
 	TextInput->OnTextCommitted.AddDynamic(this, &UCodeEditorSpeedType::DelegateCommitInputText);
 	TextInput->OnTextChanged.AddDynamic(this, &Super::DelegateOnTextChanged);
@@ -48,6 +62,8 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 	// if users input matches required code
 	if (TextInput->GetText().ToString() == RequiredText->GetText().ToString())
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), CorrectSound);
+
 		// kill that enemy
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		APawn* PlayerPawn = PlayerController->GetPawn();
@@ -55,6 +71,7 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 	}
 	else
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), ErrorSound);
 		DisplayOutput("Incorrect!", true);
 	}
 }
