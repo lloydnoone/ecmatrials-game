@@ -60,8 +60,8 @@ void ALaptop::Open(bool Open)
 		OwningPlayer->CustomTimeDilation = 4.0f;
 
 		//slow time when editor is in view port
-		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.05);
-		UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.05, 0.0f);
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.04);
+		UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.04, 0.0f);
 	}
 	else
 	{
