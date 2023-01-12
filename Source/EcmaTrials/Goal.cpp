@@ -8,6 +8,8 @@
 #include "CodeEditorComponent.h"
 #include "Components/AudioComponent.h"
 #include "EcmaCharacter.h"
+#include "LevelSequenceActor.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AGoal::AGoal()
@@ -33,6 +35,11 @@ void AGoal::BeginPlay()
 	if (PanelTag == "NotSet")
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Panel Tag in Goal not set."));
+	}
+
+	if (!EndSequence)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Goal BP doenst have and end sequence set."));
 	}
 
 	TArray<AActor*> OutActors;
@@ -86,6 +93,12 @@ void AGoal::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAct
 		// re activate to start anim again
 		EffectComponent->ActivateSystem();
 		AudioComp->Activate();
+
+		// play sequence
+		EndSequence->SequencePlayer->Play();
+
+		// travel to next level when it ends
+		EndSequence->SequencePlayer->OnFinished.AddDynamic(this, &AGoal::TravelToNextLevel);
 	}
 }
 
@@ -116,4 +129,9 @@ void AGoal::HandleResult(bool bResult)
 	{
 		Disable();
 	}
+}
+
+void AGoal::TravelToNextLevel()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), "LevelTwo");
 }

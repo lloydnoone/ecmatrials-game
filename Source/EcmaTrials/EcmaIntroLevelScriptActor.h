@@ -85,12 +85,6 @@ private:
 	UPROPERTY()
 	UEcmaGameInstance* GameInst;
 
-	template<class T>
-	TArray<T*> GetActorsToArray();
-
-	template<class T>
-	T* GetActorFromArray(TArray<T*> Array, FName Tag);
-
 	UFUNCTION()
 	void FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor);
 

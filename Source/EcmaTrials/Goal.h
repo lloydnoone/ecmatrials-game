@@ -9,6 +9,7 @@
 class UCapsuleComponent;
 class UNiagaraComponent;
 class UAudioComponent;
+class ALevelSequenceActor;
 
 UCLASS()
 class ECMATRIALS_API AGoal : public AActor
@@ -38,6 +39,9 @@ public:
 	UFUNCTION()
 	void HandleResult(bool bResult);
 
+	UFUNCTION()
+	void TravelToNextLevel();
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UCapsuleComponent* CollisionCapsule;
@@ -53,4 +57,7 @@ private:
 
 	UPROPERTY()
 	UAudioComponent* AudioComp;
+
+	UPROPERTY(EditAnywhere)
+	ALevelSequenceActor* EndSequence;
 };
