@@ -20,8 +20,17 @@ void AForceField::BeginPlay()
 	Super::BeginPlay();
 	
 	// load any saved status
-	PlayerSaveComponent->LoadForceFieldStatus(this);
+	if (bShouldSaveStatus)
+	{
+		PlayerSaveComponent->LoadForceFieldStatus(this);
+	}
 
+	//reset on gein play if it should
+	if (bShouldResetOnBeginPlay)
+	{
+		TestResults(bInitialStatus);
+	}
+	
 	//get audio
 	AudioComp = Cast<UAudioComponent>(GetComponentByClass(UAudioComponent::StaticClass()));
 	if (!AudioComp)
@@ -35,7 +44,11 @@ void AForceField::TestResults(bool bResult)
 	Super::TestResults(bResult);
 
 	// save status in player data
-	PlayerSaveComponent->SaveForceFieldStatus(this);
+	if (bShouldSaveStatus)
+	{
+		PlayerSaveComponent->SaveForceFieldStatus(this);
+	}
+	
 
 	if (bResult)
 	{
@@ -54,4 +67,9 @@ void AForceField::TestResults(bool bResult)
 		SetActorEnableCollision(true);
 		SetActorTickEnabled(true);
 	}
+}
+
+bool AForceField::GetShouldResetOnBeginPlay()
+{
+	return bShouldResetOnBeginPlay;
 }

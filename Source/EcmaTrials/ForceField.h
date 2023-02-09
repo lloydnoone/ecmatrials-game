@@ -25,6 +25,8 @@ public:
 
 	virtual void TestResults(bool bResult) override;
 
+	bool GetShouldResetOnBeginPlay();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,4 +40,13 @@ private:
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundCue* ShutdownCue;
+
+	UPROPERTY(EditAnywhere)
+	bool bShouldSaveStatus = true;
+
+	UPROPERTY(EditAnywhere)
+	bool bInitialStatus = false;
+
+	UPROPERTY(EditAnywhere)
+	bool bShouldResetOnBeginPlay = false;
 };

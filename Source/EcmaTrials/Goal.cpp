@@ -10,6 +10,7 @@
 #include "EcmaCharacter.h"
 #include "LevelSequenceActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerSaveComponent.h"
 
 // Sets default values
 AGoal::AGoal()
@@ -22,6 +23,12 @@ AGoal::AGoal()
 
 	EffectComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Mesh"));
 	EffectComponent->SetupAttachment(CollisionCapsule);
+
+	PlayerSaveComponent = CreateDefaultSubobject<UPlayerSaveComponent>(TEXT("PlayerSaveComponent"));
+	if (!PlayerSaveComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerSaveComponent in Goal is null"));
+	}
 }
 
 // Called when the game starts or when spawned
@@ -32,7 +39,7 @@ void AGoal::BeginPlay()
 	// start disabled
 	Disable();
 
-	if (PanelTag == "NotSet")
+	if (PanelTag == "Not Set")
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Panel Tag in Goal not set."));
 	}
@@ -40,6 +47,11 @@ void AGoal::BeginPlay()
 	if (!EndSequence)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Goal BP doenst have and end sequence set."));
+	}
+
+	if (NextLevelName == "Not Set")
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Next Level Name in Goal not set."));
 	}
 
 	TArray<AActor*> OutActors;
@@ -94,6 +106,12 @@ void AGoal::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherAct
 		EffectComponent->ActivateSystem();
 		AudioComp->Activate();
 
+		// save starting position for next level
+		PlayerSaveComponent->SaveCheckpoint("Start");
+		PlayerSaveComponent->SaveLevel(NextLevelName);
+		//clear force field statuses
+		PlayerSaveComponent->ClearForceFieldStatuses();
+
 		// play sequence
 		EndSequence->SequencePlayer->Play();
 
@@ -133,5 +151,5 @@ void AGoal::HandleResult(bool bResult)
 
 void AGoal::TravelToNextLevel()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), "LevelTwo");
+	UGameplayStatics::OpenLevel(GetWorld(), NextLevelName, true, TEXT("Start"));
 }

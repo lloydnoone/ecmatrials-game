@@ -73,6 +73,11 @@ bool UEcmaGameInstance::CreatePlayerData(FString PlayerSlotName)
 		SaveGame = UGameplayStatics::CreateSaveGameObject(UPlayerSaveData::StaticClass());
 		PlayerSaveData = Cast<UPlayerSaveData>(SaveGame);
 		PlayerSaveData->SetPlayerSlotName(PlayerSlotName);
+
+		// Set level one and checkpoint to start to begin with
+		PlayerSaveData->LevelName = FName("LevelOne");
+		PlayerSaveData->SavePointName = TEXT("Start");
+
 		UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSlotName, 0);
 
 		//add player slot to game save data slots and save it
@@ -82,7 +87,7 @@ bool UEcmaGameInstance::CreatePlayerData(FString PlayerSlotName)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player Slot already exists"));
+		//player slot already exists
 		return false;
 	}
 }
@@ -109,7 +114,6 @@ bool UEcmaGameInstance::DeletePlayerData(FString PlayerSlotName)
 
 void UEcmaGameInstance::InitMusic()
 {
-	UE_LOG(LogTemp, Warning, TEXT("In start music"))
 	if (AmbientCue == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Music cue not found"))

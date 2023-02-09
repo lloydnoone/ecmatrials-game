@@ -55,13 +55,13 @@ FString UPlayerSaveComponent::GetCurrentCheckpoint()
 	return PlayerSaveData->SavePointName;
 }
 
-void UPlayerSaveComponent::SaveLevel(FString LevelName)
+void UPlayerSaveComponent::SaveLevel(FName LevelName)
 {
-	PlayerSaveData->LevelName = FName(LevelName);
+	PlayerSaveData->LevelName = LevelName;
 	bool Result = UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSaveData->PlayerSlotName, 0);
 	if (!Result)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to save level"), *LevelName);
+		UE_LOG(LogTemp, Warning, TEXT("Failed to save level name."));
 	}
 }
 
@@ -85,14 +85,20 @@ void UPlayerSaveComponent::SaveForceFieldStatus(AForceField* ForceField)
 	UGameplayStatics::SaveGameToSlot(PlayerSaveData, PlayerSaveData->PlayerSlotName, 0);
 }
 
+// used by force fields to load there own status
 void UPlayerSaveComponent::LoadForceFieldStatus(AForceField* ForceField)
 {
 	// see if this forcfield has a saved status
 	if (PlayerSaveData->ForceFieldMap.Contains(ForceField->Tags[0].ToString()))
 	{
 		// if it does, set that status
-		bool Status = PlayerSaveData->ForceFieldMap.FindChecked(ForceField->Tags[0].ToString());
-		ForceField->TestResults(Status);
+		bool bStatus = PlayerSaveData->ForceFieldMap.FindChecked(ForceField->Tags[0].ToString());
+		ForceField->TestResults(bStatus);
 	}
 }
 
+// used by goals to clear all forcefield statuses
+void UPlayerSaveComponent::ClearForceFieldStatuses()
+{
+	PlayerSaveData->ForceFieldMap.Empty();
+}

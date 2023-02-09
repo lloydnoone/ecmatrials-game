@@ -10,6 +10,7 @@ class UCapsuleComponent;
 class UNiagaraComponent;
 class UAudioComponent;
 class ALevelSequenceActor;
+class UPlayerSaveComponent;
 
 UCLASS()
 class ECMATRIALS_API AGoal : public AActor
@@ -55,9 +56,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	FName PanelTag = "Not Set";
 
+	UPROPERTY(EditAnywhere)
+	FName NextLevelName = "Not Set";
+
 	UPROPERTY()
 	UAudioComponent* AudioComp;
 
 	UPROPERTY(EditAnywhere)
 	ALevelSequenceActor* EndSequence;
+
+	UPROPERTY(VisibleAnywhere)
+	UPlayerSaveComponent* PlayerSaveComponent;
 };

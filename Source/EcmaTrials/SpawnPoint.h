@@ -8,8 +8,38 @@
 
 class UDataTable;
 class AEcmaEnemyCharacter;
+class AEcmaCharacter;
+class AForceField;
+class ALevelSequenceActor;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FGroupKill, int32, WaveNum);
+
+USTRUCT(BlueprintType)
+struct FWaveStruct
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	ALevelSequenceActor* LevelSequence;
+
+	UPROPERTY(EditAnywhere)
+	AForceField* ForceField;
+
+	UPROPERTY(EditAnywhere)
+	AActor* CameraTarget;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
+
+	UPROPERTY(EditAnywhere)
+	UDataTable* CodeTable;
+
+	UPROPERTY(EditAnywhere)
+	int32 NumberOfSpawns;
+
+	UPROPERTY(EditAnywhere)
+	float Delay;
+};
 
 UCLASS()
 class ECMATRIALS_API ASpawnPoint : public AActor
@@ -25,6 +55,9 @@ private:
 	FTimerHandle SpawnTimerHandle;
 
 	int32 WaveNum = 0;
+
+	UPROPERTY(EditAnywhere)
+	TArray<FWaveStruct> Waves;
 
 	UFUNCTION()
 	void OnEnemyDestroyed(AActor* Actor);
@@ -47,6 +80,8 @@ public:
 
 	void SetWaveNum(int32 NewWaveNum);
 	int32 GetWaveNum();
+
+	void TriggerWave(AEcmaCharacter* Player, int32 WaveNumber);
 
 	UPROPERTY(BlueprintCallable)
 	FGroupKill GroupKill;

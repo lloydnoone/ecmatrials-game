@@ -33,10 +33,13 @@ public:
 	void SaveCheckpoint(FString Checkpoint);
 	FString GetCurrentCheckpoint();
 
-	void SaveLevel(FString LevelName);
+	void SaveLevel(FName LevelName);
 	FName GetCurrentLevel();
 
+	// used by forcefields to manage their own status
 	void SaveForceFieldStatus(AForceField* ForceField);
-
 	void LoadForceFieldStatus(AForceField* ForceField);
+
+	// used by goals to clear forcefield statuses
+	void ClearForceFieldStatuses();
 };

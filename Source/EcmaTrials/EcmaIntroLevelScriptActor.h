@@ -43,8 +43,6 @@ private:
 
 	AEcmaCharacter* Player;
 
-	ATutorialManager* TutorialManager;
-
 	UPROPERTY(EditDefaultsOnly)
 	class UDataTable* BooleanCodeTable;
 

@@ -5,6 +5,8 @@
 #include "Engine/DataTable.h"
 #include "EcmaEnemyCharacter.h"
 #include "CodeEditorComponent.h"
+#include "LevelSequenceActor.h"
+#include "ForceField.h"
 
 // Sets default values
 ASpawnPoint::ASpawnPoint()
@@ -108,5 +110,36 @@ void ASpawnPoint::SetWaveNum(int32 NewWaveNum)
 int32 ASpawnPoint::GetWaveNum()
 {
 	return WaveNum;
+}
+
+void ASpawnPoint::TriggerWave(AEcmaCharacter* Player, int32 WaveNumber)
+{
+	FWaveStruct Wave = Waves[WaveNumber];
+	// play sequence if any
+	if (Wave.LevelSequence)
+	{
+		Wave.LevelSequence->SequencePlayer->Play();
+	}
+
+	// open/close forcefield if any
+	if (Wave.ForceField)
+	{
+		Wave.ForceField->TestResults(true);
+	}
+
+	// set camera target if any
+	if (Player)
+	{
+		if (Wave.CameraTarget)
+		{
+			Player->SetCameraTarget(Wave.CameraTarget);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("null reference to player in TriggerWave"));
+	}
+
+	SpawnEnemy(Wave.CodeTable, Wave.NumberOfSpawns, Wave.Delay);
 }
 

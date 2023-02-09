@@ -27,7 +27,6 @@ void AEcmaLinearGameMode::HandleStartingNewPlayer_Implementation(APlayerControll
 	
 	// options string starts with a "?" when passed into open level. Remove that here
 	FString PlayerStartName = OptionsString.RightChop(1);
-	UE_LOG(LogTemp, Warning, TEXT("PlayerStartName: %s"), *PlayerStartName);
 
 	AActor* StartSpot = FindPlayerStart_Implementation(NewPlayer, PlayerStartName);
 
