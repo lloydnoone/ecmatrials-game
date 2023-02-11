@@ -1,11 +1,9 @@
-// Copyright Prestige Games World Wide.
+// Copyright MacroHard Systems.
 
 
 #include "EcmaIntroLevelScriptActor.h"
-#include "Engine/DataTable.h"
 #include "EcmaEnemyCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "CodeEditorComponent.h"
 #include "LevelTrigger.h"
 #include "ForceField.h"
 #include "EngineUtils.h"
@@ -15,49 +13,9 @@
 #include "Components/BoxComponent.h"
 #include "EcmaGameInstance.h"
 
-AEcmaIntroLevelScriptActor::AEcmaIntroLevelScriptActor()
-{
-	PlayerSaveComponent = CreateDefaultSubobject<UPlayerSaveComponent>(TEXT("PlayerSaveComponent"));
-	if (!PlayerSaveComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerSaveComponent in LevelOneScript is null"));
-	}
-}
-
 void AEcmaIntroLevelScriptActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!BooleanCodeTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("BooleanCodeTable in LevelOneScript is nullptr"));
-		return;
-	}
-	if (!StringCodeTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("StringCodeTable in LevelOneScript is nullptr"));
-		return;
-	}
-	if (!NumberCodeTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NumberCodeTable in LevelOneScript is nullptr"));
-		return;
-	}
-	if (!NullCodeTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NumberCodeTable in LevelOneScript is nullptr"));
-		return;
-	}
-	if (!EnemyBP)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyBP in LevelOneScript is nullptr"));
-		return;
-	}
-
-	ForceFields = GetActorsToArray<AForceField>();
-	LevelTriggers = GetActorsToArray<ALevelTrigger>();
-	LevelSequences = GetActorsToArray<ALevelSequenceActor>();
-	SpawnPoints = GetActorsToArray<ASpawnPoint>();
 
 	BooleanSpawn = GetActorFromArray(SpawnPoints, "BooleanSpawn");
 	NumberSpawn = GetActorFromArray(SpawnPoints, "NumberSpawn");
@@ -81,32 +39,25 @@ void AEcmaIntroLevelScriptActor::BeginPlay()
 	StringSpawn->GroupKill.AddDynamic(this, &AEcmaIntroLevelScriptActor::OnStringGroupKill);
 	NullSpawn->GroupKill.AddDynamic(this, &AEcmaIntroLevelScriptActor::OnNullGroupKill);
 
-
-	GameInst = Cast<UEcmaGameInstance>(GetGameInstance());
-	if (!GameInst)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("no game instance in LevelOneScript"));
-	}
-
 	//play intro
-	if (PlayerSaveComponent->GetCurrentCheckpoint() == "Start")
+	if (PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.Start)
 	{
 		GetActorFromArray(LevelSequences, "IntroLevelSequence")->SequencePlayer->Play();
 	}
 
 	// set correct waves
-	if (PlayerSaveComponent->GetCurrentCheckpoint() == "SecondCheckpoint")
+	if (PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.Second)
 	{
 		for (ASpawnPoint* SP : SpawnPoints)
 		{
-			SP->SetWaveNum(1);
+			SP->SetWaveNum(Waves.Second);
 		}
 	}
-	if (PlayerSaveComponent->GetCurrentCheckpoint() == "ThirdCheckpoint")
+	if (PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.Third)
 	{
 		for (ASpawnPoint* SP : SpawnPoints)
 		{
-			SP->SetWaveNum(2);
+			SP->SetWaveNum(Waves.Third);
 		}
 	}
 }
@@ -119,7 +70,7 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 		return;
 	}
 
-	if ((PlayerSaveComponent->GetCurrentCheckpoint() == "Start" || PlayerSaveComponent->GetCurrentCheckpoint() == "FirstCheckpoint") && bFirstWaveBegun == false)
+	if ((PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.Start || PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.First) && bFirstWaveBegun == false)
 	{
 		//start spawning enemies
 		if (OtherActor == Player)
@@ -128,9 +79,9 @@ void AEcmaIntroLevelScriptActor::FirstSpawnOverlap(AActor* OverlappedActor, AAct
 			GameInst->FadeToCombat();
 
 			// save for first checkpoint here
-			PlayerSaveComponent->SaveCheckpoint("FirstCheckpoint");
+			PlayerSaveComponent->SaveCheckpoint(Checkpoints.First);
 
-			BooleanSpawn->TriggerWave(Player, 0);
+			BooleanSpawn->TriggerWave(Player, Waves.First);
 
 			//only do this once
 			bFirstWaveBegun = true;
@@ -143,7 +94,7 @@ void AEcmaIntroLevelScriptActor::OnBooleanGroupKill(int32 WaveNum)
 	// on the first boolean group kill, play sequence for number group and open that forcefield
 	if (WaveNum == 1)
 	{
-		NumberSpawn->TriggerWave(Player, 0);
+		NumberSpawn->TriggerWave(Player, Waves.First);
 	}
 
 	// wave number is 3 for some reason instead of 2
@@ -157,7 +108,7 @@ void AEcmaIntroLevelScriptActor::OnNumberGroupKill(int32 WaveNum)
 {
 	if (WaveNum == 1)
 	{
-		StringSpawn->TriggerWave(Player, 0);
+		StringSpawn->TriggerWave(Player, Waves.First);
 	}
 
 	if (WaveNum == 2 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
@@ -170,7 +121,7 @@ void AEcmaIntroLevelScriptActor::OnStringGroupKill(int32 WaveNum)
 {
 	if (WaveNum == 1)
 	{
-		NullSpawn->TriggerWave(Player, 0);
+		NullSpawn->TriggerWave(Player, Waves.First);
 	}
 
 	if (WaveNum == 2 && (GetActorsToArray<AEcmaEnemyCharacter>().Num() == 1))
@@ -183,7 +134,7 @@ void AEcmaIntroLevelScriptActor::OnNullGroupKill(int32 WaveNum)
 {
 	if (WaveNum == 1)
 	{
-		PlayerSaveComponent->SaveCheckpoint("SecondCheckpoint");
+		PlayerSaveComponent->SaveCheckpoint(Checkpoints.Second);
 	}
 	
 	//start playing ambient music
@@ -203,18 +154,18 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 	}
 
 	//if we're not already at the third checkpoint
-	if (!(PlayerSaveComponent->GetCurrentCheckpoint() == "ThirdCheckpoint"))
+	if (!(PlayerSaveComponent->GetCurrentCheckpoint() == Checkpoints.Third))
 	{
-		//if all waves are at 2, save and return
+		//if all waves are at 3rd, save and return
 		for (ASpawnPoint* SP : SpawnPoints)
 		{
-			if (SP->GetWaveNum() != 2)
+			if (SP->GetWaveNum() != Waves.Third)
 			{
 				// break out of for loop
 				break;
 			}
 
-			PlayerSaveComponent->SaveCheckpoint("ThirdCheckpoint");
+			PlayerSaveComponent->SaveCheckpoint(Checkpoints.Third);
 			return;
 		}
 
@@ -231,10 +182,10 @@ void AEcmaIntroLevelScriptActor::FinalSpawnOverlap(AActor* OverlappedActor, AAct
 		}
 
 		//start spawning enemies and player sequence if player overlapped
-		BooleanSpawn->TriggerWave(Player, 1);
-		NumberSpawn->TriggerWave(Player, 1);
-		StringSpawn->TriggerWave(Player, 1);
-		NullSpawn->TriggerWave(Player, 1);
+		BooleanSpawn->TriggerWave(Player, Waves.Second);
+		NumberSpawn->TriggerWave(Player, Waves.Second);
+		StringSpawn->TriggerWave(Player, Waves.Second);
+		NullSpawn->TriggerWave(Player, Waves.Second);
 
 		//only do this once
 		bFinalWaveBegun = true;

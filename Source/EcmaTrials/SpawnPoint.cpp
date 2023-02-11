@@ -1,4 +1,4 @@
-// Copyright Prestige Games World Wide.
+// Copyright MacroHard Systems.
 
 
 #include "SpawnPoint.h"

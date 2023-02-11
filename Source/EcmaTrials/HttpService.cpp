@@ -1,4 +1,4 @@
-// Copyright Prestige Games World Wide.
+// Copyright MacroHard Systems.
 
 //For the sake of clean code you should not be doing any non - http logic here.Pass your response data somewhere elseand handle it there.
 //APIs tend to be quite large andif you put all of your logic inside of your HttpService it will be too large to handle in the future.

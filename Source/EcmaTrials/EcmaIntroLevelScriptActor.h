@@ -1,4 +1,4 @@
-// Copyright Prestige Games World Wide.
+// Copyright MacroHard Systems.
 
 #pragma once
 
@@ -16,13 +16,40 @@ class UPlayerSaveComponent;
 class ASpawnPoint;
 class UEcmaGameInstance;
 
+USTRUCT(BlueprintType)
+struct FWaves {
+
+	GENERATED_BODY()
+
+	int32 First = 0;
+	int32 Second = 1;
+	int32 Third = 2;
+};
+
+USTRUCT(BlueprintType)
+struct FCheckpoints
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	FString Start = TEXT("Start");
+
+	UPROPERTY()
+	FString First = TEXT("FirstCheckpoint");
+
+	UPROPERTY()
+	FString Second = TEXT("SecondCheckpoint");
+
+	UPROPERTY()
+	FString Third = TEXT("ThirdCheckpoint");
+};
+
 UCLASS()
 class ECMATRIALS_API AEcmaIntroLevelScriptActor : public AEcmaBaseLevelScriptActor
 {
 	GENERATED_BODY()
 
 public:
-	AEcmaIntroLevelScriptActor();
 
 	virtual void PawnKilled(APawn* PawnKilled) override;
 
@@ -41,22 +68,10 @@ protected:
 
 private:
 
+	FCheckpoints Checkpoints;
+	FWaves Waves;
+
 	AEcmaCharacter* Player;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UDataTable* BooleanCodeTable;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UDataTable* StringCodeTable;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UDataTable* NumberCodeTable;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UDataTable* NullCodeTable;
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AEcmaEnemyCharacter> EnemyBP;
 
 	ASpawnPoint* BooleanSpawn;
 	ASpawnPoint* StringSpawn;
@@ -69,19 +84,8 @@ private:
 	UPROPERTY()
 	ALevelTrigger* FinalSpawnTrigger;
 
-	UPROPERTY(VisibleAnywhere)
-	UPlayerSaveComponent* PlayerSaveComponent;
-
 	bool bFirstWaveBegun = false;
 	bool bFinalWaveBegun = false;
-
-	TArray<AForceField*> ForceFields;
-	TArray<ALevelTrigger*> LevelTriggers;
-	TArray<ALevelSequenceActor*> LevelSequences;
-	TArray<ASpawnPoint*> SpawnPoints;
-
-	UPROPERTY()
-	UEcmaGameInstance* GameInst;
 
 	UFUNCTION()
 	void FirstSpawnOverlap(AActor* OverlappedActor, AActor* OtherActor);
