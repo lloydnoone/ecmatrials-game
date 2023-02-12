@@ -68,12 +68,6 @@ void UCodeEditorComponent::BeginPlay()
 
 	CodeEditor->SetOwningActor(GetOwner());
 	CodeEditor->SetRequestUrl(RequestUrl);
-
-	//set string table ID if any
-	if (InfoStringTable)
-	{
-		InfoStringTableID = InfoStringTable->GetStringTableId();
-	}
 }
 
 
@@ -95,25 +89,9 @@ void UCodeEditorComponent::SetCodeEditorVisibility(bool Show)
 		if (CodeEditor->IsInViewport()) return;
 		CodeEditor->AddEditorToScreen();
 
-		// check UI string table is valid
-		if (FStringTableRegistry::Get().FindStringTableAsset("/Game/StringTables/UIText.UIText"))
-		{
-			// set text for UI buttons
-			SetTextFromTable("/Game/StringTables/UIText.UIText", "ToSubmit", CodeEditor->ToSubmit);
-			SetTextFromTable("/Game/StringTables/UIText.UIText", "ToExit", CodeEditor->ToExit);
-		}
-		else
-		{
-			// always not valid first time but then works anyway??
-			//UE_LOG(LogTemp, Warning, TEXT("UIText StringTable is not valid."));
-		}
-		
-		// add info text after widget has been init and added to screen
-		if (InfoStringTable)
-		{
-			//set text for info panel
-			SetTextFromTable(InfoStringTableID, InfoTableKey, CodeEditor->InfoText);
-		}
+		//set pre code and info text strings
+		SetPreCodeText();
+		SetInfoText();
 
 		GetKeyboardFocus();
 	}
@@ -290,6 +268,23 @@ void UCodeEditorComponent::SetRequiredText(FString String)
 	{
 		SpeedTypeEditor->SetRequiredText(String);
 	}
+}
+
+void UCodeEditorComponent::SetPreCodeText()
+{
+	if (PreCodeText.IsEmpty()) {
+		CodeEditor->PreCodeText->SetVisibility(ESlateVisibility::Collapsed);
+	} 
+	else
+	{
+		CodeEditor->PreCodeText->SetVisibility(ESlateVisibility::Visible);
+		CodeEditor->PreCodeText->SetText(PreCodeText);
+	}
+}
+
+void UCodeEditorComponent::SetInfoText()
+{
+	CodeEditor->InfoText->SetText(InfoText);
 }
 
 void UCodeEditorComponent::SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock)

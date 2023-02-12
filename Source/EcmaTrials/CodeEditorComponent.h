@@ -104,6 +104,10 @@ public:
 
 private:
 
+	void SetPreCodeText();
+
+	void SetInfoText();
+
 	AInteractableSubject* InitSubjectActor();
 
 	//UPROPERTY(EditAnywhere, meta = (BindWidget))
@@ -117,18 +121,13 @@ private:
 	class UDataTable* RequiredCodeTable;
 
 	UPROPERTY(EditAnywhere)
-	class UStringTable* InfoStringTable;
-
-	UPROPERTY(EditAnywhere)
-	class UStringTable* UIStringTable;
-
-	UPROPERTY(EditAnywhere)
-	FString InfoTableKey = "";
-
-	FName InfoStringTableID = "";
-
-	UPROPERTY(EditAnywhere)
 	FString RequestUrl = "";
+
+	UPROPERTY(EditAnywhere)
+	FText PreCodeText;
+
+	UPROPERTY(EditAnywhere)
+	FText InfoText;
 
 	UPROPERTY(EditAnywhere)
 	bool bFlipLogic = false;
