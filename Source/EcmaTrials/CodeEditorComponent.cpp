@@ -231,6 +231,7 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		}, 0.05f, false);
 	}
 
+	// send event to any other actors that want to react, such as goal
 	TestResult.Broadcast(Result);
 
 	if (bFlipLogic == true) Result = !Result;

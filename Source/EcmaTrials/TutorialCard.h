@@ -54,12 +54,7 @@ private:
 	UBoxComponent* CollisionBox;
 
 	UPROPERTY(EditAnywhere)
-	class UStringTable* TutorialStringTable;
-
-	FName TableID;
-
-	UPROPERTY(EditAnywhere)
-	FString TableKey;
+	FText Text;
 
 	UPROPERTY()
 	UTutorialText* TutorialTextWidget;

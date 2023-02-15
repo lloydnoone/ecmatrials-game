@@ -213,6 +213,7 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	UE_LOG(LogTemp, Warning, TEXT("TakeDamage called"));
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	//if health is less than DamageToApply then return health instead to keep health above zero
 	DamageToApply = FMath::Min(Health, DamageToApply);

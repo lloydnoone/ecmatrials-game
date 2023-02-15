@@ -29,29 +29,19 @@ ATutorialCard::ATutorialCard()
 void ATutorialCard::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (!TutorialStringTable)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("TutorialStringTable in TutorialCard is nullptr"));
-		return;
-	}
-	else
-	{
-		TableID = TutorialStringTable->GetStringTableId();
-	}
 	
 	TutorialTextWidget = Cast<UTutorialText>(Widget->GetWidget());
 	if (!TutorialTextWidget)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("couldnt cast to UTutorialWidget"));
 	}
-	else if (TableKey == "")
+	else if (Text.IsEmpty())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No TableKey set in TutorialCard"));
+		UE_LOG(LogTemp, Warning, TEXT("Text in TutorialCard is empty"));
 	}
 	else
 	{
-		TutorialTextWidget->SetText(FText::FromStringTable(TableID, TableKey));
+		TutorialTextWidget->SetText(Text);
 	}
 
 	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ATutorialCard::BeginOverlap);
