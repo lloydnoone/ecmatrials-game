@@ -45,26 +45,23 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere)
-	UCapsuleComponent* CollisionCapsule;
+	UCapsuleComponent* CollisionCapsule = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-	UNiagaraComponent* EffectComponent;
-
-	UPROPERTY()
-	AActor* AccessPanel;
+	UNiagaraComponent* EffectComponent = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	FName PanelTag = "Not Set";
+	AActor* SubjectActor = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	FName NextLevelName = "Not Set";
 
 	UPROPERTY()
-	UAudioComponent* AudioComp;
+	UAudioComponent* AudioComp = nullptr;
 
 	UPROPERTY(EditAnywhere)
-	ALevelSequenceActor* EndSequence;
+	ALevelSequenceActor* EndSequence = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-	UPlayerSaveComponent* PlayerSaveComponent;
+	UPlayerSaveComponent* PlayerSaveComponent = nullptr;
 };

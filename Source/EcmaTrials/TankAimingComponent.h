@@ -20,6 +20,7 @@ enum class EFiringState : uint8
 class UTankBarrel;
 class UTankTurret;
 class AProjectile;
+class UDataTable;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ECMATRIALS_API UTankAimingComponent : public UActorComponent
@@ -77,5 +78,8 @@ private:
 
 	//refrence to player
 	APawn* PlayerPawn;
+
+	UPROPERTY(EditAnywhere, Category = "Setup")
+	UDataTable* CodeTable;
 		
 };

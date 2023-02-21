@@ -44,17 +44,11 @@ void UCodeEditorComponent::BeginPlay()
 
 	CollisionSphere = GetOwner()->FindComponentByClass<USphereComponent>();
 	CodeEditor = NewObject<UCodeEditor>(GetOwner(), CodeEditorClass); // CreateWidget<UCodeEditor>(GetWorld()->GetGameInstance(), CodeEditorClass);
-	Subject = InitSubjectActor();
 
 	if (!CodeEditor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("CodeEditor is nullptr"));
 		return;
-	}
-
-	if (!Subject)
-	{
-		// if no subject, owning actor will be affected instead
 	}
 
 	if (!CollisionSphere)
@@ -184,33 +178,10 @@ void UCodeEditorComponent::Highlight(bool bHighlight)
 	}
 }
 
-AInteractableSubject* UCodeEditorComponent::InitSubjectActor()
-{
-	for (TActorIterator<AInteractableSubject> It(GetWorld()); It; ++It)
-	{
-		AInteractableSubject* Actor = *It;
-		if (Actor->ActorHasTag(SubjectTag))
-		{
-			return Actor;
-		}
-	}
-
-	//if no actor found, will affect owner as ecmaenemy
-	return nullptr;
-}
-
-AInteractableSubject* UCodeEditorComponent::GetSubjectActor()
-{
-	return Subject;
-}
-
 void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 {
-	// if subject is nullptr then this component isnt on a AInteractableSubject but an enemy.
-	// this means the widget is speedType and doesnt need to make a request to send results.
-	// skip this part and that actor will be affected directly by the widget
-	// consider refactoring this to subject component.
-	if (Subject == nullptr) return;
+	// if the code editor is speedtype it will deal with the owner
+	if (CodeEditorClass == UCodeEditorSpeedType::StaticClass()) { return; }
 
 	// if the test passed then auto exit the editor after half a sec
 	if (Result == true)
@@ -231,35 +202,36 @@ void UCodeEditorComponent::SendResultToSubjectActor(bool Result)
 		}, 0.05f, false);
 	}
 
-	// send event to any other actors that want to react, such as goal
-	TestResult.Broadcast(Result);
-
+	// option to reverse logic
 	if (bFlipLogic == true) Result = !Result;
 
-	Subject->TestResults(Result);
+	// send event to any other actors that want to react, such as goal
+	TestResult.Broadcast(Result);
 }
 
-FString UCodeEditorComponent::GetRequiredText()
+void UCodeEditorComponent::UseRandomRowFromTable(UDataTable* CodeTable)
 {
-	if (RequiredCodeTable)
+	FString String = "";
+
+	// get random text
+	if (CodeTable)
 	{
 		// get rows from data table
-		TArray< FName > RowNames = RequiredCodeTable->GetRowNames();
+		TArray< FName > RowNames = CodeTable->GetRowNames();
 
 		// get a random row
 		int32 index = FMath::RandRange(0, RowNames.Num() - 1);
 		FName name = RowNames[index];
 
 		//return code from that row
-		return RequiredCodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
+		String = CodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("RequiredCodeTable is nullptr"));
-	return "";
-}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Code table is null trying to get random row"));
+	}
 
-void UCodeEditorComponent::SetRequiredText(FString String)
-{
+	//check it is spped type kind, set string if so
 	UCodeEditorSpeedType* SpeedTypeEditor = Cast<UCodeEditorSpeedType>(CodeEditor);
 	if (!SpeedTypeEditor)
 	{
@@ -286,27 +258,5 @@ void UCodeEditorComponent::SetPreCodeText()
 void UCodeEditorComponent::SetInfoText()
 {
 	CodeEditor->InfoText->SetText(InfoText);
-}
-
-void UCodeEditorComponent::SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock)
-{
-	// make info text panel invisible if no string to fill it
-	if (TableID == "" || TableKey == "")
-	{
-		TextBlock->SetColorAndOpacity(FLinearColor(0.0f, 0.0f, 0.0f, 0.0f));
-	}
-
-	if (TableID == "")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cant set text from table as tableID is blank"));
-		return;
-	}
-	if (TableKey == "")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Cant set text from table as tableID is blank"));
-		return;
-	}
-
-	TextBlock->SetText(FText::FromStringTable(TableID, TableKey));
 }
 

@@ -100,6 +100,11 @@ void AEcmaCharacter::BeginPlay()
 		AudioComp->Activate();
 	}
 
+	if (!DisintegrateCurve)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DisintegrateCurve is null."))
+	}
+
 	//play spawn FX
 	Disintegrate(true);
 }
@@ -170,6 +175,18 @@ bool AEcmaCharacter::IsTyping() const
 	return bIsTyping;
 }
 
+bool AEcmaCharacter::SetAttackAnimLength(float Length)
+{
+	AttackAnimLength = Length;
+
+	return true;
+}
+
+float AEcmaCharacter::GetAttackAnimLength()
+{
+	return AttackAnimLength;
+}
+
 float AEcmaCharacter::GetHealthPercent() const
 {
 	return Health / MaxHealth;
@@ -213,7 +230,6 @@ void AEcmaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("TakeDamage called"));
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	//if health is less than DamageToApply then return health instead to keep health above zero
 	DamageToApply = FMath::Min(Health, DamageToApply);

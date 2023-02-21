@@ -6,6 +6,7 @@
 #include "TankTurret.h"
 #include "Projectile.h"
 #include "Kismet/GameplayStatics.h"
+#include "CodeEditorComponent.h"
 
 
 // Sets default values for this component's properties
@@ -24,6 +25,15 @@ void UTankAimingComponent::BeginPlay()
 
 	// get player
 	PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerPawn in tank is null"));
+	}
+
+	if (!CodeTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Code table is null on tank component"));
+	}
 }
 
 void UTankAimingComponent::Initialise(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
@@ -133,7 +143,10 @@ void UTankAimingComponent::Fire()
 			);
 
 		// dont attempt to launch if projectile wasnt spawned
-		if (!ensure(Projectile)) { return; }
+		if (!Projectile) { return; }
+
+		// set random code editor text
+		Projectile->GetCodeEditor()->UseRandomRowFromTable(CodeTable);
 
 		Projectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = FPlatformTime::Seconds();

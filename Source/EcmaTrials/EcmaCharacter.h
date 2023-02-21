@@ -13,6 +13,7 @@ class UPauseMenu;
 class ALaptop;
 class UBoxComponent;
 class UAudioComponent;
+class UMeshComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -79,6 +80,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool HasTarget();
+
+	UFUNCTION(BlueprintCallable)
+	bool SetAttackAnimLength(float Length);
+
+	float GetAttackAnimLength();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

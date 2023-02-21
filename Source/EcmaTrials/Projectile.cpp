@@ -6,6 +6,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "PhysicsEngine/RadialForceComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "CodeEditorComponent.h"
+#include "EcmaCharacter.h"
 
 // Sets default values
 AProjectile::AProjectile()
@@ -37,6 +39,21 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	CollisionMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
+
+	//get CodeEditor
+	UActorComponent* EditorComp = GetComponentByClass(UCodeEditorComponent::StaticClass());
+	if (!EditorComp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Couldnt find CodeEditorComponent"))
+	}
+	else
+	{
+		CodeEditorPtr = Cast<UCodeEditorComponent>(EditorComp);
+		if (!CodeEditorPtr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Cast to CodeEditor failed."))
+		}
+	}
 }
 
 void AProjectile::LaunchProjectile(float Speed)
@@ -48,7 +65,6 @@ void AProjectile::LaunchProjectile(float Speed)
 
 void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("onhit: %s"), *OtherActor->GetName());
 	LaunchBlast->Deactivate();
 	ImpactBlast->Activate();
 	ExplosionForce->FireImpulse();
@@ -69,13 +85,27 @@ void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, U
 	//	TArray<AActor*>() // damage all actors
 	//);
 
-	//Destroy();
-	FTimerHandle Timer;
-	GetWorld()->GetTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, DestroyDelay, false);
+	Destroy();
+	/*FTimerHandle Timer;
+	GetWorld()->GetTimerManager().SetTimer(Timer, this, &AProjectile::OnTimerExpire, DestroyDelay, false);*/
 }
 
 void AProjectile::OnTimerExpire()
 {
 	Destroy();
+}
+
+UCodeEditorComponent* AProjectile::GetCodeEditor()
+{
+	return CodeEditorPtr;
+}
+
+float AProjectile::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	Destroy();
+
+	return DamageToApply;
 }
 

@@ -39,11 +39,6 @@ void AGoal::BeginPlay()
 	// start disabled
 	Disable();
 
-	if (PanelTag == "Not Set")
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Panel Tag in Goal not set."));
-	}
-
 	if (!EndSequence)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Goal BP doenst have and end sequence set."));
@@ -54,14 +49,17 @@ void AGoal::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Next Level Name in Goal not set."));
 	}
 
-	TArray<AActor*> OutActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), PanelTag, OutActors);
-	if (OutActors.Num())
+	if (!SubjectActor)
 	{
-		UActorComponent* Comp = OutActors[0]->GetComponentByClass(UCodeEditorComponent::StaticClass());
+		UE_LOG(LogTemp, Warning, TEXT("Goal BP doenst have a subject actor set."));
+	}
+	else
+	{
+		// subscribe to an acotrs test results
+		UActorComponent* Comp = SubjectActor->GetComponentByClass(UCodeEditorComponent::StaticClass());
 		if (!Comp)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("no component found in goal"));
+			UE_LOG(LogTemp, Warning, TEXT("no code editor component found in goal"));
 		}
 
 		UCodeEditorComponent* EditorComp = Cast<UCodeEditorComponent>(Comp);
@@ -72,11 +70,6 @@ void AGoal::BeginPlay()
 
 		EditorComp->TestResult.AddDynamic(this, &AGoal::HandleResult);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("no actor with %s tag found in goal"), *PanelTag.ToString());
-	}
-	
 
 	CollisionCapsule->OnComponentBeginOverlap.AddDynamic(this, &AGoal::OnOverlap);
 	CollisionCapsule->OnComponentEndOverlap.AddDynamic(this, &AGoal::EndOverlap);

@@ -87,15 +87,11 @@ public:
 
 	void SetEditorInViewport();
 
-	AInteractableSubject* GetSubjectActor();
+	//AInteractableSubject* GetSubjectActor();
 
 	void SendResultToSubjectActor(bool Result);
 
-	FString GetRequiredText();
-
-	void SetRequiredText(FString String);
-
-	void SetTextFromTable(FName TableID, FString TableKey, UTextBlock* TextBlock);
+	void UseRandomRowFromTable(UDataTable* CodeTable);
 
 	void Highlight(bool bHighlight);
 
@@ -108,7 +104,7 @@ private:
 
 	void SetInfoText();
 
-	AInteractableSubject* InitSubjectActor();
+	/*AInteractableSubject* InitSubjectActor();*/
 
 	//UPROPERTY(EditAnywhere, meta = (BindWidget))
 	USphereComponent* CollisionSphere;
@@ -129,9 +125,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	FText InfoText;
 
-	UPROPERTY(EditAnywhere)
-	bool bFlipLogic = false;
-
 	FPostProccessColor PostProccessColor;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -141,10 +134,14 @@ private:
 	UPROPERTY()
 	UCodeEditor* CodeEditor;
 
-	UPROPERTY(EditAnywhere, Category = "Subject")
-	FName SubjectTag;
+	//UPROPERTY(EditAnywhere, Category = "Subject")
+	//FName SubjectTag;
 
 	TArray<UMeshComponent*> Meshes;
 
-	AInteractableSubject* Subject;
+	/*AInteractableSubject* Subject;*/
+
+	// option to reverse logic, should be used in child classes if needed. e.g forcefields
+	UPROPERTY(EditAnywhere)
+	bool bFlipLogic = false;
 };

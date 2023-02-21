@@ -8,6 +8,7 @@
 
 class UProjectileMovementComponent;
 class URadialForceComponent;
+class UCodeEditorComponent;
 
 UCLASS()
 class ECMATRIALS_API AProjectile : public AActor
@@ -22,6 +23,10 @@ public:
 	virtual void BeginPlay() override;
 
 	void LaunchProjectile(float Speed);
+
+	UCodeEditorComponent* GetCodeEditor();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
 	UFUNCTION()
@@ -49,5 +54,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	URadialForceComponent* ExplosionForce = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UCodeEditorComponent* CodeEditorPtr = nullptr;
 
 };

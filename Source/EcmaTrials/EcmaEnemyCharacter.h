@@ -31,8 +31,6 @@ public:
 	virtual void Attacked() override;
 	virtual void StopAttack() override;
 
-	void SetCodeForSpeedType(FString String);
-
 	virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
@@ -44,6 +42,8 @@ public:
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex) override;
+
+	UCodeEditorComponent* GetCodeEditor();
 
 private:
 

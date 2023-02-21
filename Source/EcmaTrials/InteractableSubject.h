@@ -24,5 +24,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// overidden by actors subject to test results
+	UFUNCTION()
 	virtual void TestResults(bool bResult);
+
+	UPROPERTY(EditAnywhere)
+	TArray<AActor*> SubjectActors;
 };

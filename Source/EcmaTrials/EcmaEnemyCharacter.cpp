@@ -23,34 +23,34 @@ void AEcmaEnemyCharacter::BeginPlay()
 	Super::BeginPlay();
 	
 	//get EditorCollison
-	UActorComponent* SphereComp = GetComponentByClass(USphereComponent::StaticClass());
-	if (!SphereComp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find actor component on enemy"))
-	}
-	else
-	{
-		EditorCollisionPtr = Cast<USphereComponent>(SphereComp);
-		if (!EditorCollisionPtr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Cast to Sphere component failed."))
-		}
-	}
+	//UActorComponent* SphereComp = GetComponentByClass(USphereComponent::StaticClass());
+	//if (!SphereComp)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Couldnt find actor component on enemy"))
+	//}
+	//else
+	//{
+	//	EditorCollisionPtr = Cast<USphereComponent>(SphereComp);
+	//	if (!EditorCollisionPtr)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("Cast to Sphere component failed."))
+	//	}
+	//}
 
 	//get CodeEditor
-	UActorComponent* EditorComp = GetComponentByClass(UCodeEditorComponent::StaticClass());
-	if (!EditorComp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Couldnt find CodeEditorComponent"))
-	}
-	else
-	{
-		CodeEditorPtr = Cast<UCodeEditorComponent>(EditorComp);
-		if (!CodeEditorPtr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Cast to CodeEditor failed."))
-		}
-	}
+	//UActorComponent* EditorComp = GetComponentByClass(UCodeEditorComponent::StaticClass());
+	//if (!EditorComp)
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("Couldnt find CodeEditorComponent"))
+	//}
+	//else
+	//{
+	//	CodeEditorPtr = Cast<UCodeEditorComponent>(EditorComp);
+	//	if (!CodeEditorPtr)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("Cast to CodeEditor failed."))
+	//	}
+	//}
 	
 	//get reference to the player
 	Player = Cast<AEcmaCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
@@ -87,9 +87,9 @@ void AEcmaEnemyCharacter::SetupAttackCollision()
 	RSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_rSocket"));
 }
 
-void AEcmaEnemyCharacter::SetCodeForSpeedType(FString String)
+UCodeEditorComponent* AEcmaEnemyCharacter::GetCodeEditor()
 {
-	CodeEditorPtr->SetRequiredText(String);
+	return CodeEditorPtr;
 }
 
 float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

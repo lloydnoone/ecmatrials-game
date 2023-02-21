@@ -25,7 +25,7 @@ void AForceField::BeginPlay()
 		PlayerSaveComponent->LoadForceFieldStatus(this);
 	}
 
-	//reset on gein play if it should
+	//reset on begin play if it should
 	if (bShouldResetOnBeginPlay)
 	{
 		TestResults(bInitialStatus);
@@ -63,6 +63,11 @@ void AForceField::TestResults(bool bResult)
 	}
 	else
 	{
+		if (AudioComp)
+		{
+			AudioComp->Activate();
+		}
+
 		SetActorHiddenInGame(false);
 		SetActorEnableCollision(true);
 		SetActorTickEnabled(true);

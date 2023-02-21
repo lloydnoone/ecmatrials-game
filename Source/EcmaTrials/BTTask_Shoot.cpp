@@ -29,5 +29,8 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 
 	Character->Attack();
 
+	//set wait length for attack
+	OwnerComp.GetBlackboardComponent()->SetValueAsFloat(TEXT("AttackAnimLength"), Character->GetAttackAnimLength());
+
 	return EBTNodeResult::Succeeded;
 }
