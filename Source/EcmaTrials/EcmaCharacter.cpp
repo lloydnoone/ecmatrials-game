@@ -14,7 +14,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "CodeEditorComponent.h"
+#include "CodeEditorSceneComponent.h"
 #include "EcmaIntroLevelScriptActor.h"
 #include "PauseMenu.h"
 #include "Laptop.h"
@@ -241,7 +241,7 @@ float AEcmaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 		// if it was the player and they had a target, remove code editor from screen
 		if (CurrentTarget)
 		{
-			if (UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
+			if (UCodeEditorSceneComponent* CurrentTargetEditorComp = GetTargetsCodeEditorComp(CurrentTarget))
 			{
 				CurrentTargetEditorComp->SetCodeEditorVisibility(false);
 			}
@@ -339,26 +339,47 @@ void AEcmaCharacter::StopAttack()
 	//do nothing
 }
 
-void AEcmaCharacter::AddActorInRange(AActor* Actor)
+UCodeEditorSceneComponent* AEcmaCharacter::GetTargetsCodeEditorComp(UMeshComponent* Target)
+{
+	UCodeEditorSceneComponent* EditorComp = nullptr;
+
+	TArray<USceneComponent*> ChildComps = Target->GetAttachChildren();
+	if (ChildComps.Num() != 0)
+	{
+		for (USceneComponent* AttachComp : ChildComps)
+		{
+			EditorComp = Cast<UCodeEditorSceneComponent>(AttachComp);
+			if (EditorComp)
+			{
+				break;
+			}
+		}
+	}
+
+	return EditorComp;
+}
+
+void AEcmaCharacter::AddActorInRange(UMeshComponent* TargetMesh)
 {
 	// if it has an editor component, it must be valid target
-	if (Actor->FindComponentByClass< UCodeEditorComponent >())
+	if (GetTargetsCodeEditorComp(TargetMesh))
 	{
-		ActorsInRange.Add(Actor);
+		// seems valid so add to targets in range.
+		ActorsInRange.Add(TargetMesh);
 	}
 }
 
-void AEcmaCharacter::RemoveActorInRange(AActor* Actor)
+void AEcmaCharacter::RemoveActorInRange(UMeshComponent* TargetMesh)
 {
-	if (!Actor)
+	if (!TargetMesh)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("RemoveActorsInRange Actor is null"));
+		UE_LOG(LogTemp, Warning, TEXT("RemoveActorsInRange TargetMesh is null"));
 		return;
 	}
-	ActorsInRange.Remove(Actor);
+	ActorsInRange.Remove(TargetMesh);
 
 	// if interactable that moved away is current target, set CurrentTarget to nullpointer
-	if (Actor == CurrentTarget)
+	if (TargetMesh == CurrentTarget)
 	{
 		CurrentTarget = nullptr;
 		
@@ -375,24 +396,26 @@ void AEcmaCharacter::HandleNoTarget()
 
 void AEcmaCharacter::ResetTarget()
 {
-	UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
-	EditorComp->SetCodeEditorVisibility(true);
-	return;
+	UCodeEditorSceneComponent* EditorComp = GetTargetsCodeEditorComp(CurrentTarget);
+	if (EditorComp)
+	{
+		EditorComp->SetCodeEditorVisibility(true);
+	}
 }
 
 void AEcmaCharacter::TargetNearest()
 {
 	// for when theres not target, find closest
-	AActor* Nearest = nullptr;
+	UMeshComponent* Nearest = nullptr;
 
 	float Distance = 0;
 	float ShortestDistance = 0;
 
 	// get an inital distance to compare to
-	ShortestDistance = GetDistanceTo(ActorsInRange[0]);
-	for (AActor* Element : ActorsInRange)
+	ShortestDistance = (GetActorLocation() - ActorsInRange[0]->GetComponentLocation()).Length(); //GetDistanceTo(ActorsInRange[0]->GetComponentLocation());
+	for (UMeshComponent* Element : ActorsInRange)
 	{
-		Distance = GetDistanceTo(Element);
+		Distance = (GetActorLocation() - Element->GetComponentLocation()).Length();
 		if (Distance <= ShortestDistance && Element != CurrentTarget)
 		{
 			//if a shorter distance is found set nearest reference
@@ -411,7 +434,7 @@ void AEcmaCharacter::TargetNearest()
 	if (CurrentTarget)
 	{
 		//set code editor visible
-		UCodeEditorComponent* EditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
+		UCodeEditorSceneComponent* EditorComp = GetTargetsCodeEditorComp(CurrentTarget);
 		if (!EditorComp)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Couldnt find editor component."));
@@ -433,7 +456,7 @@ void AEcmaCharacter::TargetNext()
 	// has a current target and there is more than one in range, should move to next
 	int32 CurrentIndex = 0;
 	int32 NextIndex = 0;
-	AActor* NextTarget;
+	UMeshComponent* NextTarget;
 
 	// if there is a current target, clear current and get next in array
 	CurrentIndex = ActorsInRange.IndexOfByKey(CurrentTarget);
@@ -452,13 +475,13 @@ void AEcmaCharacter::TargetNext()
 	NextTarget = ActorsInRange[NextIndex];
 
 	// if current target is still alive and has an editor
-	if (UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >())
+	if (UCodeEditorSceneComponent* CurrentTargetEditorComp = GetTargetsCodeEditorComp(CurrentTarget))
 	{
 		CurrentTargetEditorComp->SetCodeEditorVisibility(false);
 	}
 	
 	//set code editor widget in screen with keyboard focus for next target
-	UCodeEditorComponent* NextTargetEditorComp = NextTarget->FindComponentByClass< UCodeEditorComponent >();
+	UCodeEditorSceneComponent* NextTargetEditorComp = GetTargetsCodeEditorComp(NextTarget);
 	NextTargetEditorComp->SetCodeEditorVisibility(true);
 
 	CurrentTarget = NextTarget;
@@ -500,7 +523,7 @@ void AEcmaCharacter::DropTarget()
 {
 	if (CurrentTarget)
 	{
-		UCodeEditorComponent* CurrentTargetEditorComp = CurrentTarget->FindComponentByClass< UCodeEditorComponent >();
+		UCodeEditorSceneComponent* CurrentTargetEditorComp = GetTargetsCodeEditorComp(CurrentTarget);
 		CurrentTargetEditorComp->SetCodeEditorVisibility(false);
 
 		// close laptop
@@ -508,6 +531,11 @@ void AEcmaCharacter::DropTarget()
 
 		CurrentTarget = nullptr;
 	}
+}
+
+UMeshComponent* AEcmaCharacter::GetCurrentTarget()
+{
+	return CurrentTarget;
 }
 
 bool AEcmaCharacter::HasTarget()
@@ -528,7 +556,7 @@ void AEcmaCharacter::LockOnCameraRotate(float DeltaTime)
 	{
 		//clear misc camera target as enemies take priority
 		CameraTarget = NULL;
-		TargetThisTick = CurrentTarget;
+		TargetThisTick = CurrentTarget->GetOwner();
 	}
 
 	//set misc CameraTarget if no enemies targeted
@@ -577,7 +605,7 @@ void AEcmaCharacter::Interact()
 {
 	if (CurrentTarget != nullptr)
 	{
-		CurrentTarget->FindComponentByClass< UCodeEditorComponent >()->GetKeyboardFocus();
+		GetTargetsCodeEditorComp(CurrentTarget)->GetKeyboardFocus();
 	}
 }
 
@@ -629,7 +657,7 @@ void AEcmaCharacter::MoveToStandpoint()
 		return;
 	}
 
-	UActorComponent* Comps = CurrentTarget->GetComponentByClass(UArrowComponent::StaticClass());
+	UActorComponent* Comps = CurrentTarget->GetOwner()->GetComponentByClass(UArrowComponent::StaticClass());
 
 	if (!Comps)
 	{

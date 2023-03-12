@@ -14,6 +14,7 @@ class ALaptop;
 class UBoxComponent;
 class UAudioComponent;
 class UMeshComponent;
+class UCodeEditorSceneComponent;
 
 UCLASS()
 class ECMATRIALS_API AEcmaCharacter : public ACharacter
@@ -100,11 +101,13 @@ public:
 	virtual void Attacked();
 	virtual void StopAttack();
 
-	void AddActorInRange(AActor* Actor);
-	void RemoveActorInRange(AActor* Actor);
+	void AddActorInRange(UMeshComponent* MeshComp);
+	void RemoveActorInRange(UMeshComponent* MeshComp);
 
 	void ChangeTarget();
 	void DropTarget();
+	UMeshComponent* GetCurrentTarget();
+	UCodeEditorSceneComponent* GetTargetsCodeEditorComp(UMeshComponent* Target);
 
 	void SetCameraTarget(AActor* Actor);
 
@@ -167,7 +170,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float MaxHealth = 100;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	float Health;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -190,12 +193,12 @@ private:
 	UPROPERTY()
 	UPauseMenu* PauseMenu;
 
-	TArray<AActor*> ActorsInRange;
+	TArray<UMeshComponent*> ActorsInRange;
 
 	//index to use on interactables in range
 	int32 TargetIndex = 0;
 
-	AActor* CurrentTarget;
+	UMeshComponent* CurrentTarget;
 
 	AActor* CameraTarget;
 

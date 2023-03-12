@@ -31,17 +31,17 @@ public:
 	virtual void Attacked() override;
 	virtual void StopAttack() override;
 
-	virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult) override;
+	//virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+	//	AActor* OtherActor,
+	//	UPrimitiveComponent* OtherComp,
+	//	int32 OtherBodyIndex,
+	//	bool bFromSweep,
+	//	const FHitResult& SweepResult) override;
 
-	virtual void EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex) override;
+	//virtual void EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+	//	AActor* OtherActor,
+	//	UPrimitiveComponent* OtherComp,
+	//	int32 OtherBodyIndex) override;
 
 	UCodeEditorComponent* GetCodeEditor();
 
@@ -49,10 +49,11 @@ private:
 
 	virtual void SetupLaptop() override;
 
-	virtual void SetupAttackCollision() override;
+	//virtual void SetupAttackCollision() override;
 
 	USphereComponent* EditorCollisionPtr;
 
+	UPROPERTY()
 	UCodeEditorComponent* CodeEditorPtr;
 
 	AEcmaCharacter* Player;
@@ -62,10 +63,10 @@ private:
 
 	TArray<UMeshComponent*> Meshes;
 
-	//attack hit boxes
-	UPROPERTY(VisibleAnywhere)
-	UBoxComponent* LSwordCollision;
+	////attack hit boxes
+	//UPROPERTY(VisibleAnywhere)
+	//UBoxComponent* LSwordCollision;
 
-	UPROPERTY(VisibleAnywhere)
-	UBoxComponent* RSwordCollision;
+	//UPROPERTY(VisibleAnywhere)
+	//UBoxComponent* RSwordCollision;
 };

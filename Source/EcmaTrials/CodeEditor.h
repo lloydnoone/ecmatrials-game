@@ -12,6 +12,7 @@ class AHttpService;
 class UCodeEditorComponent;
 class URichTextBlock;
 class USoundCue;
+class UMeshComponent;
 
 struct FResponse_PostCode;
 
@@ -71,13 +72,13 @@ public:
 
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
-	void SetOwningActor(AActor* Actor);
+	void SetOwningComponent(UMeshComponent* OwningMesh);
 
 	void SetRequestUrl(FString Url);
 
-	AActor* GetOwningActor();
+	UMeshComponent* GetOwningComponent();
 
-	UCodeEditorComponent* GetActorsEditorComponent();
+	/*UCodeEditorComponent* GetActorsEditorComponent();*/
 
 	void ReceiveResponse(FResponse_PostCode Response);
 
@@ -97,7 +98,7 @@ private:
 
 	AHttpService* HttpService;
 
-	AActor* OwningActor;
+	UMeshComponent* OwningComponent;
 
 	// to hold previous input and check if syntax highlighting actually needs update rather than every frame
 	FString PreviousTextInput;

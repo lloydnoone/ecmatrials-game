@@ -11,6 +11,7 @@
 #include "HttpService.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "CodeEditorComponent.h"
+#include "CodeEditorSceneComponent.h"
 #include "EcmaEnemyCharacter.h"
 #include "Sound/SoundCue.h"
 
@@ -122,47 +123,47 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 //FText Text = FText::FromString(String);
 //SyntaxHighlight->SetText(Text);
 
-void UCodeEditor::SetOwningActor(AActor* Actor)
+void UCodeEditor::SetOwningComponent(UMeshComponent* OwningMesh)
 {
-	OwningActor = Actor;
+	OwningComponent = OwningMesh;
 }
 
-AActor* UCodeEditor::GetOwningActor()
+UMeshComponent* UCodeEditor::GetOwningComponent()
 {
-	return OwningActor;
+	return OwningComponent;
 }
 
-UCodeEditorComponent* UCodeEditor::GetActorsEditorComponent()
-{
-	AEcmaEnemyCharacter* Owner = Cast<AEcmaEnemyCharacter>(OwningActor);
-	if (!Owner)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to actor to Enemy"));
-		return NULL;
-	}
-	UActorComponent* Comp = Owner->FindComponentByClass(UCodeEditorComponent::StaticClass());
-	if (!Comp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt find editor component"));
-		return NULL;
-	}
-	UCodeEditorComponent* EditorComp = Cast<UCodeEditorComponent>(Comp);
-	if (!EditorComp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to editor comp"));
-		return NULL;
-	}
-	else
-	{
-		return EditorComp;
-	}
-}
+//UCodeEditorComponent* UCodeEditor::GetActorsEditorComponent()
+//{
+//	AEcmaEnemyCharacter* Owner = Cast<AEcmaEnemyCharacter>(OwningActor);
+//	if (!Owner)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to actor to Enemy"));
+//		return NULL;
+//	}
+//	UActorComponent* Comp = Owner->FindComponentByClass(UCodeEditorComponent::StaticClass());
+//	if (!Comp)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt find editor component"));
+//		return NULL;
+//	}
+//	UCodeEditorComponent* EditorComp = Cast<UCodeEditorComponent>(Comp);
+//	if (!EditorComp)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to editor comp"));
+//		return NULL;
+//	}
+//	else
+//	{
+//		return EditorComp;
+//	}
+//}
 
 int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
-	if (!OwningActor)
+	if (!OwningComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Code Editor has no owning interactable"));
+		UE_LOG(LogTemp, Warning, TEXT("Code Editor has no owning Component"));
 		return LayerId;
 	}
 
@@ -171,7 +172,7 @@ int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& Allotted
 
 	UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
 		GetWorld()->GetFirstPlayerController(),
-		OwningActor->GetActorLocation(),
+		OwningComponent->GetComponentLocation(),
 		InteractableLocation,
 		false
 	);
@@ -332,11 +333,27 @@ void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 		DisplayOutput(FomattedString, true);
 	}
 
-	//get this actors editor component and use it to handle results
-	UCodeEditorComponent* EditorComp = OwningActor->FindComponentByClass< UCodeEditorComponent >(); // ::StaticClass());
+	//get this owning components editor component and use it to handle results
+	UCodeEditorSceneComponent* EditorComp = nullptr;
+	TArray<USceneComponent*> ChildComps = OwningComponent->GetAttachChildren();
+	if (ChildComps.Num() != 0)
+	{
+		for (USceneComponent* AttachComp : ChildComps)
+		{
+			if (AttachComp)
+			{
+				if (AttachComp->IsA(UCodeEditorSceneComponent::StaticClass()))
+				{
+					EditorComp = Cast<UCodeEditorSceneComponent>(AttachComp);
+					break;
+				}
+			}
+		}
+	}
+
 	if (EditorComp == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("cant find actors editor component"));
+		UE_LOG(LogTemp, Warning, TEXT("cant find actors editor scene component"));
 		return;
 	}
 	EditorComp->SendResultToSubjectActor(Response.error.name.IsEmpty());

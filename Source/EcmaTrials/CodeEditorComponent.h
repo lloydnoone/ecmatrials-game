@@ -40,7 +40,7 @@ struct FPostProccessColor
 };
 
 USTRUCT(BlueprintType)
-struct FRequiredCodeTableRow : public FTableRowBase
+struct FRequiredCodeRow : public FTableRowBase
 {
 	GENERATED_BODY()
 

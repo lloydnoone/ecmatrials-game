@@ -67,7 +67,7 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 		// kill that enemy
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		APawn* PlayerPawn = PlayerController->GetPawn();
-		GetOwningActor()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
+		GetOwningComponent()->GetOwner()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
 	}
 	else
 	{

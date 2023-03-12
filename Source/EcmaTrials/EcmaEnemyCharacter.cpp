@@ -3,6 +3,7 @@
 
 #include "EcmaEnemyCharacter.h"
 #include "Components/SphereComponent.h"
+#include "CodeEditorSceneComponent.h"
 #include "CodeEditorComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -14,43 +15,13 @@
 AEcmaEnemyCharacter::AEcmaEnemyCharacter()
 {
 
-	SetupAttackCollision();
+	/*SetupAttackCollision();*/
 }
 
 // Called when the game starts or when spawned
 void AEcmaEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	//get EditorCollison
-	//UActorComponent* SphereComp = GetComponentByClass(USphereComponent::StaticClass());
-	//if (!SphereComp)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Couldnt find actor component on enemy"))
-	//}
-	//else
-	//{
-	//	EditorCollisionPtr = Cast<USphereComponent>(SphereComp);
-	//	if (!EditorCollisionPtr)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Cast to Sphere component failed."))
-	//	}
-	//}
-
-	//get CodeEditor
-	//UActorComponent* EditorComp = GetComponentByClass(UCodeEditorComponent::StaticClass());
-	//if (!EditorComp)
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("Couldnt find CodeEditorComponent"))
-	//}
-	//else
-	//{
-	//	CodeEditorPtr = Cast<UCodeEditorComponent>(EditorComp);
-	//	if (!CodeEditorPtr)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("Cast to CodeEditor failed."))
-	//	}
-	//}
 	
 	//get reference to the player
 	Player = Cast<AEcmaCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
@@ -64,13 +35,13 @@ void AEcmaEnemyCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Enemy has no flash"))
 	}
 
-	LSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
-	LSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
-	LSwordCollision->IgnoreActorWhenMoving(this, true);
+	//LSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
+	//LSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
+	//LSwordCollision->IgnoreActorWhenMoving(this, true);
 
-	RSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
-	RSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
-	RSwordCollision->IgnoreActorWhenMoving(this, true);
+	//RSwordCollision->OnComponentBeginOverlap.AddDynamic(this, &AEcmaEnemyCharacter::BeginAttackOverlap);
+	//RSwordCollision->OnComponentEndOverlap.AddDynamic(this, &AEcmaEnemyCharacter::EndAttackOverlap);
+	//RSwordCollision->IgnoreActorWhenMoving(this, true);
 }
 
 void AEcmaEnemyCharacter::SetupLaptop()
@@ -78,14 +49,14 @@ void AEcmaEnemyCharacter::SetupLaptop()
 	//do nothing
 }
 
-void AEcmaEnemyCharacter::SetupAttackCollision()
-{
-	LSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LSwordCollision"));
-	LSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_lSocket"));
-
-	RSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("RSwordCollision"));
-	RSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_rSocket"));
-}
+//void AEcmaEnemyCharacter::SetupAttackCollision()
+//{
+//	LSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LSwordCollision"));
+//	LSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_lSocket"));
+//
+//	RSwordCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("RSwordCollision"));
+//	RSwordCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("Weapon_rSocket"));
+//}
 
 UCodeEditorComponent* AEcmaEnemyCharacter::GetCodeEditor()
 {
@@ -102,21 +73,27 @@ float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 	if (IsDead())
 	{
 		//disable code editor component and in turn targeting this enemy
-		CodeEditorPtr->SetCodeEditorVisibility(false);
-		CodeEditorPtr->DestroyComponent();
+		/*CodeEditorPtr->SetCodeEditorVisibility(false);
+		CodeEditorPtr->DestroyComponent();*/
 
 		// remove from players actors in range
 		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 		APawn* PlayerPawn = PlayerController->GetPawn();
+
 		if (AEcmaCharacter* PlayerEcmaCharacter = Cast<AEcmaCharacter>(PlayerPawn))
 		{
-			PlayerEcmaCharacter->RemoveActorInRange(this);
+			//disable code editor component and in turn targeting this enemy
+			UCodeEditorSceneComponent* EditorComp = PlayerEcmaCharacter->GetTargetsCodeEditorComp(PlayerEcmaCharacter->GetCurrentTarget());
+			EditorComp->Highlight(false);
+			EditorComp->SetCodeEditorVisibility(false);
+			EditorComp->DestroyComponent();
+			PlayerEcmaCharacter->RemoveActorInRange(PlayerEcmaCharacter->GetCurrentTarget());
 
 			//automatically switch to next target
 			PlayerEcmaCharacter->ChangeTarget();
 		}
 
-		CodeEditorPtr->Highlight(false);
+		//CodeEditorPtr->Highlight(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 	
@@ -175,29 +152,29 @@ void AEcmaEnemyCharacter::Attacked()
 	}
 }
 
-void AEcmaEnemyCharacter::BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex,
-	bool bFromSweep,
-	const FHitResult& SweepResult)
-{
-	// if not attacking, falling or if its not the player do nothing
-	if ((!bIsAttacking && !GetCharacterMovement()->IsFalling()) || OtherActor != Player)
-	{
-		return;
-	}
-
-	Player->TakeDamage(100.f, FDamageEvent(), GetController(), this);
-}
-
-void AEcmaEnemyCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor,
-	UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex)
-{
-	// do nothing
-}
+//void AEcmaEnemyCharacter::BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+//	AActor* OtherActor,
+//	UPrimitiveComponent* OtherComp,
+//	int32 OtherBodyIndex,
+//	bool bFromSweep,
+//	const FHitResult& SweepResult)
+//{
+//	// if not attacking, falling or if its not the player do nothing
+//	if ((!bIsAttacking && !GetCharacterMovement()->IsFalling()) || OtherActor != Player)
+//	{
+//		return;
+//	}
+//
+//	Player->TakeDamage(100.f, FDamageEvent(), GetController(), this);
+//}
+//
+//void AEcmaEnemyCharacter::EndAttackOverlap(UPrimitiveComponent* OverlappedComponent,
+//	AActor* OtherActor,
+//	UPrimitiveComponent* OtherComp,
+//	int32 OtherBodyIndex)
+//{
+//	// do nothing
+//}
 
 // Called every frame
 void AEcmaEnemyCharacter::Tick(float DeltaTime)

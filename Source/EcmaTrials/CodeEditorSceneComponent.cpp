@@ -44,18 +44,18 @@ void UCodeEditorSceneComponent::BeginPlay()
 		{ 
 			UE_LOG(LogTemp, Warning, TEXT("code editor couldnt find ParentComponent")); 
 		}
-		UMeshComponent* Mesh = Cast<UMeshComponent>(Parent);
-		if (!Mesh) 
+		ParentMesh = Cast<UMeshComponent>(Parent);
+		if (!ParentMesh) 
 		{ 
 			UE_LOG(LogTemp, Warning, TEXT("code editor couldnt find SkeletalMeshComponent")); 
 		}
 		else
 		{
-			Meshes.Add(Mesh);
-			TArray<USceneComponent*> Children = Mesh->GetAttachChildren();
-			if (Children.Num() != 0)
+			Meshes.Add(ParentMesh);
+			TArray<USceneComponent*> ChildComps = ParentMesh->GetAttachChildren();
+			if (ChildComps.Num() != 0)
 			{
-				for (USceneComponent* AttachComp : Children)
+				for (USceneComponent* AttachComp : ChildComps)
 				{
 					if (AttachComp)
 					{
@@ -87,7 +87,7 @@ void UCodeEditorSceneComponent::BeginPlay()
 	}
 
 	// create widget
-	CodeEditor = NewObject<UCodeEditor>(GetOwner(), CodeEditorClass); // CreateWidget<UCodeEditor>(GetWorld()->GetGameInstance(), CodeEditorClass);
+	CodeEditor = CreateWidget<UCodeEditor>(GetWorld()->GetGameInstance(), CodeEditorClass);//NewObject<UCodeEditor>(GetOwner(), CodeEditorClass); // CreateWidget<UCodeEditor>(GetWorld()->GetGameInstance(), CodeEditorClass);
 
 	if (!CodeEditor)
 	{
@@ -98,8 +98,11 @@ void UCodeEditorSceneComponent::BeginPlay()
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UCodeEditorSceneComponent::BeginOverlap);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &UCodeEditorSceneComponent::EndOverlap);
 
-	CodeEditor->SetOwningActor(GetOwner());
+	CodeEditor->SetOwningComponent(ParentMesh);
 	CodeEditor->SetRequestUrl(RequestUrl);
+
+	// if there is a required code table set, use it now
+	UseRandomRowFromTable(RequiredCodeTable);
 }
 
 
@@ -163,7 +166,7 @@ void UCodeEditorSceneComponent::BeginOverlap(UPrimitiveComponent* OverlappedComp
 	// dont add something if it wasnt the player that overlapped
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
-	Player->AddActorInRange(GetOwner());
+	Player->AddActorInRange(ParentMesh);
 	Highlight(true);
 }
 
@@ -188,29 +191,45 @@ void UCodeEditorSceneComponent::EndOverlap(UPrimitiveComponent* OverlappedCompon
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
 	SetCodeEditorVisibility(false);
-	Player->RemoveActorInRange(GetOwner());
+	Player->RemoveActorInRange(ParentMesh);
 
 	Highlight(false);
 }
 
 void UCodeEditorSceneComponent::Highlight(bool bHighlight)
 {
-	if (bHighlight)
+	if (bOnlyAffectComponent)
 	{
-		// highlight with outline
-		for (UMeshComponent* MeshComp : Meshes)
+		if (bHighlight)
 		{
-			MeshComp->SetRenderCustomDepth(true);
-			MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
+			ParentMesh->SetRenderCustomDepth(true);
+			ParentMesh->SetCustomDepthStencilValue(PostProccessColor.Green);
+		}
+		else
+		{
+			ParentMesh->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
+			ParentMesh->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
 		}
 	}
 	else
 	{
-		// unhighlight with outline
-		for (UMeshComponent* MeshComp : Meshes)
+		if (bHighlight)
 		{
-			MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
-			MeshComp->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
+			// highlight with outline
+			for (UMeshComponent* MeshComp : Meshes)
+			{
+				MeshComp->SetRenderCustomDepth(true);
+				MeshComp->SetCustomDepthStencilValue(PostProccessColor.Green);
+			}
+		}
+		else
+		{
+			// unhighlight with outline
+			for (UMeshComponent* MeshComp : Meshes)
+			{
+				MeshComp->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
+				MeshComp->SetCustomDepthStencilValue(PostProccessColor.OrangeHighDef);
+			}
 		}
 	}
 }
@@ -261,11 +280,12 @@ void UCodeEditorSceneComponent::UseRandomRowFromTable(UDataTable* CodeTable)
 		FName name = RowNames[index];
 
 		//return code from that row
-		String = CodeTable->FindRow<FRequiredCodeRow>(name, "required code string from table")->RequiredCode;
+		String = CodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Code table is null trying to get random row"));
+		return;
 	}
 
 	//check it is spped type kind, set string if so
@@ -273,6 +293,7 @@ void UCodeEditorSceneComponent::UseRandomRowFromTable(UDataTable* CodeTable)
 	if (!SpeedTypeEditor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SpeedTypeEditor is nullptr after cast"));
+		return;
 	}
 	else
 	{
@@ -294,5 +315,8 @@ void UCodeEditorSceneComponent::SetPreCodeText()
 
 void UCodeEditorSceneComponent::SetInfoText()
 {
-	CodeEditor->InfoText->SetText(InfoText);
+	if (!InfoText.IsEmpty())
+	{
+		CodeEditor->InfoText->SetText(InfoText);
+	}
 }

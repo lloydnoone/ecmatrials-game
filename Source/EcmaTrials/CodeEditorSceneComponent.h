@@ -40,7 +40,7 @@ struct FPostProccessColors
 };
 
 USTRUCT(BlueprintType)
-struct FRequiredCodeRow : public FTableRowBase
+struct FRequiredCodeTableRow : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -109,7 +109,7 @@ private:
 	TSubclassOf<UCodeEditor> CodeEditorClass;
 
 	UPROPERTY(EditAnywhere)
-	class UDataTable* RequiredCodeTable;
+	UDataTable* RequiredCodeTable;
 
 	UPROPERTY(EditAnywhere)
 	FString RequestUrl = "";
@@ -130,6 +130,8 @@ private:
 	UCodeEditor* CodeEditor;
 
 	TArray<UMeshComponent*> Meshes;
+
+	UMeshComponent* ParentMesh;
 
 	// option to reverse logic, should be used in child classes if needed. e.g forcefields
 	UPROPERTY(EditAnywhere)

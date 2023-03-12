@@ -60,7 +60,7 @@ void UCodeEditorComponent::BeginPlay()
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UCodeEditorComponent::BeginOverlap);
 	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &UCodeEditorComponent::EndOverlap);
 
-	CodeEditor->SetOwningActor(GetOwner());
+	//CodeEditor->SetOwningActor(GetOwner());
 	CodeEditor->SetRequestUrl(RequestUrl);
 }
 
@@ -125,7 +125,7 @@ void UCodeEditorComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent
 	// dont add something if it wasnt the player that overlapped
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
-	Player->AddActorInRange(GetOwner());
+	//Player->AddActorInRange(GetOwner());
 
 	Highlight(true);
 }
@@ -151,7 +151,7 @@ void UCodeEditorComponent::EndOverlap(UPrimitiveComponent* OverlappedComponent,
 	if (!(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) == Player)) return;
 
 	SetCodeEditorVisibility(false);
-	Player->RemoveActorInRange(GetOwner());
+	//Player->RemoveActorInRange(GetOwner());
 
 	Highlight(false);
 }
@@ -224,7 +224,7 @@ void UCodeEditorComponent::UseRandomRowFromTable(UDataTable* CodeTable)
 		FName name = RowNames[index];
 
 		//return code from that row
-		String = CodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
+		String = CodeTable->FindRow<FRequiredCodeRow>(name, "required code string from table")->RequiredCode;
 	}
 	else
 	{

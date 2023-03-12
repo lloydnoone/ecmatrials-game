@@ -64,17 +64,6 @@ void ASpawnPoint::SpawnEnemy(UDataTable* CodeTable, int32 Amount, float Delay)
 					return;
 				}
 
-				//// get rows from data table
-				//TArray< FName > RowNames = CodeTable->GetRowNames();
-
-				//// get a random row
-				//int32 index = FMath::RandRange(0, RowNames.Num() - 1);
-				//FName name = RowNames[index];
-
-				////get code from that row
-				//FString Code = CodeTable->FindRow<FRequiredCodeTableRow>(name, "required code string from table")->RequiredCode;
-				//Enemy->SetCodeForSpeedType(Code);
-
 				Enemy->GetCodeEditor()->UseRandomRowFromTable(CodeTable);
 
 				//listen to destroyed event on each managed enemy
