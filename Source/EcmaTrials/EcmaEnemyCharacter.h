@@ -30,6 +30,17 @@ public:
 	virtual void Attack() override;
 	virtual void Attacked() override;
 	virtual void StopAttack() override;
+	virtual void Stagger() override;
+	virtual void StopStagger() override;
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	UAnimSequence* GetLeftAttackAnim() const;
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	UAnimSequence* GetRightAttackAnim() const;
+
+	UFUNCTION(BlueprintCallable, Category = Animation)
+	UAnimSequence* GetStaggerAnim() const;
 
 	//virtual void BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,
 	//	AActor* OtherActor,
@@ -62,6 +73,15 @@ private:
 	UParticleSystem* Flash;
 
 	TArray<UMeshComponent*> Meshes;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimSequence* LeftAttackAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimSequence* RightAttackAnim;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimSequence* StaggerAnim;
 
 	////attack hit boxes
 	//UPROPERTY(VisibleAnywhere)

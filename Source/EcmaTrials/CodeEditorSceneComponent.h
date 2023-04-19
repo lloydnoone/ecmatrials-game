@@ -15,6 +15,8 @@ class AInteractableSubject;
 class UDataTable;
 class UStringTable;
 class UTextBlock;
+class UNiagaraComponent;
+class URadialForceComponent;
 
 USTRUCT(BlueprintType)
 struct FPostProccessColors
@@ -102,6 +104,9 @@ private:
 
 	void SetInfoText();
 
+	template<class T>
+	T* GetChildComponentByClass();
+
 	USphereComponent* CollisionSphere;
 
 	//restrict class selection in blueprint
@@ -139,4 +144,34 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	bool bOnlyAffectComponent = false;
+
+	UPROPERTY(VisibleAnywhere)
+	UNiagaraComponent* EffectComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	URadialForceComponent* RadialForceComponent;
 };
+
+template<class T>
+T* UCodeEditorSceneComponent::GetChildComponentByClass()
+{
+
+	TArray<USceneComponent*> ChildComps = GetAttachChildren();
+
+	if (ChildComps.Num() != 0)
+	{
+		for (USceneComponent* AttachComp : ChildComps)
+		{
+			if (AttachComp)
+			{
+				if (AttachComp->IsA(T::StaticClass()))
+				{
+					return Cast<T>(AttachComp);
+					break;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}

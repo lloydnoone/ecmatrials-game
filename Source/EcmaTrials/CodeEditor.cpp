@@ -112,52 +112,15 @@ FReply UCodeEditor::NativeOnPreviewKeyDown(const FGeometry& InGeometry, const FK
 	return  FReply::Unhandled();
 }
 
-//FReply UCodeEditor::NativeOnKeyChar(const FGeometry& InGeometry, const FCharacterEvent& InCharEvent)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("from text input: %s"), InCharEvent.GetCharacter());
-//
-//	return  FReply::Unhandled();
-//}
-//
-//FString String = TextInput->GetText().ToString() + InCharEvent.GetCharacter();
-//FText Text = FText::FromString(String);
-//SyntaxHighlight->SetText(Text);
-
-void UCodeEditor::SetOwningComponent(UMeshComponent* OwningMesh)
+void UCodeEditor::SetOwningComponent(USceneComponent* OwningComp)
 {
-	OwningComponent = OwningMesh;
+	OwningComponent = OwningComp;
 }
 
-UMeshComponent* UCodeEditor::GetOwningComponent()
+USceneComponent* UCodeEditor::GetOwningComponent()
 {
 	return OwningComponent;
 }
-
-//UCodeEditorComponent* UCodeEditor::GetActorsEditorComponent()
-//{
-//	AEcmaEnemyCharacter* Owner = Cast<AEcmaEnemyCharacter>(OwningActor);
-//	if (!Owner)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to actor to Enemy"));
-//		return NULL;
-//	}
-//	UActorComponent* Comp = Owner->FindComponentByClass(UCodeEditorComponent::StaticClass());
-//	if (!Comp)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt find editor component"));
-//		return NULL;
-//	}
-//	UCodeEditorComponent* EditorComp = Cast<UCodeEditorComponent>(Comp);
-//	if (!EditorComp)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("Widget couldnt cast to editor comp"));
-//		return NULL;
-//	}
-//	else
-//	{
-//		return EditorComp;
-//	}
-//}
 
 int32 UCodeEditor::NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
@@ -252,65 +215,6 @@ void UCodeEditor::HighlightSyntax(FString RawInput) const
 	SyntaxHighlight->SetText(Text);
 }
 
-//FString UCodeEditor::RegexReplace(FString Regex, FString String, FString ReplaceString) const
-//{
-//
-//	// group pattern
-//	const FRegexPattern GroupPattern(Regex);
-//	FRegexMatcher GroupMatcher(GroupPattern, String);
-//
-//	
-//	TMap<FString, int32> CaptureMap;
-//	int32 Counter = 0;
-//	int32 CurrentIdx = 0;
-//
-//	//store capture groups in map with current idx
-//	while (GroupMatcher.FindNext())
-//	{
-//		bool bGroupsCollected = false;
-//		while (!bGroupsCollected)
-//		{
-//			FString Capture = GroupMatcher.GetCaptureGroup(Counter);
-//			if (Capture.Len() == 0)
-//			{
-//				// if this capture is empty, stop collecting
-//				bGroupsCollected = true;
-//				break;
-//			}
-//
-//			//get index of capture in string
-//			int32 CaptureIdx = String.Find(Capture, ESearchCase::CaseSensitive, ESearchDir::FromStart, CurrentIdx);
-//
-//			// update current index to only search remaining chars
-//			CurrentIdx = CurrentIdx + Capture.Len();
-//
-//			// add the variable and its starting index in the string to the map
-//			CaptureMap.Add(Capture, CaptureIdx);
-//			UE_LOG(LogTemp, Warning, TEXT("variable 0: %s"), *GroupMatcher.GetCaptureGroup(Counter));
-//
-//			Counter++;
-//		}
-//	}
-//
-//	TMultiMap<int32, AActor*> exampleIntegerToActorMap;
-//	for (const TPair<FString, int32>& pair : CaptureMap)
-//	{
-//		UE_LOG(LogTemp, Warning, TEXT("key: %s"), *pair.Key);
-//		UE_LOG(LogTemp, Warning, TEXT("Value: %i"), pair.Value);
-//	}
-//
-//	// store variables in map with current idx
-//	TMultiMap<int32, FString> VariableMap;
-//	//reset counter and idx
-//	Counter = 0;
-//	CurrentIdx = 0;
-//
-//
-//
-//
-//	return "test";
-//}
-
 void UCodeEditor::ReceiveResponse(FResponse_PostCode Response)
 {
 	// display response output to player
@@ -390,72 +294,4 @@ void UCodeEditor::RemoveEditorFromScreen()
 	PreviousCode = TextInput->GetText();
 	RemoveFromViewport();
 }
-
-//code below was an attempt to fire off onsubmittext, might be usefull
-
-//FEventReply UAccessPanelInterface::OnPreviewKeyDown(FGeometry MyGeometry, FKeyEvent InKeyEvent)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("InKeyEvent is: %s"), *InKeyEvent.GetKey().ToString());
-//	FEventReply Reply;
-//	Reply.NativeReply = FReply::Handled();
-//	return Reply;
-//}
-
-//UAccessPanelInterface::UAccessPanelInterface(const FObjectInitializer& ObjectInitializer)
-//	: Super(ObjectInitializer)
-//{
-//}
-//
-//void UAccessPanelInterface::AddDelegates()
-//{
-//	EditableText_IN->OnTextCommitted.AddDynamic(this, &UAccessPanelInterface::DelegateCommitInputText);
-//
-//	// Crude way to see if we past this way
-//	testNumber = 20000;
-//}
-//
-//void UAccessPanelInterface::DelegateCommitInputText(const FText& InText, ETextCommit::Type InCommitType)
-//{
-//	if (InCommitType == ETextCommit::OnEnter)
-//	{
-//		// Crude way to see if we also past this way
-//		testNumber >>= 1;
-//
-//		ft_TheStorySofar = FText::FromString(FString::Printf(TEXT("%s%s %s"), *(ft_TheStorySofar.ToString()), *(FString::FromInt(testNumber)), *(InText.ToString())));
-//			FText tempText = FText::FromString(FString::Printf(TEXT("Via DELEGATE%s"), *(ft_TheStorySofar.ToString())));
-//				MultiLineEditableText_OUT->SetText(tempText);
-//	}
-//}
-//
-//void UAccessPanelInterface::BlueprintCommitInputText(const FText& InText)
-//{
-//	++testNumber; // <-- TEMP for test
-//
-//	ft_TheStorySofar = FText::FromString(FString::Printf(TEXT("%s%s %s"), *(ft_TheStorySofar.ToString()), *(FString::FromInt(testNumber)), *(InText.ToString())));
-//		FText tempText = FText::FromString(FString::Printf(TEXT("Via BLUEPRINT% s"), *(ft_TheStorySofar.ToString())));
-//			MultiLineEditableText_OUT->SetText(tempText);
-//}
-//
-//void UAccessPanelInterface::NativeConstruct()
-//{
-//	// Do some custom setup
-//
-//	// Call the Blueprint "Event Construct" node
-//	Super::NativeConstruct();
-//}
-//
-//void UAccessPanelInterface::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-//{
-//	// Make sure to call the base class's NativeTick function
-//	Super::NativeTick(MyGeometry, InDeltaTime);
-//
-//	// Do your custom tick stuff here
-//	if (haveAddedEditableText_IN_Delegate == false) // TEMP bad way to add the delegate
-//	{
-//		EditableText_IN->SetText(FText::FromString("Type stuff here"));
-//		testNumber = 10000; // Test
-//		AddDelegates();
-//		haveAddedEditableText_IN_Delegate = true;
-//	}
-//}
 

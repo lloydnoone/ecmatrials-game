@@ -4,7 +4,7 @@
 #include "CodeEditorSpeedType.h"
 #include "Components/MultiLineEditableText.h"
 #include "EcmaEnemyCharacter.h"
-#include "CodeEditorComponent.h"
+#include "CodeEditorSceneComponent.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
@@ -64,10 +64,22 @@ void UCodeEditorSpeedType::DelegateCommitInputText(const FText& InText, ETextCom
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), CorrectSound);
 
-		// kill that enemy
-		APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-		APawn* PlayerPawn = PlayerController->GetPawn();
-		GetOwningComponent()->GetOwner()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
+		
+		UCodeEditorSceneComponent* CodeEditorComp = Cast<UCodeEditorSceneComponent>(GetOwningComponent());
+		
+		if (CodeEditorComp)
+		{
+			// damage that enemy
+			APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+			APawn* PlayerPawn = PlayerController->GetPawn();
+			CodeEditorComp->GetOwner()->TakeDamage(100.f, FDamageEvent(), PlayerController, PlayerPawn);
+
+			CodeEditorComp->SendResultToSubjectActor(true);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Couldnt cast to codeeditorscenecomp in speedtype"));
+		}
 	}
 	else
 	{

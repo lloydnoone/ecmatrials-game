@@ -96,8 +96,27 @@ float AEcmaEnemyCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Da
 		//CodeEditorPtr->Highlight(false);
 		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+	else // was attacked but still alive
+	{
+		Stagger();
+	}
 	
 	return DamageToApply;
+}
+
+UAnimSequence* AEcmaEnemyCharacter::GetLeftAttackAnim() const
+{
+	return LeftAttackAnim;
+}
+
+UAnimSequence* AEcmaEnemyCharacter::GetRightAttackAnim() const
+{
+	return RightAttackAnim;
+}
+
+UAnimSequence* AEcmaEnemyCharacter::GetStaggerAnim() const
+{
+	return StaggerAnim;
 }
 
 void AEcmaEnemyCharacter::Attack()
@@ -113,11 +132,14 @@ void AEcmaEnemyCharacter::Attack()
 		//reset - these are used in attackTrace
 		ElapsedAttackTime = 0.0f;
 
-		//play attack animation
-		bIsAttacking = true;
-
-		// random choice of kick/punch
+		// random choice of kick/punch, set this now before letting anim BP know
 		bLeftAttack = FMath::RandRange(0, 1) == 1 ? true : false;
+
+		//set correct attack anim length
+		AttackAnimLength = bLeftAttack ? GetLeftAttackAnim()->GetPlayLength() : GetRightAttackAnim()->GetPlayLength();
+
+		//play attack animation in BP
+		bIsAttacking = true;
 
 		// run attack trace every 0.1f until anim has finished
 		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEcmaCharacter::StopAttack, AttackAnimLength, false);
@@ -150,6 +172,25 @@ void AEcmaEnemyCharacter::Attacked()
 		// spawn flash there
 		UGameplayStatics::SpawnEmitterAttached(Flash, MeshComp, SocketNames[RandNum]);
 	}
+}
+
+void AEcmaEnemyCharacter::Stagger()
+{
+	Super::Stagger();
+
+	//play staggering animation
+	bIsAttacking = false;
+	bIsStaggered = true;
+
+	// set staggered back to false after anim length
+	GetWorldTimerManager().SetTimer(StaggerTimer, this, &AEcmaCharacter::StopStagger, GetStaggerAnim()->GetPlayLength(), false);
+}
+
+void AEcmaEnemyCharacter::StopStagger()
+{
+	// go back to movement in anim BP
+	bIsStaggered = false;
+	GetWorldTimerManager().ClearTimer(StaggerTimer);
 }
 
 //void AEcmaEnemyCharacter::BeginAttackOverlap(UPrimitiveComponent* OverlappedComponent,

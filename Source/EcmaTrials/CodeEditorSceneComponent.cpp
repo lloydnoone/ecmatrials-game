@@ -17,6 +17,8 @@
 #include "Internationalization/StringTable.h"
 #include "Internationalization/StringTableRegistry.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Niagara/Public/NiagaraComponent.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
 // Sets default values for this component's properties
 UCodeEditorSceneComponent::UCodeEditorSceneComponent()
@@ -52,27 +54,6 @@ void UCodeEditorSceneComponent::BeginPlay()
 		else
 		{
 			Meshes.Add(ParentMesh);
-			TArray<USceneComponent*> ChildComps = ParentMesh->GetAttachChildren();
-			if (ChildComps.Num() != 0)
-			{
-				for (USceneComponent* AttachComp : ChildComps)
-				{
-					if (AttachComp)
-					{
-						if (AttachComp->IsA(USphereComponent::StaticClass()))
-						{
-							CollisionSphere = Cast<USphereComponent>(AttachComp);
-							break;
-						}
-					}
-				}
-			}
-
-			if (!CollisionSphere)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("CollisionSphere is nullptr"));
-				return;
-			}
 		}
 	}
 	else // affect whole actor
@@ -81,9 +62,6 @@ void UCodeEditorSceneComponent::BeginPlay()
 		TInlineComponentArray<UMeshComponent*> OutComponents;
 		GetOwner()->GetComponents(OutComponents);
 		Meshes = OutComponents;
-
-		// get owners collision sphere
-		CollisionSphere = GetOwner()->FindComponentByClass<USphereComponent>();
 	}
 
 	// create widget
@@ -94,12 +72,42 @@ void UCodeEditorSceneComponent::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("CodeEditor is nullptr"));
 		return;
 	}
+	else
+	{
+		CodeEditor->SetOwningComponent(this);
+		CodeEditor->SetRequestUrl(RequestUrl);
+	}
 
-	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UCodeEditorSceneComponent::BeginOverlap);
-	CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &UCodeEditorSceneComponent::EndOverlap);
+	// get collision sphere
+	CollisionSphere = GetChildComponentByClass<USphereComponent>();
+	if (CollisionSphere)
+	{
+		CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &UCodeEditorSceneComponent::BeginOverlap);
+		CollisionSphere->OnComponentEndOverlap.AddDynamic(this, &UCodeEditorSceneComponent::EndOverlap);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CodeEditorComp couldnt get collision sphere"));
+	}
 
-	CodeEditor->SetOwningComponent(ParentMesh);
-	CodeEditor->SetRequestUrl(RequestUrl);
+	// get effect component
+	EffectComponent = GetChildComponentByClass<UNiagaraComponent>();
+	if (!EffectComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CodeEditorComp couldnt get effect comp"));
+	}
+	else
+	{
+		//set this here as well for some fucking reason
+		EffectComponent->SetWorldScale3D(FVector(100.0f));
+	}
+
+	// get radial force component
+	RadialForceComponent = GetChildComponentByClass<URadialForceComponent>();
+	if (!RadialForceComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CodeEditorComp couldnt get radial force comp"));
+	}
 
 	// if there is a required code table set, use it now
 	UseRandomRowFromTable(RequiredCodeTable);
@@ -236,6 +244,29 @@ void UCodeEditorSceneComponent::Highlight(bool bHighlight)
 
 void UCodeEditorSceneComponent::SendResultToSubjectActor(bool Result)
 {
+	// if only affecting component
+	if (bOnlyAffectComponent && Result == true)
+	{
+		// destroy collision sphere
+		CollisionSphere->DestroyComponent();
+
+		// reset highlighting after stopping collsion from changing it
+		ParentMesh->SetRenderCustomDepth(bAlwaysRenderCustomDepth);
+		ParentMesh->SetCustomDepthStencilValue(PostProccessColor.Orange);
+
+		// activate blast effect
+		if (EffectComponent && RadialForceComponent)
+		{
+			EffectComponent->Activate();
+	
+			// apple impulse
+			RadialForceComponent->FireImpulse();
+		}
+		
+		// destroy this component
+		DestroyComponent();
+	}
+
 	// if the code editor is speedtype it will deal with the owner
 	if (CodeEditorClass == UCodeEditorSpeedType::StaticClass()) { return; }
 

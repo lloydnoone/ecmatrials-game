@@ -34,12 +34,15 @@ protected:
 	bool bLeftAttack = false;
 	bool bIsDowned = false;
 	bool bIsTyping = false;
+	bool bIsStaggered = false;
 
 	FTimerHandle AttackTimer;
+	FTimerHandle StaggerTimer;
 	FTimerHandle DeathTimer;
 
 	float AttackAnimLength = 1.8f;
 	float ElapsedAttackTime = 0.0f;
+	float StaggerAnimLength = 1.8f;
 
 	UPROPERTY()
 	UCharacterMovementComponent* CharMovementComp;
@@ -80,12 +83,18 @@ public:
 	float GetHealthPercent() const;
 
 	UFUNCTION(BlueprintPure)
+	float GetHealth() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const;
+
+	UFUNCTION(BlueprintPure)
 	bool HasTarget();
 
-	UFUNCTION(BlueprintCallable)
-	bool SetAttackAnimLength(float Length);
-
 	float GetAttackAnimLength();
+
+	UFUNCTION(BlueprintPure)
+	bool IsStaggered() const;
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -100,6 +109,8 @@ public:
 	virtual void Attack();
 	virtual void Attacked();
 	virtual void StopAttack();
+	virtual void Stagger();
+	virtual void StopStagger();
 
 	void AddActorInRange(UMeshComponent* MeshComp);
 	void RemoveActorInRange(UMeshComponent* MeshComp);

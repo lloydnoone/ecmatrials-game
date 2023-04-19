@@ -175,13 +175,6 @@ bool AEcmaCharacter::IsTyping() const
 	return bIsTyping;
 }
 
-bool AEcmaCharacter::SetAttackAnimLength(float Length)
-{
-	AttackAnimLength = Length;
-
-	return true;
-}
-
 float AEcmaCharacter::GetAttackAnimLength()
 {
 	return AttackAnimLength;
@@ -190,6 +183,21 @@ float AEcmaCharacter::GetAttackAnimLength()
 float AEcmaCharacter::GetHealthPercent() const
 {
 	return Health / MaxHealth;
+}
+
+float AEcmaCharacter::GetHealth() const
+{
+	return Health;
+}
+
+float AEcmaCharacter::GetMaxHealth() const
+{
+	return MaxHealth;
+}
+
+bool AEcmaCharacter::IsStaggered() const
+{
+	return bIsStaggered;
 }
 
 // Called every frame
@@ -335,6 +343,16 @@ void AEcmaCharacter::Attack()
 }
 
 void AEcmaCharacter::StopAttack()
+{
+	//do nothing
+}
+
+void AEcmaCharacter::Stagger()
+{
+	//do nothing
+}
+
+void AEcmaCharacter::StopStagger()
 {
 	//do nothing
 }

@@ -72,11 +72,11 @@ public:
 
 	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
-	void SetOwningComponent(UMeshComponent* OwningMesh);
+	void SetOwningComponent(USceneComponent* OwningComp);
 
 	void SetRequestUrl(FString Url);
 
-	UMeshComponent* GetOwningComponent();
+	USceneComponent* GetOwningComponent();
 
 	/*UCodeEditorComponent* GetActorsEditorComponent();*/
 
@@ -98,7 +98,7 @@ private:
 
 	AHttpService* HttpService;
 
-	UMeshComponent* OwningComponent;
+	USceneComponent* OwningComponent;
 
 	// to hold previous input and check if syntax highlighting actually needs update rather than every frame
 	FString PreviousTextInput;
